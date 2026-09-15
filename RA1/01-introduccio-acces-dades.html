@@ -1,0 +1,1263 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Introducció a l'accés a dades – DAM · RA1</title>
+  <style>
+    /* ── Reset & Base ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:          #0f1117;
+      --surface:     #1a1d27;
+      --surface2:    #222636;
+      --border:      #2e3248;
+      --accent:      #7c6af7;
+      --accent2:     #4fc3f7;
+      --accent3:     #43e97b;
+      --accent4:     #f8a94f;
+      --accent5:     #f06292;
+      --text:        #e2e6f0;
+      --muted:       #8891aa;
+      --code-bg:     #12151f;
+      --tag-dto:     #3a2f70;
+      --tag-mapper:  #1a3a2f;
+      --tag-service: #3a2810;
+      --tag-ctrl:    #2c1a3a;
+      --font-mono:   'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+      --font-sans:   'Inter', 'Segoe UI', system-ui, sans-serif;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--font-sans);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      font-size: 15px;
+    }
+
+    /* ── Layout ── */
+    .page-wrap { display: flex; min-height: 100vh; }
+
+    nav.sidebar {
+      width: 260px;
+      flex-shrink: 0;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* capçalera: fixa, no fa scroll amb la resta del menú */
+    nav.sidebar .logo {
+      flex-shrink: 0;
+      padding: 22px 20px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    nav.sidebar .logo .eyebrow {
+      display: block;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--muted);
+    }
+
+    nav.sidebar .logo h2 {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--accent);
+      line-height: 1.3;
+      margin: 0;
+    }
+
+    nav.sidebar .logo .topic {
+      display: block;
+      font-size: 11px;
+      color: var(--accent2);
+      margin-top: 4px;
+    }
+
+    /* bloc d'enllaços: és l'únic que fa scroll intern */
+    nav.sidebar .sidebar-links {
+      flex: 1 1 auto;
+      overflow-y: auto;
+      padding: 14px 0 24px;
+    }
+
+    nav.sidebar ul { list-style: none; }
+
+    nav.sidebar ul li a {
+      display: block;
+      padding: 7px 20px;
+      text-decoration: none;
+      color: var(--muted);
+      font-size: 13px;
+      transition: all .15s;
+      border-left: 3px solid transparent;
+    }
+
+    nav.sidebar ul li a:hover,
+    nav.sidebar ul li a.active {
+      color: var(--text);
+      background: var(--surface2);
+      border-left-color: var(--accent);
+    }
+
+    nav.sidebar ul .section-label {
+      padding: 14px 20px 4px;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    main {
+      flex: 1;
+      max-width: 940px;
+      padding: 48px 56px;
+      overflow-x: hidden;
+    }
+
+    /* ── Typography ── */
+    h1 {
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 12px;
+      line-height: 1.2;
+    }
+
+    h2 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text);
+      margin: 52px 0 16px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    h3 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--accent2);
+      margin: 32px 0 10px;
+    }
+
+    h4 {
+      font-size: .95rem;
+      font-weight: 600;
+      color: var(--accent4);
+      margin: 22px 0 8px;
+    }
+
+    p { margin-bottom: 14px; color: var(--text); }
+    p + ul, p + ol { margin-top: -6px; }
+
+    ul, ol { padding-left: 20px; margin-bottom: 14px; }
+    li { margin-bottom: 6px; }
+
+    strong { color: var(--text); font-weight: 600; }
+    em { color: var(--accent4); font-style: italic; }
+
+    code {
+      font-family: var(--font-mono);
+      font-size: .82em;
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 1px 6px;
+      color: var(--accent3);
+    }
+
+    /* ── Hero ── */
+    .hero {
+      background: linear-gradient(135deg, #1a1d27 0%, #1e1633 100%);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 36px 40px;
+      margin-bottom: 32px;
+    }
+
+    .hero .subtitle {
+      color: var(--muted);
+      font-size: 1rem;
+      margin-top: 8px;
+      margin-bottom: 0;
+    }
+
+    .hero .tags { margin-top: 18px; display: flex; gap: 10px; flex-wrap: wrap; }
+
+    .tag {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      padding: 4px 12px;
+      border-radius: 20px;
+      border: 1px solid;
+    }
+
+    .tag-dto    { background: var(--tag-dto);     border-color: var(--accent);  color: var(--accent); }
+    .tag-mapper { background: var(--tag-mapper);  border-color: var(--accent3); color: var(--accent3); }
+    .tag-svc    { background: var(--tag-service); border-color: var(--accent4); color: var(--accent4); }
+    .tag-ctrl   { background: var(--tag-ctrl);    border-color: var(--accent5); color: var(--accent5); }
+    .tag-spring { background: #1a2233; border-color: var(--accent2); color: var(--accent2); }
+
+    /* ── Info boxes ── */
+    .box {
+      border-radius: 10px;
+      padding: 18px 22px;
+      margin: 20px 0;
+      border-left: 4px solid;
+    }
+
+    .box-info    { background: #151c30; border-color: var(--accent2); }
+    .box-tip     { background: #111f1a; border-color: var(--accent3); }
+    .box-warn    { background: #1f1a11; border-color: var(--accent4); }
+    .box-concept { background: #17142a; border-color: var(--accent); }
+    .box-criteri { background: #2a1030; border-color: var(--accent5); }
+
+    .box .box-title {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      margin-bottom: 8px;
+    }
+
+    .box-info    .box-title { color: var(--accent2); }
+    .box-tip     .box-title { color: var(--accent3); }
+    .box-warn    .box-title { color: var(--accent4); }
+    .box-concept .box-title { color: var(--accent); }
+    .box-criteri .box-title { color: var(--accent5); }
+
+    .box p:last-child { margin-bottom: 0; }
+    .box ul:last-child { margin-bottom: 0; }
+
+    /* llista de criteris d'avaluació — pensada per acollir-ne un o més */
+    .criteria-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .criteria-list li {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      margin-bottom: 0;
+    }
+
+    .criteria-code {
+      flex-shrink: 0;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 700;
+      background: var(--tag-ctrl);
+      border: 1px solid var(--accent5);
+      color: var(--accent5);
+      padding: 2px 9px;
+      border-radius: 20px;
+    }
+
+    .criteria-text { color: var(--text); }
+
+    /* ── Code blocks ── */
+    .code-wrap {
+      margin: 18px 0 24px;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+
+    .code-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--surface2);
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .code-header .filename {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .code-header .lang-badge {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+
+    .lang-java    { background: #2a1e0e; color: var(--accent4); border: 1px solid #6a3e0e; }
+    .lang-dto     { background: #1e1040; color: var(--accent);  border: 1px solid #4a30a0; }
+    .lang-mapper  { background: #0e2018; color: var(--accent3); border: 1px solid #1e6040; }
+    .lang-service { background: #201808; color: #f0c040;        border: 1px solid #604020; }
+    .lang-ctrl    { background: #1a0820; color: var(--accent5); border: 1px solid #602080; }
+
+    pre {
+      background: var(--code-bg);
+      padding: 20px 22px;
+      overflow-x: auto;
+      margin: 0;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      line-height: 1.65;
+      color: #c8d0e8;
+    }
+
+    /* Syntax highlight via spans */
+    .kw  { color: #c084fc; }   /* keyword */
+    .cl  { color: #93c5fd; }   /* class name */
+    .fn  { color: #67e8f9; }   /* function/method */
+    .str { color: #86efac; }   /* string */
+    .ann { color: #fb923c; }   /* annotation */
+    .cm  { color: #6b7280; font-style: italic; } /* comment */
+    .hl  { background: #2a2d3e; display: block; margin: 0 -22px; padding: 0 22px; } /* highlight line */
+
+    /* ── Diagrams (Mermaid) ── */
+    .mermaid-frame {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 28px 20px;
+      margin: 20px 0;
+      overflow-x: auto;
+      display: flex;
+      justify-content: center;
+    }
+
+    .mermaid-frame .mermaid {
+      display: block;
+      width: 100%;
+    }
+
+    .mermaid-frame svg {
+      width: 100%;
+      height: auto;
+      min-width: 640px;
+    }
+
+    /* diagrames més senzills (8.1, 9.1, connexió directa) que no cal
+       estirar a tota l'amplada del contenidor */
+    .mermaid-frame--compact .mermaid {
+      width: auto;
+    }
+
+    .mermaid-frame--compact svg {
+      width: auto;
+      max-width: 460px;
+      min-width: 0;
+    }
+
+    /* ── Comparació taula ── */
+    .compare-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin: 20px 0;
+    }
+
+    .compare-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .compare-card .cc-header {
+      padding: 12px 18px;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .cc-header.request { background: #1e1633; color: var(--accent); border-bottom: 1px solid #2e2050; }
+    .cc-header.response { background: #0e2018; color: var(--accent3); border-bottom: 1px solid #1e4030; }
+    .cc-header.good { background: #0e2018; color: var(--accent3); border-bottom: 1px solid #1e4030; }
+    .cc-header.bad  { background: #2a1030; color: var(--accent5); border-bottom: 1px solid #4a1a3a; }
+
+    .compare-card pre { font-size: 12px; }
+    .compare-body { padding: 16px 20px; }
+    .compare-body ul { margin-bottom: 0; }
+
+    /* ── Step by step ── */
+    .steps { counter-reset: step; margin: 20px 0; }
+
+    .step {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 32px;
+      padding-bottom: 32px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .step:last-child { border-bottom: none; }
+
+    .step-num {
+      flex-shrink: 0;
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: #fff;
+      font-weight: 800;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 2px;
+    }
+
+    .step-body { flex: 1; }
+    .step-body h3 { margin-top: 0; }
+
+    /* ── Table ── */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 18px 0;
+      font-size: 13.5px;
+    }
+
+    th {
+      background: var(--surface2);
+      color: var(--text);
+      font-weight: 700;
+      padding: 10px 14px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+
+    td {
+      padding: 9px 14px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+
+    tr:hover td { background: var(--surface); }
+
+    td code { font-size: .8em; }
+
+    /* ── Section divider ── */
+    .section-anchor { display: block; position: relative; top: -80px; visibility: hidden; }
+
+    /* ── Print ── */
+    @media print {
+      nav.sidebar { display: none; }
+      main { max-width: 100%; padding: 20px; }
+      .hero { break-inside: avoid; }
+      .step { break-inside: avoid; }
+      h2 { break-before: page; }
+      pre { white-space: pre-wrap; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="page-wrap">
+
+  <!-- ══════════════════════════════════════
+       SIDEBAR
+  ═══════════════════════════════════════ -->
+  <nav class="sidebar">
+    <div class="logo">
+      <span class="eyebrow">ACCÉS A DADES · RA1</span>
+      <span class="topic">Introducció · Conceptes previs</span>
+    </div>
+    <div class="sidebar-links">
+      <ul>
+        <li class="section-label">Introducció</li>
+        <li><a href="#criteris">Criteris d'avaluació</a></li>
+        <li><a href="#objectius">Què aprendràs</a></li>
+        
+        <li><a href="#volatil">1. Memòria volàtil</a></li>
+        <li><a href="#persistencia">2. Persistència</a></li>
+
+        <li class="section-label">Emmagatzematge</li>
+        <li><a href="#emmagatzematge">3. Sistemes d'emmagatzematge</a></li>
+        <li><a href="#fitxers">3.1 Fitxers</a></li>
+        <li><a href="#relacionals">3.2 BD relacionals</a></li>
+        <li><a href="#nosql">3.3 BD NoSQL</a></li>
+
+        <li class="section-label">Conceptes generals</li>
+        <li><a href="#integritat">4. Integritat</a></li>
+        <li><a href="#concurrencia">5. Concurrència</a></li>
+        <li><a href="#escalabilitat">6. Escalabilitat</a></li>
+
+        <li class="section-label">Síntesi</li>
+        <li><a href="#comparativa">7. Comparativa</a></li>
+
+        <li class="section-label">Accés a dades</li>
+        <li><a href="#acces-dades">8. Què és l'accés a dades</a></li>
+        <li><a href="#capa-acces">8.1 La capa d'accés a dades</a></li>
+
+        <li class="section-label">Local i remot</li>
+        <li><a href="#local">9.1 Accés local</a></li>
+        <li><a href="#remot">9.2 Accés remot</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- ══════════════════════════════════════
+       MAIN
+  ═══════════════════════════════════════ -->
+  <main>
+
+    <!-- HERO -->
+    <div class="hero">
+      <h1>Introducció a l'accés a dades</h1>
+      <p class="subtitle">
+        Per què cap aplicació pot viure només de memòria RAM: dades volàtils vs. persistents,
+        les grans famílies de sistemes d'emmagatzematge, i els tres problemes — integritat,
+        concurrència i escalabilitat — que un SGBD resol per tu.
+      </p>
+      <div class="tags">
+        <span class="tag tag-dto">DAM</span>
+        <span class="tag tag-mapper">RA1</span>
+        <span class="tag tag-svc">Conceptes previs</span>
+      </div>
+    </div>
+
+    <span id="criteris" class="section-anchor"></span>
+    <div class="box box-criteri">
+      <p class="box-title">Criteris d'avaluació relacionats</p>
+      <ul class="criteria-list">
+        <li>
+          <span class="criteria-code">1.2</span>
+          <span class="criteria-text">Valora els avantatges i els inconvenients de les diferents formes d'accés.</span>
+        </li>
+      </ul>
+    </div>
+
+    <span id="objectius" class="section-anchor"></span>
+    <div class="box box-concept">
+      <p class="box-title">Què aprendràs</p>
+      <p>En acabar aquesta unitat has de ser capaç de:</p>
+      <ul>
+        <li>Diferenciar dades <strong>volàtils</strong> de dades <strong>persistents</strong>.</li>
+        <li>Comparar els sistemes d'emmagatzematge principals i saber quan fer servir cadascun.</li>
+        <li>Entendre els problemes de <strong>concurrència</strong>, <strong>integritat</strong> i <strong>escalabilitat</strong>, i com els resol un SGBD.</li>
+        <li>Explicar què és l'accés a dades i per què tota aplicació el necessita.</li>
+        <li>Distingir l'accés <strong>local</strong> del <strong>remot</strong>, amb els avantatges i inconvenients de cada opció.</li>
+      </ul>
+    </div>
+
+    
+
+
+    <!-- ══════════════════════
+         1. MEMÒRIA VOLÀTIL
+    ═══════════════════════ -->
+    <span id="volatil" class="section-anchor"></span>
+    <h2>1. Memòria volàtil</h2>
+
+    <p>
+      Imagina que has programat una aplicació de gestió d'un institut. Has creat una classe
+      <code>Alumne</code> i has anat afegint alumnes a una llista:
+    </p>
+
+    <div class="code-wrap">
+      <div class="code-header">
+        <span class="filename">Exemple.java</span>
+        <span class="lang-badge lang-java">Java</span>
+      </div>
+      <pre>List&lt;<span class="cl">Alumne</span>&gt; alumnes = <span class="kw">new</span> ArrayList&lt;&gt;();
+alumnes.<span class="fn">add</span>(<span class="kw">new</span> <span class="cl">Alumne</span>(<span class="str">"Marta"</span>, 21));
+alumnes.<span class="fn">add</span>(<span class="kw">new</span> <span class="cl">Alumne</span>(<span class="str">"Pau"</span>, 19));
+<span class="cm">// ... 500 alumnes més</span></pre>
+    </div>
+
+    <p>Tanques el programa. <strong>On són ara aquests alumnes?</strong></p>
+
+    <div class="box box-warn">
+      <p class="box-title">Resultat</p>
+      <p><strong>Enlloc. Han desaparegut.</strong></p>
+    </div>
+
+    <p>
+      Les <code>llistes</code>, així com altres elements com les <code>variables</code>,
+      <code>arrays</code>, <code>objectes</code>... viuen a la <strong>memòria RAM</strong>,
+      que és un espai de treball <strong>temporal</strong>: quan el procés acaba, el sistema
+      operatiu allibera aquesta memòria i el seu contingut es perd. La RAM és ràpida, però
+      <strong>volàtil</strong>.
+    </p>
+
+
+    <!-- ══════════════════════
+         2. PERSISTÈNCIA
+    ═══════════════════════ -->
+    <span id="persistencia" class="section-anchor"></span>
+    <h2>2. Persistència</h2>
+
+    <div class="box box-concept">
+      <p class="box-title">Definició</p>
+      <p>
+        És la propietat de les dades de sobreviure al procés que les ha creat. Unes dades són
+        persistents si continuen existint després de tancar el programa o apagar l'ordinador.
+      </p>
+    </div>
+
+    <p>Distingim dos nivells:</p>
+
+    <table>
+      <thead>
+        <tr><th>Nivell</th><th>Exemple</th><th>La informació...</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Volàtil</strong></td>
+          <td><code>variables</code>, <code>llistes</code>, <code>objectes</code> en memòria</td>
+          <td>no es manté al tancar el programa</td>
+        </tr>
+        <tr>
+          <td><strong>Persistent</strong></td>
+          <td><code>fitxers</code>, <code>base de dades</code></td>
+          <td>es manté al tancar el programa o el dispositiu on corre el programa</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>
+      Els sistemes persistents més populars que s'utilitzen per emmagatzemar la informació de
+      les aplicacions són:
+    </p>
+    <div class="tags">
+      <span class="tag tag-dto">Fitxers</span>
+      <span class="tag tag-mapper">Bases de dades relacionals</span>
+      <span class="tag tag-svc">Bases de dades no relacionals</span>
+    </div>
+
+
+    <!-- ══════════════════════════
+         3. SISTEMES D'EMMAGATZEMATGE
+    ═══════════════════════════ -->
+    <span id="emmagatzematge" class="section-anchor"></span>
+    <h2>3. Sistemes d'emmagatzematge</h2>
+
+    <p>
+      Un cop sabem que cal persistir la informació, cal decidir <em>on</em> i <em>com</em>
+      guardar-la. Hi ha tres grans famílies, cadascuna amb els seus avantatges i inconvenients.
+    </p>
+
+    <span id="fitxers" class="section-anchor"></span>
+    <h3>3.1 Fitxers</h3>
+    <p>
+      Les dades es guarden en documents del sistema de fitxers: <code>.txt</code>,
+      <code>.csv</code>, <code>.json</code>, <code>.xml</code> o formats binaris.
+    </p>
+
+    <div class="compare-grid">
+      <div class="compare-card">
+        <div class="cc-header good">Avantatges</div>
+        <div class="compare-body">
+          <ul>
+            <li><strong>Simplicitat.</strong> No cal instal·lar ni configurar res: el sistema operatiu ja et dona el sistema de fitxers.</li>
+            <li><strong>Portabilitat.</strong> Un fitxer es copia, s'envia per correu o es puja a un repositori sense complicacions.</li>
+            <li><strong>Transparència.</strong> Pots obrir un <code>.json</code> amb un editor de text i veure què hi ha.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="compare-card">
+        <div class="cc-header bad">Inconvenients</div>
+        <div class="compare-body">
+          <ul>
+            <li><strong>No es poden fer consultes complexes.</strong> Per trobar l'alumne amb DNI <code>12345678A</code> has de llegir tot el fitxer i comparar registre a registre. No existeix res equivalent a un <code>SELECT ... WHERE</code>.</li>
+            <li><strong>No hi ha control de concurrència.</strong> Si dos processos escriuen alhora, el fitxer es pot corrompre.</li>
+            <li><strong>No hi ha integritat.</strong> Res impedeix escriure, per exemple, <code>"edat": -5</code> o assignar un alumne a un curs que no existeix.</li>
+            <li><strong>Escalabilitat pobra.</strong> Un JSON de 6GB s'ha de carregar sencer a memòria per treballar-hi.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="box box-tip">
+      <p class="box-title">Ideal per</p>
+      <ul>
+        <li>Fitxers de <strong>configuració</strong> (<code>config.json</code>)</li>
+        <li>Registres d'activitat o <em>logs</em></li>
+        <li><strong>Importació i exportació</strong> de dades entre sistemes (CSV)</li>
+        <li>Volums petits, un sol usuari i consultes senzilles.</li>
+      </ul>
+    </div>
+
+    <span id="relacionals" class="section-anchor"></span>
+    <h3>3.2 Bases de dades relacionals</h3>
+    <p>
+      Les dades s'organitzen en <strong>taules</strong> amb un esquema definit (columnes amb nom
+      i tipus), i les gestiona un programari especialitzat: el <strong>SGBD</strong> (Sistema
+      Gestor de Bases de Dades).
+    </p>
+    <div class="tags">
+      <span class="tag tag-dto">MySQL</span>
+      <span class="tag tag-mapper">MariaDB</span>
+      <span class="tag tag-svc">PostgreSQL</span>
+      <span class="tag tag-ctrl">Oracle</span>
+      <span class="tag tag-spring">SQL Server</span>
+      <span class="tag tag-dto">SQLite</span>
+    </div>
+
+    <div class="compare-grid">
+      <div class="compare-card">
+        <div class="cc-header good">Avantatges</div>
+        <div class="compare-body">
+          <ul>
+            <li><strong>Esquema i tipatge.</strong> Cada columna té un tipus. El SGBD rebutja les dades que no encaixen.</li>
+            <li><strong>Consultes declaratives amb SQL.</strong> Dius <em>què</em> vols, no <em>com</em> trobar-ho. Pots creuar taules amb <code>JOIN</code>, agrupar, filtrar i ordenar amb una sola instrucció.</li>
+            <li><strong>Índexs.</strong> Estructures internes que permeten localitzar un registre entre milions sense recórrer-los tots.</li>
+            <li><strong>Concurrència gestionada.</strong> Ben definida la concurrència, permet que molts usuaris puguin treballar alhora sense trepitjar-se (<a href="#concurrencia">secció 5</a>).</li>
+            <li><strong>Integritat garantida.</strong> Claus primàries, claus foranes i restriccions (<a href="#integritat">secció 4</a>).</li>
+          </ul>
+        </div>
+      </div>
+      <div class="compare-card">
+        <div class="cc-header bad">Inconvenients</div>
+        <div class="compare-body">
+          <ul>
+            <li><strong>Complexitat.</strong> Cal instal·lar-lo, configurar-lo, crear usuaris i permisos, i fer còpies de seguretat.</li>
+            <li><strong>Consum de recursos.</strong> Un servidor de base de dades ocupa memòria i CPU de manera permanent.</li>
+            <li><strong>Esquema rígid.</strong> Modificar l'estructura d'una taula quan ja està operativa és una operació delicada.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <span id="nosql" class="section-anchor"></span>
+    <h3>3.3 Bases de dades NoSQL</h3>
+    <p>No utilitzen taules ni SQL. El més popular és <strong>MongoDB</strong>.</p>
+
+    <div class="compare-grid">
+      <div class="compare-card">
+        <div class="cc-header good">Avantatges</div>
+        <div class="compare-body">
+          <ul>
+            <li><strong>Esquema flexible.</strong> Cada document pot tenir camps diferents; afegir-ne un de nou no requereix modificar res.</li>
+            <li><strong>Escalat horitzontal.</strong> Estan dissenyades per repartir les dades entre moltes màquines.</li>
+            <li><strong>Bon rendiment</strong> en volums molt grans amb consultes senzilles.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="compare-card">
+        <div class="cc-header bad">Inconvenients</div>
+        <div class="compare-body">
+          <ul>
+            <li><strong>Menys garanties d'integritat.</strong> Habitualment no hi ha claus foranes: la coherència l'ha de garantir l'aplicació.</li>
+            <li><strong>Consultes complexes limitades.</strong> No existeix el <code>JOIN</code> tal com el coneixes a SQL.</li>
+            <li><strong>Menys estandardització.</strong> Cada producte té el seu llenguatge propi.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ══════════════════════
+         4. INTEGRITAT
+    ═══════════════════════ -->
+    <span id="integritat" class="section-anchor"></span>
+    <h2>4. Integritat</h2>
+
+    <div class="box box-concept">
+      <p class="box-title">Definició</p>
+      <p>
+        La <strong>integritat</strong> de les dades és la garantia que la informació
+        emmagatzemada és <strong>vàlida, coherent i compleix les regles establertes</strong>,
+        en tot moment.
+      </p>
+    </div>
+
+    <p>Un SGBD no és només un magatzem: és un <strong>guardià</strong> que controla que no hi hagin errors.</p>
+
+    <h3>Tipus d'integritat en una base de dades relacional</h3>
+    <table>
+      <thead>
+        <tr><th>Tipus</th><th>Què garanteix</th><th>Mecanisme</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>De domini</strong></td>
+          <td>Cada valor és del tipus i el rang correctes</td>
+          <td><code>INT</code>, <code>DATE</code>, <code>NOT NULL</code>, <code>CHECK (edat &gt;= 0)</code></td>
+        </tr>
+        <tr>
+          <td><strong>D'entitat</strong></td>
+          <td>Cada fila és única i identificable</td>
+          <td><code>PRIMARY KEY</code></td>
+        </tr>
+        <tr>
+          <td><strong>Referencial</strong></td>
+          <td>No hi ha referències a registres inexistents</td>
+          <td><code>FOREIGN KEY</code></td>
+        </tr>
+        <tr>
+          <td><strong>De negoci</strong></td>
+          <td>Regles pròpies de l'aplicació</td>
+          <td><code>TRIGGER</code>, lògica de l'aplicació</td>
+        </tr>
+      </tbody>
+    </table>
+
+
+    <!-- ══════════════════════
+         5. CONCURRÈNCIA
+    ═══════════════════════ -->
+    <span id="concurrencia" class="section-anchor"></span>
+    <h2>5. Concurrència</h2>
+
+    <div class="box box-concept">
+      <p class="box-title">Definició</p>
+      <p>
+        És la situació en què diversos processos o usuaris accedeixen a les mateixes dades
+        <strong>al mateix temps</strong>.
+      </p>
+    </div>
+
+    <p>És un dels motius principals pels quals existeixen els SGBD, perquè un fitxer no sap resoldre aquest problema.</p>
+
+    <h3>Un exemple: l'actualització perduda</h3>
+    <p>Una web ven entrades per a un concert. En queden <strong>10</strong>. Dos clients compren simultàniament:</p>
+
+    <div class="mermaid-frame">
+      <pre class="mermaid">
+sequenceDiagram
+    autonumber
+    participant A as 👤 Anna — compra 3
+    participant D as 🗄️ Dades · estoc = 10
+    participant B as 👤 Bruno — compra 2
+
+    A->>D: llegeix estoc
+    D-->>A: 10
+    B->>D: llegeix estoc
+    D-->>B: 10
+    Note over A: calcula 10 - 3 = 7
+    Note over B: calcula 10 - 2 = 8
+    A->>D: escriu estoc = 7
+    B->>D: escriu estoc = 8
+    Note over D: ❌ Estoc final = 8&lt;br/&gt;Correcte seria 5&lt;br/&gt;L'escriptura de l'Anna s'ha perdut
+      </pre>
+    </div>
+
+    <div class="box box-warn">
+      <p class="box-title">❌ Resultat incorrecte</p>
+      <p>
+        Estoc final = <strong>8</strong>. Correcte seria <strong>5</strong> (10 − 3 − 2).
+        L'escriptura de l'Anna s'ha perdut: Bruno l'ha sobreescrit sense saber-ho.
+      </p>
+    </div>
+
+    <p>Aquest error s'anomena <strong>actualització perduda</strong> (<em>lost update</em>).</p>
+
+    <div class="box box-info">
+      <p>
+        No és un error de programació evident: el codi dels dos clients és <strong>correcte</strong>.
+        El problema és que s'executen <strong>alhora</strong>.
+      </p>
+    </div>
+
+
+    <!-- ══════════════════════
+         6. ESCALABILITAT
+    ═══════════════════════ -->
+    <span id="escalabilitat" class="section-anchor"></span>
+    <h2>6. Escalabilitat</h2>
+
+    <div class="box box-concept">
+      <p class="box-title">Definició</p>
+      <p>
+        És la capacitat d'un sistema d'emmagatzematge de mantenir un bon rendiment a mesura
+        que creix el volum de dades o el nombre d'usuaris que hi accedeixen.
+      </p>
+    </div>
+
+    <p>Dues estratègies per escalar:</p>
+
+    <div class="mermaid-frame">
+      <pre class="mermaid">
+flowchart TD
+    Q["Necessito més capacitat"]
+    V["&lt;b&gt;Escalat vertical&lt;/b&gt;&lt;br/&gt;Scale up&lt;br/&gt;&lt;br/&gt;Més RAM, més CPU,&lt;br/&gt;disc més ràpid al MATEIX servidor"]
+    H["&lt;b&gt;Escalat horitzontal&lt;/b&gt;&lt;br/&gt;Scale out&lt;br/&gt;&lt;br/&gt;Afegir MÉS servidors&lt;br/&gt;que es reparteixen la feina"]
+
+    Q --> V
+    Q --> H
+
+    classDef pregunta fill:#fff4e6,stroke:#e8590c,stroke-width:2px,color:#000
+    classDef opcio fill:#e7f5ff,stroke:#1971c2,stroke-width:2px,color:#000
+    class Q pregunta
+    class V,H opcio
+      </pre>
+    </div>
+
+
+    <!-- ══════════════════════
+         7. COMPARATIVA
+    ═══════════════════════ -->
+    <span id="comparativa" class="section-anchor"></span>
+    <h2>7. Comparativa</h2>
+
+    <table>
+      <thead>
+        <tr><th></th><th>Fitxers</th><th>Relacional</th><th>NoSQL</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>Consultes</strong></td><td>Manuals</td><td>SQL complet</td><td>Limitades</td></tr>
+        <tr><td><strong>Concurrència</strong></td><td>Cap</td><td>Transaccions</td><td>Bàsica</td></tr>
+        <tr><td><strong>Integritat</strong></td><td>Cap</td><td>PK / FK / CHECK</td><td>A l'aplicació</td></tr>
+        <tr><td><strong>Esquema</strong></td><td>Lliure</td><td>Rígid</td><td>Flexible</td></tr>
+        <tr><td><strong>Complexitat</strong></td><td>Molt baixa</td><td>Mitjana-alta</td><td>Mitjana</td></tr>
+        <tr><td><strong>Volum recomanat</strong></td><td>Petit</td><td>Gran</td><td>Molt gran</td></tr>
+        <tr><td><strong>Necessita servidor</strong></td><td>No</td><td>Sí (excepte SQLite)</td><td>Sí</td></tr>
+      </tbody>
+    </table>
+
+
+    <!-- ══════════════════════════
+         8. QUÈ ÉS L'ACCÉS A DADES
+    ═══════════════════════════ -->
+    <span id="acces-dades" class="section-anchor"></span>
+    <h2>8. Què és l'accés a dades</h2>
+
+    <div class="box box-concept">
+      <p class="box-title">Definició</p>
+      <p>
+        És el conjunt de tècniques i mecanismes que permeten a una aplicació
+        <strong>guardar, consultar, modificar i eliminar</strong> informació
+        <strong>en un suport persistent</strong>.
+      </p>
+    </div>
+
+    <p>
+      Aquestes quatre operacions bàsiques es coneixen com a <strong>CRUD</strong>, i en el cas concret de bases de dades <strong>relacionals</strong> l'analogia és aquesta:
+    </p>
+
+    <table>
+      <thead>
+        <tr><th>Sigla</th><th>Significat</th><th>Operació</th><th>Equivalent SQL</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>C</strong></td><td><em>Create</em></td><td>Crear un registre nou</td><td><code>INSERT</code></td></tr>
+        <tr><td><strong>R</strong></td><td><em>Read</em></td><td>Consultar dades</td><td><code>SELECT</code></td></tr>
+        <tr><td><strong>U</strong></td><td><em>Update</em></td><td>Modificar dades existents</td><td><code>UPDATE</code></td></tr>
+        <tr><td><strong>D</strong></td><td><em>Delete</em></td><td>Eliminar dades</td><td><code>DELETE</code></td></tr>
+      </tbody>
+    </table>
+
+    <div class="box box-info">
+      <p>
+        Una base de dades com a sistema complet fa moltes més coses que un CRUD, sobretot pel que fa a definir estructura, gestionar permisos i controlar transaccions
+      </p>
+    </div>
+
+    <div class="mermaid-frame">
+      <pre class="mermaid">
+flowchart LR
+    
+    subgraph DISC [" Emmagatzematge"]
+        B[("Fitxer o base de dades&lt;br/&gt;&lt;br/&gt;persistent")]
+    end
+    subgraph RAM ["Memòria RAM"]
+        A["Llista d'objectes Alumne&lt;br/&gt;&lt;br/&gt;ràpida · volàtil"]
+    end
+    A -- "guardar/modificar/borrar" --> B
+    B -- "recuperar" --> A
+
+    classDef ram fill:#fff4e6,stroke:#e8590c,stroke-width:2px,color:#000
+    classDef disc fill:#e7f5ff,stroke:#1971c2,stroke-width:2px,color:#000
+    class A ram
+    class B disc
+      </pre>
+    </div>
+
+    <span id="capa-acces" class="section-anchor"></span>
+    <h3>8.1 La capa d'accés a dades</h3>
+
+    <p>
+      Una aplicació <strong>mai</strong> escriu directament al disc dur. Sempre hi ha
+      programari entremig que s'encarrega de la feina bruta: obrir el fitxer, gestionar el
+      format, controlar errors, tancar la connexió.
+    </p>
+
+    <p>
+      Aquest programari intermedi és la <strong>capa d'accés a dades</strong>, i és exactament
+      el que aprendràs a construir i a utilitzar:
+    </p>
+
+    <div class="mermaid-frame mermaid-frame--compact">
+      <pre class="mermaid">
+flowchart TD
+    A["&lt;b&gt;APLICACIÓ&lt;/b&gt;&lt;br/&gt;Lògica de negoci · Interfície d'usuari"]
+    B["&lt;b&gt;CAPA D'ACCÉS A DADES&lt;/b&gt;&lt;br/&gt;API de fitxers · JDBC · ORM · Drivers"]
+    C["&lt;b&gt;SUPORT PERSISTENT&lt;/b&gt;&lt;br/&gt;Fitxers · SGBD · Servei remot"]
+
+    A <--> B
+    B <--> C
+
+    classDef app fill:#e7f5ff,stroke:#1971c2,stroke-width:1px,color:#000
+    classDef dao fill:#fff4e6,stroke:#e8590c,stroke-width:1px,color:#000
+    classDef sto fill:#ebfbee,stroke:#2f9e44,stroke-width:1px,color:#000
+    class A app
+    class B dao
+    class C sto
+      </pre>
+    </div>
+
+    <div class="box box-tip">
+      <p class="box-title">Per què separar-ho en capes?</p>
+      <p>
+        Perquè si demà canvies de MySQL a PostgreSQL, només has de tocar la capa d'accés a
+        dades. La resta de l'aplicació no se n'assabenta.
+      </p>
+    </div>
+
+
+    <!-- ══════════════════════════
+         9. ACCÉS LOCAL I REMOT
+    ═══════════════════════════ -->
+    <h2>9. Accés local i accés remot</h2>
+
+    <span id="local" class="section-anchor"></span>
+    <h3>9.1 Accés local</h3>
+
+    <p>Les dades es troben <strong>a la mateixa màquina</strong> que executa l'aplicació. No hi ha xarxa pel mig.</p>
+
+    <div class="mermaid-frame mermaid-frame--compact">
+      <pre class="mermaid">
+flowchart LR
+    subgraph DISP ["💻 Dispositiu de l'usuari"]
+        direction LR
+        APP["Aplicació"] <--> DB[("dades.db")]
+    end
+
+    classDef app fill:#e7f5ff,stroke:#1971c2,stroke-width:2px,color:#000
+    classDef db fill:#ebfbee,stroke:#2f9e44,stroke-width:2px,color:#000
+    class APP app
+    class DB db
+      </pre>
+    </div>
+
+    <p>
+      <strong>Suports habituals:</strong> fitxers i <strong>SQLite</strong> (una base de dades
+      relacional completa continguda en un únic fitxer, sense servidor).
+    </p>
+
+    <div class="compare-grid">
+      <div class="compare-card">
+        <div class="cc-header good">Avantatges</div>
+        <div class="compare-body">
+          <ul>
+            <li><strong>Molt ràpid:</strong> no hi ha latència de xarxa.</li>
+            <li><strong>Funciona sense connexió</strong> (<em>offline</em>).</li>
+            <li><strong>Zero configuració:</strong> no cal instal·lar ni administrar cap servidor.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="compare-card">
+        <div class="cc-header bad">Inconvenients</div>
+        <div class="compare-body">
+          <ul>
+            <li><strong>Les dades no es comparteixen:</strong> cada dispositiu té la seva pròpia còpia i poden divergir.</li>
+            <li><strong>Còpies de seguretat</strong> a càrrec de l'usuari; si es perd el dispositiu, es perden les dades.</li>
+            <li><strong>Concurrència limitada:</strong> SQLite, per exemple, només admet un escriptor alhora.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="box box-info">
+      <p>
+        SQLite pot gestionar diversos gigabytes sense problema i s'utilitza en producció a
+        milions de dispositius (mòbils, navegadors, avions). La seva limitació real és que
+        <strong>no està pensat per a molts usuaris escrivint simultàniament</strong>.
+      </p>
+    </div>
+
+    <span id="remot" class="section-anchor"></span>
+    <h3>9.2 Accés remot</h3>
+
+    <p>
+      Les dades resideixen en un <strong>servidor</strong> i els clients s'hi connecten a
+      través de la xarxa. Hi ha <strong>dues arquitectures</strong> que cal distingir.
+    </p>
+
+    <h4>A) Connexió directa al SGBD</h4>
+    <p>
+      L'aplicació es connecta al servidor de base de dades mitjançant un <strong>driver</strong>
+      (per exemple, <strong>JDBC</strong> en Java) i li envia sentències SQL.
+    </p>
+
+    <div class="mermaid-frame mermaid-frame--compact">
+      <pre class="mermaid">
+flowchart LR
+    C1["💻 Client A"]
+    C2["💻 Client B"]
+    DB[("🗄️ MySQL&lt;br/&gt;servidor")]
+
+    C1 -- "driver JDBC · port 3306" --> DB
+    C2 -- "driver JDBC · port 3306" --> DB
+
+    classDef cli fill:#e7f5ff,stroke:#1971c2,stroke-width:2px,color:#000
+    classDef db fill:#ebfbee,stroke:#2f9e44,stroke-width:2px,color:#000
+    class C1,C2 cli
+    class DB db
+      </pre>
+    </div>
+
+    <h4>B) A través d'una API REST — arquitectura de tres capes</h4>
+    <p>
+      El client no parla amb la base de dades: parla amb un <strong>servidor intermedi</strong>
+      que exposa una API, i és aquest servidor qui accedeix a les dades.
+    </p>
+
+    <div class="mermaid-frame">
+      <pre class="mermaid">
+flowchart LR
+    C["📱 Client&lt;br/&gt;mòbil o web"]
+    API["⚙️ Servidor API&lt;br/&gt;REST"]
+    DB[("🗄️ MySQL")]
+
+    C <-- "HTTP + JSON" --> API
+    API <-- "JDBC" --> DB
+
+    classDef cli fill:#e7f5ff,stroke:#1971c2,stroke-width:2px,color:#000
+    classDef api fill:#fff4e6,stroke:#e8590c,stroke-width:2px,color:#000
+    classDef db fill:#ebfbee,stroke:#2f9e44,stroke-width:2px,color:#000
+    class C cli
+    class API api
+    class DB db
+      </pre>
+    </div>
+
+    <div class="compare-grid">
+      <div class="compare-card">
+        <div class="cc-header good">Avantatges de l'accés remot</div>
+        <div class="compare-body">
+          <ul>
+            <li><strong>Dades centralitzades:</strong> tothom veu la mateixa informació actualitzada.</li>
+            <li><strong>Concurrència real</strong> entre molts usuaris, gestionada pel SGBD.</li>
+            <li><strong>Seguretat:</strong> permisos per usuari, taula o fins i tot fila.</li>
+            <li><strong>Còpies de seguretat centralitzades</strong> i professionals.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="compare-card">
+        <div class="cc-header bad">Inconvenients</div>
+        <div class="compare-body">
+          <ul>
+            <li><strong>Depèn de la connexió:</strong> sense xarxa, l'aplicació no funciona.</li>
+            <li><strong>Latència:</strong> cada consulta ha de viatjar per la xarxa.</li>
+            <li><strong>Cost d'administració:</strong> instal·lació, manteniment, monitoratge i seguretat del servidor.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div style="height: 60px;"></div>
+
+  </main>
+</div>
+
+<script>
+  // Highlight sidebar link on scroll, and keep it visible inside the sidebar
+  const anchors = document.querySelectorAll('.section-anchor');
+  const navLinks = document.querySelectorAll('nav.sidebar a');
+
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const id = entry.target.id;
+        navLinks.forEach(a => {
+          const isActive = a.getAttribute('href') === '#' + id;
+          const wasActive = a.classList.contains('active');
+          a.classList.toggle('active', isActive);
+          // si l'enllaç passa a actiu i queda fora de la zona visible del
+          // menú lateral, el desplacem perquè quedi sempre a la vista
+          if (isActive && !wasActive) {
+            a.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+          }
+        });
+      }
+    });
+  }, { rootMargin: '-80px 0px -70% 0px' });
+
+  anchors.forEach(a => observer.observe(a));
+</script>
+
+<!-- ══════════════════════════════════════
+     MERMAID — carregat des d'un CDN i
+     inicialitzat/executat manualment (sense
+     startOnLoad), tal com defineix l'apunt .md
+═══════════════════════════════════════ -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js"></script>
+<script>
+  // Tema fet a mida perquè els diagrames comparteixin el fons fosc de la
+  // pàgina i les línies/fletxes es dibuixin en blanc (alt contrast). Els
+  // colors de les caixes (classDef del propi .md) es mantenen intactes.
+  mermaid.initialize({
+    startOnLoad: false,
+    securityLevel: 'loose',
+    theme: 'base',
+    fontFamily: "Inter, 'Segoe UI', sans-serif",
+    themeVariables: {
+      background:          '#12151f',
+      mainBkg:              '#1a1d27',
+      primaryColor:         '#1a1d27',
+      primaryTextColor:     '#e2e6f0',
+      primaryBorderColor:   '#2e3248',
+      secondaryColor:       '#222636',
+      secondaryTextColor:   '#e2e6f0',
+      secondaryBorderColor: '#2e3248',
+      tertiaryColor:        '#1a1d27',
+      tertiaryTextColor:    '#e2e6f0',
+      tertiaryBorderColor:  '#2e3248',
+      lineColor:            '#ffffff',
+      defaultLinkColor:     '#ffffff',
+      textColor:            '#e2e6f0',
+      titleColor:           '#e2e6f0',
+      nodeTextColor:        '#e2e6f0',
+      edgeLabelBackground:  '#12151f',
+      clusterBkg:           '#1a1d27',
+      clusterBorder:        '#4a4f6a',
+      /* seqüència */
+      actorBkg:             '#1a1d27',
+      actorBorder:          '#4a4f6a',
+      actorTextColor:       '#e2e6f0',
+      actorLineColor:       '#ffffff',
+      signalColor:          '#ffffff',
+      signalTextColor:      '#e2e6f0',
+      labelBoxBkgColor:     '#1a1d27',
+      labelBoxBorderColor:  '#4a4f6a',
+      labelTextColor:       '#e2e6f0',
+      loopTextColor:        '#e2e6f0',
+      noteBkgColor:         '#222636',
+      noteBorderColor:      '#4a4f6a',
+      noteTextColor:        '#e2e6f0',
+      activationBkgColor:   '#222636',
+      activationBorderColor:'#4a4f6a',
+      sequenceNumberColor:  '#0f1117'
+    },
+    flowchart:  { useMaxWidth: false, htmlLabels: true, padding: 16 },
+    sequence:   { useMaxWidth: false, actorFontSize: 15, messageFontSize: 15, noteFontSize: 14 }
+  });
+
+  mermaid.run({ querySelector: '.mermaid' });
+</script>
+
+</body>
+</html>
