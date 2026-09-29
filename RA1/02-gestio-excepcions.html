@@ -485,6 +485,7 @@
     </div>
     <div class="sidebar-links">
       <ul>
+
         <li class="section-label">Introducció</li>
         <li><a href="#criteris">Criteris d'avaluació</a></li>
         <li><a href="#objectius">Què aprendràs</a></li>
@@ -499,8 +500,8 @@
         <li><a href="#trycatch">5. Try-catch</a></li>
         <li><a href="#trycatch-basic">5.1 Exemple bàsic</a></li>
         <li><a href="#multiplecatch">5.2 Múltiples catch</a></li>
-        <li><a href="#multicatch">5.3 Multi-catch</a></li>
-        <li><a href="#tcf">6. Finally</a></li>
+        <li><a href="#multicatch">5.3 Multi-catch (|)</a></li>
+        <li><a href="#tcf">6. Try, catch i finally</a></li>
         <li><a href="#tcf-exemple">6.1 Exemple complet</a></li>
         <li><a href="#tcf-return">6.2 Finally amb return</a></li>
         <li><a href="#twr">7. Try-with-resources</a></li>
@@ -551,7 +552,6 @@
         </li>
       </ul>
     </div>
-
     <span id="objectius" class="section-anchor"></span>
     <div class="box box-concept">
       <p class="box-title">Què aprendràs</p>
@@ -567,36 +567,24 @@
       </ul>
     </div>
 
-
     <!-- ══════════════════════
          1. QUÈ SÓN LES EXCEPCIONS?
     ═══════════════════════ -->
     <span id="excepcions" class="section-anchor"></span>
     <h2>1. Què són les excepcions?</h2>
-
     <div class="box box-concept">
       <p class="box-title">Definició</p>
-      <p>
-        Les excepcions són els mitjans que ofereixen els llenguatges de programació per tractar
-        <strong>situacions anòmales que poden succeir durant l'execució d'un programa</strong>,
-        donant lloc a la interrupció del flux normal que aquest programa té.
-      </p>
+      <p>Les excepcions són els mitjans que ofereixen els llenguatges de programació per tractar <strong>situacions anòmales que poden succeir durant l'execució d'un programa, donant lloc a la interrupció del flux normal</strong> que aquest programa té.</p>
     </div>
-
     <p>
-      Un exemple clàssic de situació anòmala és la divisió d'un nombre per zero. Però no és
-      l'única: d'altres ben conegudes són intentar obrir un fitxer que no existeix o quedar-nos
-      sense memòria a la JVM quan un programa ha entrat en una mena de bucle infinit.
+      Un exemple clàssic de situació anòmala és la divisió d'un nombre per zero. Però no és l'única. D'altres ben conegudes són: intentar obrir un fitxer que no existeix o quedar-nos sense memòria a la JVM quan un programa ha entrat en una mena de bucle infinit.
     </p>
-
     <p>
-      <strong>La forma amb la qual s'aborda una excepció</strong> (per exemple, aturar l'execució
-      i llançar un missatge) és el que d'ara endavant anomenarem
-      <strong>gestió de les excepcions</strong>.
+      <strong>La forma amb la qual s'aborda una excepció</strong> (per exemple, aturar l'execució i mostrar un missatge) és el que d'ara endavant anomenarem <strong>gestió de les excepcions</strong>.
     </p>
-
-    <p>Mira aquest programa:</p>
-
+    <p>
+      Mira aquest programa:
+    </p>
     <div class="code-wrap">
       <div class="code-header">
         <span class="filename">MainDiv.java</span>
@@ -611,79 +599,55 @@
         <span class="kw">return</span> c;
     }
 
-    <span class="kw">public</span> <span class="kw">static</span> <span class="kw">void</span> <span class="fn">main</span> (String args[]) {
+    <span class="kw">public</span> <span class="kw">static</span> <span class="kw">void</span> <span class="fn">main</span> (<span class="cl">String</span> args[]) {
 
         <span class="kw">int</span> a = 10;
         <span class="kw">int</span> b = 0;
 
         <span class="kw">int</span> result = <span class="fn">exactdivision</span>(a, b);
 
-        System.out.<span class="fn">println</span>(<span class="str">"El resultat de la divisió d'"</span>+ a +
+        <span class="cl">System</span>.out.<span class="fn">println</span>(<span class="str">"El resultat de la divisió d'"</span>+ a + 
         <span class="str">" entre "</span> + b + <span class="str">" és: "</span>+ result);
 
     }
 }</pre>
     </div>
-
     <p>
-      En executar-lo, el programa <strong>es tanca de cop</strong>, no mostra el missatge del codi:
-      "El resultat de la divisió..." i en canvi la consola mostra:
+      En executar-lo, el programa <strong>es tanca de cop</strong> ja que no mostra cap missatge "El resultat de la divisió..." i la consola mostra:
     </p>
-
     <div class="code-wrap">
       <div class="code-header">
         <span class="filename">Consola</span>
       </div>
-      <pre>Exception in thread "main" java.lang.ArithmeticException: /
-by zero at MainDiv.Exactdivision(MainDiv.java:5)
+      <pre>Exception in thread "main" java.lang.ArithmeticException: / by zero
+        at MainDiv.exactdivision(MainDiv.java:5)
         at MainDiv.main(MainDiv.java:15)</pre>
     </div>
-
     <p>
-      Això és una <strong>excepció</strong>: un esdeveniment anòmal que es produeix durant
-      l'execució i que trenca el flux normal de les instruccions.
+      Això és una <strong>excepció</strong>: un esdeveniment anòmal que es produeix durant l'execució i que trenca el flux normal de les instruccions.
     </p>
-
     <h4>No confondre amb errors de compilació</h4>
     <table>
       <thead>
         <tr><th>Tipus de problema</th><th>En quin moment</th><th>Qui avisa</th><th>Exemple</th></tr>
       </thead>
       <tbody>
-        <tr>
-          <td><strong>Error de sintaxi o de tipus</strong></td>
-          <td>En temps de compilació</td>
-          <td>El compilador, abans d'executar el programa</td>
-          <td><code>int x = "hola";</code></td>
-        </tr>
-        <tr>
-          <td><strong>Excepció</strong></td>
-          <td>En temps d'execució</td>
-          <td>La JVM, mentre el programa s'està executant</td>
-          <td>Dividir per zero, fitxer inexistent, índex fora de rang</td>
-        </tr>
+        <tr><td>Error de sintaxi o de tipus</td><td><strong>En temps de compilació</strong></td><td>El compilador, abans d'executar el programa</td><td><code>int x = "hola";</code></td></tr>
+        <tr><td>Excepció</td><td><strong>En temps d'execució</strong></td><td>La JVM, mentre el programa s'està executant</td><td>Dividir per zero, fitxer inexistent, índex fora de rang</td></tr>
       </tbody>
     </table>
-
 
     <!-- ══════════════════════
          2. PER A QUÈ SERVEIXEN?
     ═══════════════════════ -->
     <span id="perque" class="section-anchor"></span>
     <h2>2. Per a què serveixen?</h2>
-
     <p>
-      <strong>Les excepcions són de vital importància en el disseny i la implementació de
-      qualsevol codi</strong>, per tal que el programa es pugui anticipar i controlar davant
-      de qualsevol situació anòmala.
+      <strong>Les excepcions són de vital importància en el disseny i la implementació de qualsevol codi</strong>, per tal que el programa pugui anticipar i controlar qualsevol situació anòmala.
     </p>
-
     <p>
-      La gestió d'excepcions serveix per <strong>separar el codi del programa del codi que
-      gestionarà els possibles errors</strong>, donant l'oportunitat de <strong>reaccionar</strong>
-      en comptes de deixar que el programa mori.
+      La gestió d'excepcions serveix per <strong>separar el codi del programa del codi que gestionarà els possibles errors</strong>, donant l'oportunitat de <strong>reaccionar</strong> en comptes de deixar que el programa mori.
     </p>
-
     <div class="box box-info">
       <p class="box-title">Dues raons per les quals serveixen les excepcions</p>
       <ul>
@@ -692,56 +656,34 @@ by zero at MainDiv.Exactdivision(MainDiv.java:5)
       </ul>
     </div>
 
-
     <!-- ══════════════════════
-         3. CHECKED VS. UNCHECKED
+         3. TIPUS DE SITUACIONS: CHECKED VS. UNCHECKED
     ═══════════════════════ -->
     <span id="checked-unchecked" class="section-anchor"></span>
-    <h2>3. Checked vs. Unchecked</h2>
-
-    <p>Java distingeix dos grans tipus de situacions anòmales:</p>
-
+    <h2>3. Tipus de situacions: Checked vs. Unchecked</h2>
     <table>
       <thead>
-        <tr><th></th><th>Checked (comprovades)</th><th>Unchecked (no comprovades)</th></tr>
+        <tr><th></th><th><strong>Checked</strong> (comprovades)</th><th><strong>Unchecked</strong> (no comprovades)</th></tr>
       </thead>
       <tbody>
-        <tr>
-          <td><strong>Representen</strong></td>
-          <td>Situacions <strong>externes</strong>, previsibles i de les quals et pots recuperar (fitxer no existeix, l'usuari no té permisos, problemes de connexió a la base de dades...)</td>
-          <td><strong>Errors de programació</strong> (accedir a un índex invàlid, dividir per zero, un <code>null</code> no comprovat, convertir a número un text que no ho és)</td>
-        </tr>
-        <tr>
-          <td><strong>Gestionar les excepcions</strong></td>
-          <td>El compilador <strong>t'obliga</strong> a capturar-les</td>
-          <td><strong>No és obligatori</strong>, és responsabilitat del programador</td>
-        </tr>
-        <tr>
-          <td><strong>Exemple</strong></td>
-          <td><code>IOException</code>, <code>SQLException</code></td>
-          <td><code>NullPointerException</code>, <code>ArithmeticException</code>, <code>NumberFormatException</code></td>
-        </tr>
+        <tr><td>Representen</td><td>Situacions <strong>externes</strong>, previsibles i de les quals et pots recuperar (el fitxer no existeix, l'usuari no té permisos, problemes de connexió a la base de dades...)</td><td><strong>Errors de programació</strong> (accedir a un índex invàlid, dividir per zero, un <code>null</code> no comprovat, convertir a número un text que no ho és)</td></tr>
+        <tr><td>Gestionar les excepcions</td><td>El compilador <strong>t'obliga</strong> a capturar les excepcions</td><td><strong>No és obligatori</strong>, és responsabilitat del programador</td></tr>
+        <tr><td>Exemple</td><td><code>IOException</code>, <code>SQLException</code></td><td><code>NullPointerException</code>, <code>ArithmeticException</code>, <code>NumberFormatException</code></td></tr>
       </tbody>
     </table>
-
     <div class="box box-tip">
       <p class="box-title">Regla pràctica</p>
-      <p>
-        Si l'error és culpa de l'<strong>entorn</strong> (el fitxer no hi és, no hi ha xarxa),
-        sol ser <em>checked</em>. Si l'error és culpa del <strong>codi</strong> (no vas comprovar
-        una condició abans d'usar una variable), sol ser <em>unchecked</em>.
-      </p>
+      <p>si l'error és culpa de l'<strong>entorn</strong> (el fitxer no hi és, no hi ha xarxa), sol ser <em>checked</em>. Si l'error és culpa del <strong>codi</strong> (no vas comprovar una condició abans d'usar una variable), sol ser <em>unchecked</em>.</p>
     </div>
 
-
     <!-- ══════════════════════
-         4. JERARQUIA D'EXCEPCIONS
+         4. JERARQUIA D'EXCEPCIONS A JAVA
     ═══════════════════════ -->
     <span id="jerarquia" class="section-anchor"></span>
     <h2>4. Jerarquia d'excepcions a Java</h2>
-
-    <p>Totes les excepcions i errors deriven d'una única classe arrel: <code>Throwable</code>.</p>
-
+    <p>
+      Totes les excepcions i errors deriven d'una única classe arrel: <code>Throwable</code>.
+    </p>
     <div class="mermaid-frame">
       <pre class="mermaid">
 flowchart TD
@@ -751,10 +693,10 @@ flowchart TD
     RE["&lt;b&gt;RuntimeException&lt;/b&gt;&lt;br/&gt;i les seves subclasses"]
     OT["Altres subclasses&lt;br/&gt;directes d'Exception"]
 
-    T --> E
-    T --> X
-    X --> RE
-    X --> OT
+    T --&gt; E
+    T --&gt; X
+    X --&gt; RE
+    X --&gt; OT
 
     classDef throwable fill:#fff4e6,stroke:#e8590c,stroke-width:2px,color:#000
     classDef error fill:#ffe3e3,stroke:#c92a2a,stroke-width:2px,color:#000
@@ -768,56 +710,41 @@ flowchart TD
     class OT checked
       </pre>
     </div>
-
     <table>
       <thead>
         <tr><th>Classe</th><th>Exemples</th><th>Es capturen normalment?</th></tr>
       </thead>
       <tbody>
-        <tr>
-          <td><code>Error</code></td>
-          <td><code>OutOfMemoryError</code>, <code>StackOverflowError</code></td>
-          <td><strong>No.</strong> Indiquen que la JVM està en un estat crític; no ens en podem recuperar.</td>
-        </tr>
-        <tr>
-          <td><code>RuntimeException</code> (i subclasses)</td>
-          <td><code>NullPointerException</code>, <code>ArrayIndexOutOfBoundsException</code>, <code>ArithmeticException</code>, <code>NumberFormatException</code>, <code>IllegalArgumentException</code></td>
-          <td>Opcional. Són del tipus <strong>unchecked</strong>.</td>
-        </tr>
-        <tr>
-          <td>Resta d'<code>Exception</code></td>
-          <td><code>IOException</code>, <code>FileNotFoundException</code>, <code>SQLException</code>, <code>ParseException</code></td>
-          <td><strong>Obligatori.</strong> Són del tipus <strong>checked</strong>.</td>
-        </tr>
+        <tr><td><code>Error</code></td><td><code>OutOfMemoryError</code>, <code>StackOverflowError</code></td><td><strong>No.</strong> Indiquen que la JVM està en un estat crític; no ens en podem recuperar.</td></tr>
+        <tr><td><code>RuntimeException</code> (i subclasses)</td><td><code>NullPointerException</code>, <code>ArrayIndexOutOfBoundsException</code>, <code>ArithmeticException</code>, <code>NumberFormatException</code>, <code>IllegalArgumentException</code></td><td>Opcional. Són del tipus <strong>unchecked</strong>.</td></tr>
+        <tr><td>Resta d'<code>Exception</code></td><td><code>IOException</code>, <code>FileNotFoundException</code>, <code>SQLException</code>, <code>ParseException</code></td><td><strong>Obligatori.</strong> Són del tipus <strong>checked</strong>.</td></tr>
       </tbody>
     </table>
 
-
     <!-- ══════════════════════
-         5. TRY-CATCH
+         5. COM LES UTILITZEM: TRY-CATCH
     ═══════════════════════ -->
     <span id="trycatch" class="section-anchor"></span>
     <h2>5. Com les utilitzem: try-catch</h2>
-
-    <p>La sintaxi bàsica és:</p>
-
+    <p>
+      La sintaxi bàsica és:
+    </p>
     <div class="code-wrap">
       <div class="code-header">
-        <span class="filename">Sintaxi</span>
+        <span class="filename">Java</span>
         <span class="lang-badge lang-java">Java</span>
       </div>
       <pre><span class="kw">try</span> {
     <span class="cm">// codi del programa (pot llançar una excepció)</span>
-} <span class="kw">catch</span> (TipusExcepcio nomVariable) {
+} <span class="kw">catch</span> (<span class="cl">TipusExcepcio</span> nomVariable) {
     <span class="cm">// codi que s'executa NOMÉS si s'ha produït una excepció</span>
 }</pre>
     </div>
-
     <span id="trycatch-basic" class="section-anchor"></span>
     <h3>5.1 Exemple bàsic</h3>
-
-    <p>Si agafem de referència el codi del principi i gestionem les excepcions de forma genèrica:</p>
-
+    <p>
+      Si agafem de referència el codi del principi i gestionem les excepcions de forma genèrica:
+    </p>
     <div class="code-wrap">
       <div class="code-header">
         <span class="filename">MainDiv.java</span>
@@ -832,7 +759,7 @@ flowchart TD
         <span class="kw">return</span> c;
     }
 
-    <span class="kw">public</span> <span class="kw">static</span> <span class="kw">void</span> <span class="fn">main</span> (String args[]) {
+    <span class="kw">public</span> <span class="kw">static</span> <span class="kw">void</span> <span class="fn">main</span> (<span class="cl">String</span> args[]) {
 
         <span class="kw">int</span> a = 10;
         <span class="kw">int</span> b = 0;
@@ -841,134 +768,100 @@ flowchart TD
             <span class="cm">//Codi on s'executa el programa. Si hi ha algun error es controla en el catch</span>
             <span class="kw">int</span> result = <span class="fn">exactdivision</span>(a, b);
 
-            System.out.<span class="fn">println</span>(<span class="str">"El resultat de la divisió d'"</span>+ a +
+            <span class="cl">System</span>.out.<span class="fn">println</span>(<span class="str">"El resultat de la divisió d'"</span>+ a + 
             <span class="str">" entre "</span> + b + <span class="str">" és: "</span>+ result);
         }
         <span class="kw">catch</span>(<span class="cl">Exception</span> ex){
             <span class="cm">//Si dins del codi del try hi ha un error es captura en aquest codi</span>
-            System.out.<span class="fn">println</span>(<span class="str">"CATCH: Hi ha hagut un error inesperat: "</span> + ex.<span class="fn">getMessage</span>());
+            <span class="cl">System</span>.out.<span class="fn">println</span>(<span class="str">"CATCH: Hi ha hagut un error inesperat: "</span> + ex.<span class="fn">getMessage</span>());
         }
 
     }
 }</pre>
     </div>
-
-    <p>En aquest cas el programa no es tanca de forma inesperada i mostra el missatge que hem indicat en el <code>catch</code>:</p>
-
+    <p>
+      En aquest cas el programa no es tanca de forma inesperada i mostra el missatge que hem indicat en el catch:
+    </p>
     <div class="code-wrap">
       <div class="code-header">
         <span class="filename">Consola</span>
       </div>
       <pre>CATCH: Hi ha hagut un error inesperat: / by zero</pre>
     </div>
-
     <span id="multiplecatch" class="section-anchor"></span>
     <h3>5.2 Múltiples catch</h3>
-
     <p>
-      Un <code>try</code> pot anar seguit de diversos <code>catch</code>, un per cada tipus
-      d'error que vulguis tractar de forma diferent. <strong>L'ordre importa: de més específic
-      a més general.</strong>
+      Un <code>try</code> pot anar seguit de diversos <code>catch</code>, un per cada tipus d'error que vulguis tractar de forma diferent. <strong>L'ordre importa: de més específic a més general.</strong>
     </p>
-
     <div class="code-wrap">
       <div class="code-header">
-        <span class="filename">Exemple.java</span>
+        <span class="filename">Java</span>
         <span class="lang-badge lang-java">Java</span>
       </div>
-      <pre><span class="kw">try</span> {
-    <span class="kw">int</span>[] notes = {5, 7, 9};
-    <span class="kw">int</span> index = Integer.<span class="fn">parseInt</span>(args[0]);
-    System.out.<span class="fn">println</span>(notes[index]);
-
-} <span class="kw">catch</span> (<span class="cl">NumberFormatException</span> e) {
-    System.out.<span class="fn">println</span>(<span class="str">"L'argument no és un número."</span>);
+      <pre><span class="kw">int</span>[] notes = {5, 7, 9};
+<span class="cl">Scanner</span> sc1 = <span class="kw">null</span>;
+<span class="cl">System</span>.out.<span class="fn">println</span>(<span class="str">"Quina posició vols accedir de l'array? : "</span>);
+<span class="kw">try</span> {
+    sc1 = <span class="kw">new</span> <span class="fn">Scanner</span>(<span class="cl">System</span>.in);
+    <span class="kw">int</span> index = sc1.<span class="fn">nextInt</span>();                       <span class="cm">// pot llançar InputMismatchException</span>
+    <span class="cl">System</span>.out.<span class="fn">println</span>(<span class="str">"El valor a la posició: "</span> + index
+            + <span class="str">" és: "</span> + notes[index]);               <span class="cm">// pot llançar ArrayIndexOutOfBoundsException</span>
+} <span class="kw">catch</span> (<span class="cl">InputMismatchException</span> inpmsx) {
+    <span class="cl">System</span>.out.<span class="fn">println</span>(<span class="str">"Error a l'entrada: cal escriure un número enter."</span>);
 } <span class="kw">catch</span> (<span class="cl">ArrayIndexOutOfBoundsException</span> e) {
-    System.out.<span class="fn">println</span>(<span class="str">"Aquest índex no existeix a l'array."</span>);
+    <span class="cl">System</span>.out.<span class="fn">println</span>(<span class="str">"Aquest índex no existeix a l'array."</span>);
 } <span class="kw">catch</span> (<span class="cl">Exception</span> e) {
-    System.out.<span class="fn">println</span>(<span class="str">"Ha passat un error inesperat: "</span> + e.<span class="fn">getMessage</span>());
+    <span class="cl">System</span>.out.<span class="fn">println</span>(<span class="str">"Ha passat un error inesperat: "</span> + e.<span class="fn">getMessage</span>());
+} <span class="kw">finally</span> {
+    <span class="kw">if</span> (sc1 != <span class="kw">null</span>) sc1.<span class="fn">close</span>();
 }</pre>
     </div>
-
     <p>
-      Si poses <code>catch (Exception e)</code> <strong>abans</strong> dels altres, el
-      compilador dona error: com <code>Exception</code> és la superclasse de totes dues,
-      mai s'arribaria a executar la resta de blocs <code>catch</code>, que quedarien codi mort.
+      Si poses <code>catch (Exception e)</code> <strong>abans</strong> dels altres, el compilador dona error: com <code>Exception</code> és la superclasse de totes dues, mai s'arribaria a executar la resta de blocs <code>catch</code>, que quedarien codi mort.
     </p>
-
     <span id="multicatch" class="section-anchor"></span>
     <h3>5.3 Multi-catch (<code>|</code>)</h3>
-
     <p>
-      Quan vols tractar dos tipus d'excepció exactament de la mateixa manera, pots agrupar-los
-      amb <code>|</code> en un sol <code>catch</code>:
+      Quan vols tractar dos tipus d'excepció exactament de la mateixa manera, pots agrupar-los amb <code>|</code> en un sol <code>catch</code>:
     </p>
-
     <div class="code-wrap">
       <div class="code-header">
-        <span class="filename">Exemple.java</span>
+        <span class="filename">Java</span>
         <span class="lang-badge lang-java">Java</span>
       </div>
       <pre><span class="kw">try</span> {
     <span class="fn">processarFitxer</span>(<span class="str">"dades.csv"</span>);
 } <span class="kw">catch</span> (<span class="cl">FileNotFoundException</span> | <span class="cl">NumberFormatException</span> e) {
-    System.out.<span class="fn">println</span>(<span class="str">"No s'ha pogut processar el fitxer: "</span> + e.<span class="fn">getMessage</span>());
+    <span class="cl">System</span>.out.<span class="fn">println</span>(<span class="str">"No s'ha pogut processar el fitxer: "</span> + e.<span class="fn">getMessage</span>());
 }</pre>
     </div>
 
-
     <!-- ══════════════════════
-         6. TRY, CATCH I FINALLY
+         6. DIFERÈNCIA ENTRE TRY, CATCH I FINALLY
     ═══════════════════════ -->
     <span id="tcf" class="section-anchor"></span>
-    <h2>6. Finally</h2>
-
-    <p>
-      El bloc finally és una part opcional que pots afegir després d'un try (i dels seus catch)
-    </p>
-    <p>
-      La seva característica principal és que sempre s'executa, tant si hi ha una excepció com si no, i fins i tot si dins del try hi ha un return.
-    </p>
-    <p>
-      Serveix per posar-hi codi de "neteja" que ha de passar sí o sí: tancar una connexió a la base de dades, tancar un fitxer, alliberar recursos, ...
-    </p>
-
-    <h3>Diferències entre try, catch i finally</h3>
-
+    <h2>6. Diferència entre try, catch i finally</h2>
     <table>
       <thead>
         <tr><th>Bloc</th><th>Quan s'executa</th><th>Per a què serveix</th></tr>
       </thead>
       <tbody>
-        <tr>
-          <td><code>try</code></td>
-          <td>Sempre s'intenta; s'atura al primer punt on salti una excepció</td>
-          <td>Conté el codi "normal", el que pot fallar</td>
-        </tr>
-        <tr>
-          <td><code>catch</code></td>
-          <td>Només si el <code>try</code> ha llançat una excepció <strong>del tipus indicat (o subtipus)</strong></td>
-          <td>Conté la reacció davant de l'error</td>
-        </tr>
-        <tr>
-          <td><code>finally</code></td>
-          <td><strong>Sempre</strong>, hi hagi hagut excepció o no, i encara que el <code>try</code> o el <code>catch</code> continguin un <code>return</code></td>
-          <td>Conté el codi de neteja: tancar fitxers, connexions, alliberar recursos</td>
-        </tr>
+        <tr><td><code>try</code></td><td>Sempre s'intenta; s'atura al primer punt on salti una excepció</td><td>Conté el codi "normal", el que pot fallar</td></tr>
+        <tr><td><code>catch</code></td><td>Només si el <code>try</code> ha llançat una excepció <strong>del tipus indicat (o subtipus)</strong></td><td>Conté la reacció davant de l'error</td></tr>
+        <tr><td><code>finally</code></td><td><strong>Sempre</strong>, hi hagi hagut excepció o no, i encara que el <code>try</code> o el <code>catch</code> continguin un <code>return</code></td><td>Conté el codi de neteja: tancar fitxers, connexions, alliberar recursos</td></tr>
       </tbody>
     </table>
-
     <div class="mermaid-frame">
       <pre class="mermaid">
 flowchart TD
-    A["Entra al bloc try"] --> B{"Es produeix una excepció?"}
-    B -- "No" --> C["S'acaba el try amb normalitat"]
-    B -- "Sí, i hi ha catch compatible" --> D["S'executa el catch corresponent"]
-    B -- "Sí, però NO hi ha catch compatible" --> E["L'excepció es propaga cap amunt"]
-    C --> F["S'executa finally (si n'hi ha)"]
-    D --> F
-    E --> F
-    F --> G["Continua el programa"]
+    A["Entra al bloc try"] --&gt; B{"Es produeix una excepció?"}
+    B -- "No" --&gt; C["S'acaba el try amb normalitat"]
+    B -- "Sí, i hi ha catch compatible" --&gt; D["S'executa el catch corresponent"]
+    B -- "Sí, però NO hi ha catch compatible" --&gt; E["L'excepció es propaga cap amunt"]
+    C --&gt; F["S'executa finally (si n'hi ha)"]
+    D --&gt; F
+    E --&gt; F
+    F --&gt; G["Continua el programa"]
 
     classDef normal fill:#ebfbee,stroke:#2f9e44,stroke-width:2px,color:#000
     classDef error fill:#ffe3e3,stroke:#c92a2a,stroke-width:2px,color:#000
@@ -978,10 +871,8 @@ flowchart TD
     class F finallyN
       </pre>
     </div>
-
     <span id="tcf-exemple" class="section-anchor"></span>
     <h3>6.1 Exemple complet</h3>
-
     <div class="code-wrap">
       <div class="code-header">
         <span class="filename">MainDiv.java</span>
@@ -996,7 +887,7 @@ flowchart TD
         <span class="kw">return</span> c;
     }
 
-    <span class="kw">public</span> <span class="kw">static</span> <span class="kw">void</span> <span class="fn">main</span> (String args[]) {
+    <span class="kw">public</span> <span class="kw">static</span> <span class="kw">void</span> <span class="fn">main</span> (<span class="cl">String</span> args[]) {
 
         <span class="kw">int</span> a = 10;
         <span class="kw">int</span> b = 0;
@@ -1004,23 +895,23 @@ flowchart TD
         <span class="kw">try</span>{
             <span class="kw">int</span> result = <span class="fn">exactdivision</span>(a, b);
 
-            System.out.<span class="fn">println</span>(<span class="str">"El resultat de la divisió d'"</span>+ a +
+            <span class="cl">System</span>.out.<span class="fn">println</span>(<span class="str">"El resultat de la divisió d'"</span>+ a + 
             <span class="str">" entre "</span> + b + <span class="str">" és: "</span>+ result);
         }
         <span class="kw">catch</span>(<span class="cl">Exception</span> ex){
             <span class="cm">//Si dins del codi del try hi ha un error es captura en aquest codi</span>
-            System.out.<span class="fn">println</span>(<span class="str">"CATCH: Hi ha hagut un error inesperat: "</span> + ex.<span class="fn">getMessage</span>());
+            <span class="cl">System</span>.out.<span class="fn">println</span>(<span class="str">"CATCH: Hi ha hagut un error inesperat: "</span> + ex.<span class="fn">getMessage</span>());
         }
         <span class="kw">finally</span> {
-            System.out.<span class="fn">println</span>(<span class="str">"FINALLY: Aquest missatge es mostra sempre, hi hagi error o no."</span>);
+            <span class="cl">System</span>.out.<span class="fn">println</span>(<span class="str">"FINALLY: Aquest missatge es mostra sempre, hi hagi error o no."</span>);
         }
 
     }
 }</pre>
     </div>
-
-    <p>En aquest cas el programa mostra:</p>
-
+    <p>
+      En aquest cas el programa mostra:
+    </p>
     <div class="code-wrap">
       <div class="code-header">
         <span class="filename">Consola</span>
@@ -1028,263 +919,170 @@ flowchart TD
       <pre>CATCH: Hi ha hagut un error inesperat: / by zero
 FINALLY: Aquest missatge es mostra sempre, hi hagi error o no.</pre>
     </div>
-
     <span id="tcf-return" class="section-anchor"></span>
-    <h3>6.2 El finally s'executa fins i tot amb un return</h3>
-
+    <h3>6.2 El <code>finally</code> s'executa fins i tot amb un <code>return</code></h3>
     <div class="code-wrap">
       <div class="code-header">
-        <span class="filename">Exemple.java</span>
+        <span class="filename">Java</span>
         <span class="lang-badge lang-java">Java</span>
       </div>
       <pre><span class="kw">public</span> <span class="kw">static</span> <span class="kw">int</span> <span class="fn">prova</span>() {
     <span class="kw">try</span> {
-        System.out.<span class="fn">println</span>(<span class="str">"dins del try"</span>);
+        <span class="cl">System</span>.out.<span class="fn">println</span>(<span class="str">"dins del try"</span>);
         <span class="kw">return</span> 1;
     } <span class="kw">finally</span> {
-        System.out.<span class="fn">println</span>(<span class="str">"dins del finally"</span>); <span class="cm">// s'imprimeix ABANS de retornar</span>
+        <span class="cl">System</span>.out.<span class="fn">println</span>(<span class="str">"dins del finally"</span>); <span class="cm">// s'imprimeix ABANS de retornar</span>
     }
 }
-<span class="cm">// Sortida: "dins del try" -> "dins del finally" -> el mètode retorna 1</span></pre>
+<span class="cm">// Sortida: "dins del try" -&gt; "dins del finally" -&gt; el mètode retorna 1</span></pre>
     </div>
-
-     <div class="code-wrap">
-      <div class="code-header">
-        <span class="filename">Consola</span>
-      </div>
-      <pre>dins del try
-dins del finally
-//el mètode retorna 1.
-      </pre>
+    <div class="box box-info">
+      <p class="box-title">Nota</p>
+      <p>El <code>finally</code> <strong>només es pot saltar</strong> si la JVM es tanca de cop (<code>System.exit()</code>, un tall de corrent, un <code>Error</code> molt greu com un <em>StackOverflowError</em> irrecuperable...). A efectes pràctics, dona per fet que <strong>sempre s'executa</strong>.</p>
     </div>
-
-    <div class="box box-warn">
-      <p class="box-title">El finally gairebé sempre s'executa</p>
-      <p>
-        El <code>finally</code> <strong>només es pot saltar</strong> si la JVM es tanca de cop
-        (<code>System.exit()</code>, un tall de corrent, un <code>Error</code> molt greu com un
-        <em>StackOverflowError</em> irrecuperable...). A efectes pràctics, dona per fet que
-        <strong>sempre s'executa</strong>.
-      </p>
-    </div>
-
 
     <!-- ══════════════════════
          7. TRY-WITH-RESOURCES
     ═══════════════════════ -->
     <span id="twr" class="section-anchor"></span>
     <h2>7. Try-with-resources</h2>
-
- <p>
-      Tancar recursos "a mà" dins d'un <code>finally</code> (com a l'exemple que veuràs
-      a continuació) és <strong>farragós i propens a errors</strong>.
-      Des de Java 7 existeix el <strong>try-with-resources</strong>, pensat per a qualsevol
-      classe que implementi la interfície <code>AutoCloseable</code> (com <code>FileReader</code>,
-      <code>BufferedReader</code>, una connexió a base de dades, etc.).
+    <p>
+      Tancar recursos "a mà" dins d'un <code>finally</code> és <strong>verbós i fàcil d'equivocar</strong>. Des de Java 7 existeix el <strong>try-with-resources</strong>, pensat per a qualsevol classe que implementi la interfície <code>AutoCloseable</code> (com <code>FileReader</code>, <code>BufferedReader</code>, una connexió a base de dades, etc.).
     </p>
-
     <div class="code-wrap">
       <div class="code-header">
-        <span class="filename">Exemple.java</span>
+        <span class="filename">Java</span>
         <span class="lang-badge lang-java">Java</span>
       </div>
-      <pre><span class="kw">try</span> (<span class="cl">FileReader</span> fr = <span class="kw">new</span> <span class="cl">FileReader</span>(<span class="str">"notes.txt"</span>);
-     <span class="cl">BufferedReader</span> br = <span class="kw">new</span> <span class="cl">BufferedReader</span>(fr)) {
+      <pre><span class="kw">try</span> (<span class="cl">FileReader</span> fr = <span class="kw">new</span> <span class="fn">FileReader</span>(<span class="str">"notes.txt"</span>);
+     <span class="cl">BufferedReader</span> br = <span class="kw">new</span> <span class="fn">BufferedReader</span>(fr)) {
 
-    String linia;
+    <span class="cl">String</span> linia;
     <span class="kw">while</span> ((linia = br.<span class="fn">readLine</span>()) != <span class="kw">null</span>) {
-        System.out.<span class="fn">println</span>(linia);
+        <span class="cl">System</span>.out.<span class="fn">println</span>(linia);
     }
 
 } <span class="kw">catch</span> (<span class="cl">IOException</span> e) {
-    System.out.<span class="fn">println</span>(<span class="str">"Error llegint el fitxer: "</span> + e.<span class="fn">getMessage</span>());
+    <span class="cl">System</span>.out.<span class="fn">println</span>(<span class="str">"Error llegint el fitxer: "</span> + e.<span class="fn">getMessage</span>());
 }
 <span class="cm">// fr i br es tanquen AUTOMÀTICAMENT en sortir del try, en ordre invers al que es van obrir,</span>
 <span class="cm">// sense necessitat d'escriure cap finally.</span></pre>
     </div>
-
-    <p>Amb el <code>finally</code> es faria de la següent forma:</p>
-
-    <div class="code-wrap">
-      <div class="code-header">
-        <span class="filename">Exemple.java</span>
-        <span class="lang-badge lang-java">Java</span>
-      </div>
-      <pre><span class="cl">FileReader</span> fr = <span class="kw">null</span>;
-<span class="cl">BufferedReader</span> br = <span class="kw">null</span>;
-
-<span class="kw">try</span> {
-    fr = <span class="kw">new</span> <span class="cl">FileReader</span>(<span class="str">"notes.txt"</span>);
-    br = <span class="kw">new</span> <span class="cl">BufferedReader</span>(fr);
-
-    String linia;
-    <span class="kw">while</span> ((linia = br.<span class="fn">readLine</span>()) != <span class="kw">null</span>) {
-        System.out.<span class="fn">println</span>(linia);
-    }
-} <span class="kw">catch</span> (<span class="cl">IOException</span> e) {
-    System.out.<span class="fn">println</span>(<span class="str">"Error llegint el fitxer: "</span> + e.<span class="fn">getMessage</span>());
-} <span class="kw">finally</span> {
-    <span class="cm">// close() també pot llançar IOException: cal un altre try-catch dins del finally</span>
-    <span class="kw">try</span> {
-        <span class="kw">if</span> (br != <span class="kw">null</span>) br.<span class="fn">close</span>();   <span class="cm">// tancar el BufferedReader tanca també el FileReader</span>
-        <span class="kw">else if</span> (fr != <span class="kw">null</span>) fr.<span class="fn">close</span>();
-    } <span class="kw">catch</span> (<span class="cl">IOException</span> e) {
-        System.out.<span class="fn">println</span>(<span class="str">"Error tancant el fitxer: "</span> + e.<span class="fn">getMessage</span>());
-    }
-}</pre>
-    </div>
-
-    <div class="box box-tip">
-      <p class="box-title">Avantatges respecte a fer-ho amb finally</p>
-      <ul>
-        <li>No cal recordar-se de tancar el recurs: <strong>es tanca sempre</strong>, encara que salti una excepció.</li>
-        <li>El codi és més curt i llegible.</li>
-        <li>Si es tanquen diversos recursos, es tanquen en l'ordre correcte automàticament.</li>
-      </ul>
-    </div>
-
+    <p>
+      Avantatges respecte a fer-ho amb <code>finally</code>:
+    </p>
+    <ul>
+      <li>No cal recordar-se de tancar el recurs: <strong>es tanca sempre</strong>, encara que salti una excepció.</li>
+      <li>El codi és més curt i llegible.</li>
+      <li>Si es tanquen diversos recursos, es tanquen en l'ordre correcte automàticament.</li>
+    </ul>
 
     <!-- ══════════════════════
-         8. EL THROW
+         8. EL THROW: LLANÇAR UNA EXCEPCIÓ
     ═══════════════════════ -->
     <span id="throw" class="section-anchor"></span>
     <h2>8. El throw: llançar una excepció</h2>
-
     <p>
-      Fins ara hem <strong>capturat</strong> excepcions que llançava Java directament. Però també podem
-      <strong>llançar-ne nosaltres</strong>, quan detectem que una dada no compleix una regla
-      del nostre programa.
+      Fins ara hem <strong>capturat</strong> excepcions que llançava Java (<code>Integer.parseInt</code>, <code>new FileReader</code>...). Però també podem <strong>llançar-ne nosaltres</strong>, quan detectem que una dada no compleix una regla del nostre programa.
     </p>
-
     <div class="code-wrap">
       <div class="code-header">
         <span class="filename">Alumne.java</span>
         <span class="lang-badge lang-java">Java</span>
       </div>
       <pre><span class="kw">public</span> <span class="kw">class</span> <span class="cl">Alumne</span> {
-    <span class="kw">private</span> String nom;
+    <span class="kw">private</span> <span class="cl">String</span> nom;
     <span class="kw">private</span> <span class="kw">int</span> nota;
 
     <span class="kw">public</span> <span class="kw">void</span> <span class="fn">setNota</span>(<span class="kw">int</span> nota) {
         <span class="kw">if</span> (nota &lt; 0 || nota &gt; 10) {
-            <span class="kw">throw</span> <span class="kw">new</span> <span class="cl">IllegalArgumentException</span>(<span class="str">"La nota ha d'estar entre 0 i 10, rebut: "</span> + nota);
+            <span class="kw">throw</span> <span class="kw">new</span> <span class="fn">IllegalArgumentException</span>(<span class="str">"La nota ha d'estar entre 0 i 10, rebut: "</span> + nota);
         }
         <span class="kw">this</span>.nota = nota;
     }
 }</pre>
     </div>
-
     <div class="code-wrap">
       <div class="code-header">
-        <span class="filename">Main.java</span>
+        <span class="filename">Java</span>
         <span class="lang-badge lang-java">Java</span>
       </div>
-      <pre><span class="cl">Alumne</span> a = <span class="kw">new</span> <span class="cl">Alumne</span>();
+      <pre><span class="cl">Alumne</span> a = <span class="kw">new</span> <span class="fn">Alumne</span>();
 a.<span class="fn">setNota</span>(15); <span class="cm">// llança IllegalArgumentException i el programa s'atura aquí (si ningú la captura)</span></pre>
     </div>
-
     <p>
-      <code>throw</code> és una <strong>instrucció</strong>: crea (amb <code>new</code>) un
-      objecte excepció i el llança en aquell mateix instant. Serveix per a:
+      <code>throw</code> és una <strong>instrucció</strong>: crea (amb <code>new</code>) un objecte excepció i el llança en aquell mateix instant. Serveix per a:
     </p>
-
     <ul>
       <li><strong>Validar dades d'entrada</strong>: paràmetres d'un mètode, dades llegides de l'usuari o d'un fitxer.</li>
       <li><strong>Protegir l'estat intern</strong> d'un objecte (evitar que quedi en un estat invàlid).</li>
       <li><strong>Avisar qui ha cridat el mètode</strong> que alguna cosa no es pot completar, en comptes de retornar un valor "estrany" com <code>-1</code> o <code>null</code> que passaria desapercebut.</li>
     </ul>
-
-    <div class="box box-info">
-      <p>
-        Un cop llançada, l'excepció es comporta exactament igual que si l'hagués llançat Java:
-        puja pels mètodes que han fet la crida fins que algú la captura amb <code>catch</code>,
-        o el programa acaba si ningú ho fa.
-      </p>
-    </div>
-
+    <p>
+      Un cop llançada, l'excepció es comporta exactament igual que si l'hagués llançat Java: puja pels mètodes que han fet la crida fins que algú la captura amb <code>catch</code>, o el programa acaba si ningú ho fa.
+    </p>
 
     <!-- ══════════════════════
-         9. EL THROWS
+         9. EL THROWS: DECLARAR EXCEPCIONS AL MÈTODE
     ═══════════════════════ -->
     <span id="throws" class="section-anchor"></span>
     <h2>9. El throws: declarar excepcions al mètode</h2>
-
     <p>
-      <code>throws</code> (amb "s") és molt diferent de <code>throw</code>:
-      <strong>no llança res, només avisa</strong>. Es fa servir a la <strong>capçalera</strong>
-      d'un mètode per declarar que aquest mètode pot llançar una excepció <em>checked</em> i
-      que qui el cridi n'haurà de fer-se càrrec.
+      <code>throws</code> (amb "s") és molt diferent de <code>throw</code>: <strong>no llança res, només avisa</strong>. Es fa servir a la <strong>capçalera</strong> d'un mètode per declarar que aquest mètode pot llançar una excepció <em>checked</em> i que qui el cridi n'haurà de fer-se càrrec.
     </p>
-
     <div class="code-wrap">
       <div class="code-header">
         <span class="filename">LectorFitxer.java</span>
         <span class="lang-badge lang-java">Java</span>
       </div>
-      <pre><span class="kw">import</span> java.io.FileReader;
-<span class="kw">import</span> java.io.IOException;
+      <pre><span class="kw">import</span> java.io.<span class="cl">FileReader</span>;
+<span class="kw">import</span> java.io.<span class="cl">IOException</span>;
 
 <span class="kw">public</span> <span class="kw">class</span> <span class="cl">LectorFitxer</span> {
 
     <span class="cm">// Aquest mètode NO captura l'excepció: l'ha de gestionar qui el cridi</span>
-    <span class="kw">public</span> <span class="kw">static</span> <span class="kw">void</span> <span class="fn">llegir</span>(String nomFitxer) <span class="kw">throws</span> <span class="cl">IOException</span> {
-        <span class="cl">FileReader</span> fr = <span class="kw">new</span> <span class="cl">FileReader</span>(nomFitxer); <span class="cm">// pot llançar FileNotFoundException (subclasse d'IOException)</span>
+    <span class="kw">public</span> <span class="kw">static</span> <span class="kw">void</span> <span class="fn">llegir</span>(<span class="cl">String</span> nomFitxer) <span class="kw">throws</span> <span class="cl">IOException</span> {
+        <span class="cl">FileReader</span> fr = <span class="kw">new</span> <span class="fn">FileReader</span>(nomFitxer); <span class="cm">// pot llançar FileNotFoundException (subclasse d'IOException)</span>
         <span class="cm">// ...</span>
         fr.<span class="fn">close</span>();
     }
 
-    <span class="kw">public</span> <span class="kw">static</span> <span class="kw">void</span> <span class="fn">main</span>(String[] args) {
+    <span class="kw">public</span> <span class="kw">static</span> <span class="kw">void</span> <span class="fn">main</span>(<span class="cl">String</span>[] args) {
         <span class="kw">try</span> {
             <span class="fn">llegir</span>(<span class="str">"dades.txt"</span>);
         } <span class="kw">catch</span> (<span class="cl">IOException</span> e) {
-            System.out.<span class="fn">println</span>(<span class="str">"No s'ha pogut llegir el fitxer: "</span> + e.<span class="fn">getMessage</span>());
+            <span class="cl">System</span>.out.<span class="fn">println</span>(<span class="str">"No s'ha pogut llegir el fitxer: "</span> + e.<span class="fn">getMessage</span>());
         }
     }
 }</pre>
     </div>
-
     <table>
       <thead>
         <tr><th></th><th><code>throw</code></th><th><code>throws</code></th></tr>
       </thead>
       <tbody>
-        <tr><td><strong>Què és</strong></td><td>Una <strong>instrucció</strong>, dins del cos d'un mètode</td><td>Una <strong>clàusula</strong>, a la capçalera/signatura d'un mètode</td></tr>
-        <tr><td><strong>Quantes vegades</strong></td><td><code>throw</code> llança <strong>una</strong> excepció concreta</td><td><code>throws</code> pot llistar <strong>diverses</strong>, separades per comes</td></tr>
-        <tr><td><strong>Efecte</strong></td><td>Crea i llança l'objecte excepció <strong>en aquest instant</strong></td><td>Només <strong>declara</strong> que el mètode pot arribar a llançar-la</td></tr>
-        <tr><td><strong>Exemple</strong></td><td><code>throw new IOException("...")</code></td><td><code>void metode() throws IOException, SQLException</code></td></tr>
+        <tr><td>Què és</td><td>Una <strong>instrucció</strong>, dins del cos d'un mètode</td><td>Una <strong>clàusula</strong>, a la capçalera/signatura d'un mètode</td></tr>
+        <tr><td>Quantes vegades</td><td><code>throw</code> llança <strong>una</strong> excepció concreta</td><td><code>throws</code> pot llistar <strong>diverses</strong>, separades per comes</td></tr>
+        <tr><td>Efecte</td><td>Crea i llança l'objecte excepció <strong>en aquest instant</strong></td><td>Només <strong>declara</strong> que el mètode pot arribar a llançar-la</td></tr>
+        <tr><td>Exemple</td><td><code>throw new IOException("...")</code></td><td><code>void metode() throws IOException, SQLException</code></td></tr>
       </tbody>
     </table>
-
     <p>
-      Amb <code>throws</code>, "delegues" la responsabilitat de capturar l'excepció cap amunt:
-      cada mètode pot triar entre <strong>capturar-la ell mateix</strong> (amb
-      <code>try-catch</code>) o <strong>tornar-la a declarar amb <code>throws</code></strong>
-      i deixar-la pujar un nivell més, fins que algú (típicament el <code>main</code>, o una
-      capa superior de l'aplicació) la capturi definitivament.
+      Amb <code>throws</code>, "delegues" la responsabilitat de capturar l'excepció cap amunt: cada mètode pot triar entre <strong>capturar-la ell mateix</strong> (amb <code>try-catch</code>) o **tornar-la a declarar amb <code>throws</code>** i deixar-la pujar un nivell més, fins que algú (típicament el <code>main</code>, o una capa superior de l'aplicació) la capturi definitivament.
     </p>
-
     <div class="box box-info">
-      <p>
-        Les excepcions <em>unchecked</em> (<code>RuntimeException</code> i subclasses)
-        <strong>es poden llançar sense declarar-les</strong> amb <code>throws</code>; el
-        compilador no ho exigeix. Tot i així, sovint és bona pràctica documentar-les igualment
-        perquè qui usi el teu mètode sàpiga què esperar-se.
-      </p>
+      <p class="box-title">Nota</p>
+      <p>Les excepcions <em>unchecked</em> (<code>RuntimeException</code> i subclasses) <strong>es poden llançar sense declarar-les</strong> amb <code>throws</code>; el compilador no ho exigeix. Tot i així, sovint és bona pràctica documentar-les igualment perquè qui usi el teu mètode sàpiga què esperar-se.</p>
     </div>
-
 
     <!-- ══════════════════════
          10. EXCEPCIONS PERSONALITZADES
     ═══════════════════════ -->
     <span id="custom" class="section-anchor"></span>
     <h2>10. Excepcions personalitzades</h2>
-
     <p>
-      Les excepcions que ofereix Java (<code>IOException</code>, <code>IllegalArgumentException</code>...)
-      són genèriques. Quan volem expressar un error <strong>propi del domini de la nostra
-      aplicació</strong>, podem crear la nostra pròpia classe d'excepció.
+      Les excepcions que ofereix Java (<code>IOException</code>, <code>IllegalArgumentException</code>...) són genèriques. Quan volem expressar un error <strong>propi del domini de la nostra aplicació</strong>, podem crear la nostra pròpia classe d'excepció.
     </p>
-
     <div class="code-wrap">
       <div class="code-header">
         <span class="filename">SaldoInsuficientException.java</span>
@@ -1292,12 +1090,11 @@ a.<span class="fn">setNota</span>(15); <span class="cm">// llança IllegalArgume
       </div>
       <pre><span class="kw">public</span> <span class="kw">class</span> <span class="cl">SaldoInsuficientException</span> <span class="kw">extends</span> <span class="cl">Exception</span> {
 
-    <span class="kw">public</span> <span class="fn">SaldoInsuficientException</span>(String missatge) {
+    <span class="kw">public</span> <span class="fn">SaldoInsuficientException</span>(<span class="cl">String</span> missatge) {
         <span class="kw">super</span>(missatge); <span class="cm">// reutilitza el constructor de Exception per guardar el missatge</span>
     }
 }</pre>
     </div>
-
     <div class="code-wrap">
       <div class="code-header">
         <span class="filename">ComptaCorrent.java</span>
@@ -1308,72 +1105,67 @@ a.<span class="fn">setNota</span>(15); <span class="cm">// llança IllegalArgume
 
     <span class="kw">public</span> <span class="kw">void</span> <span class="fn">retirar</span>(<span class="kw">double</span> quantitat) <span class="kw">throws</span> <span class="cl">SaldoInsuficientException</span> {
         <span class="kw">if</span> (quantitat &gt; saldo) {
-            <span class="kw">throw</span> <span class="kw">new</span> <span class="cl">SaldoInsuficientException</span>(
+            <span class="kw">throw</span> <span class="kw">new</span> <span class="fn">SaldoInsuficientException</span>(
                 <span class="str">"No es pot retirar "</span> + quantitat + <span class="str">" €: el saldo actual és de "</span> + saldo + <span class="str">" €"</span>);
         }
         saldo -= quantitat;
     }
 }</pre>
     </div>
-
     <div class="code-wrap">
       <div class="code-header">
-        <span class="filename">Ús.java</span>
+        <span class="filename">Java</span>
         <span class="lang-badge lang-java">Java</span>
       </div>
-      <pre><span class="cl">ComptaCorrent</span> compte = <span class="kw">new</span> <span class="cl">ComptaCorrent</span>();
+      <pre><span class="cl">ComptaCorrent</span> compte = <span class="kw">new</span> <span class="fn">ComptaCorrent</span>();
 <span class="kw">try</span> {
     compte.<span class="fn">retirar</span>(500);
 } <span class="kw">catch</span> (<span class="cl">SaldoInsuficientException</span> e) {
-    System.out.<span class="fn">println</span>(<span class="str">"Operació rebutjada: "</span> + e.<span class="fn">getMessage</span>());
+    <span class="cl">System</span>.out.<span class="fn">println</span>(<span class="str">"Operació rebutjada: "</span> + e.<span class="fn">getMessage</span>());
 }</pre>
     </div>
-
-    <p>Per decidir de quina classe heretar:</p>
-
+    <p>
+      Per decidir de quina classe heretar:
+    </p>
     <ul>
-      <li>Hereta d'<strong><code>Exception</code></strong> si vols que sigui <em>checked</em> (el compilador obligarà a capturar-la o declarar-la): útil per a errors que <strong>qui crida el mètode ha de preveure sí o sí</strong> (com el saldo insuficient de l'exemple).</li>
-      <li>Hereta de <strong><code>RuntimeException</code></strong> si vols que sigui <em>unchecked</em>: útil per a errors de programació que no té sentit obligar a capturar arreu (per exemple, un identificador d'alumne negatiu que mai hauria de passar si la resta del codi és correcte).</li>
+      <li>Hereta d'**<code>Exception</code><strong> si vols que sigui <em>checked</em> (el compilador obligarà a capturar-la o declarar-la): útil per a errors que </strong>qui crida el mètode ha de preveure sí o sí** (com el saldo insuficient de l'exemple).</li>
+      <li>Hereta de **<code>RuntimeException</code>** si vols que sigui <em>unchecked</em>: útil per a errors de programació que no té sentit obligar a capturar arreu (per exemple, un identificador d'alumne negatiu que mai hauria de passar si la resta del codi és correcte).</li>
     </ul>
-
     <div class="code-wrap">
       <div class="code-header">
         <span class="filename">NotaInvalidaException.java</span>
         <span class="lang-badge lang-java">Java</span>
       </div>
       <pre><span class="kw">public</span> <span class="kw">class</span> <span class="cl">NotaInvalidaException</span> <span class="kw">extends</span> <span class="cl">RuntimeException</span> {
-    <span class="kw">public</span> <span class="fn">NotaInvalidaException</span>(String missatge) {
+    <span class="kw">public</span> <span class="fn">NotaInvalidaException</span>(<span class="cl">String</span> missatge) {
         <span class="kw">super</span>(missatge);
     }
 }</pre>
     </div>
-
 
     <!-- ══════════════════════
          11. BONES PRÀCTIQUES
     ═══════════════════════ -->
     <span id="bones-practiques" class="section-anchor"></span>
     <h2>11. Bones pràctiques</h2>
-
     <div class="box box-tip">
+      <p class="box-title">Bones pràctiques</p>
       <ul>
-        <li><strong>No deixis mai un <code>catch</code> buit.</strong> Capturar l'excepció i no fer-hi res (<code>catch (Exception e) {}</code>) amaga errors que després costen molt de trobar. Com a mínim, escriu-ho a un <code>println</code> o a un <em>log</em>.</li>
+        <li>**No deixis mai un <code>catch</code> buit.** Capturar l'excepció i no fer-hi res (<code>catch (Exception e) {}</code>) amaga errors que després costen molt de trobar. Com a mínim, escriu-ho al <code>println</code> o a un <code>log</code>.</li>
         <li><strong>Captura el tipus més específic possible</strong>, no sempre <code>Exception</code> en general. Si tractes tots els errors igual, perds la informació de què ha fallat realment.</li>
         <li><strong>No usis excepcions per controlar el flux normal</strong> del programa (per exemple, no llancis una excepció per sortir d'un bucle quan podries usar una condició normal). Les excepcions són per a situacions <strong>excepcionals</strong>, no habituals.</li>
-        <li><strong>Allibera sempre els recursos</strong>: fitxers, connexions... Prefereix <a href="#twr"><code>try-with-resources</code></a> abans que un <code>finally</code> manual.</li>
+        <li><strong>Allibera sempre els recursos</strong>: fitxers, connexions... Prefereix <code>try-with-resources</code> (<a href="#twr">secció 7</a>) abans que un <code>finally</code> manual.</li>
         <li><strong>Escriu missatges d'error clars i útils</strong>, que diguin què ha passat i, si és possible, amb quines dades (<code>"Fitxer no trobat: " + nomFitxer</code>, no simplement <code>"Error"</code>).</li>
         <li><strong>No converteixis un error en un altre sense guardar-ne l'origen.</strong> Si has d'embolicar una excepció dins d'una altra, passa-li la causa original: <code>throw new MevaException("...", e);</code> (constructor <code>(String, Throwable)</code>).</li>
-        <li><strong>Documenta els <code>throws</code></strong> dels teus mètodes (amb Javadoc <code>@throws</code>) perquè qui els faci servir sàpiga quins errors pot rebre.</li>
+        <li>**Documenta els <code>throws</code>** dels teus mètodes (amb Javadoc <code>@throws</code>) perquè qui els faci servir sàpiga quins errors pot rebre.</li>
       </ul>
     </div>
-
 
     <!-- ══════════════════════
          12. RESUM
     ═══════════════════════ -->
     <span id="resum" class="section-anchor"></span>
     <h2>12. Resum</h2>
-
     <table>
       <thead>
         <tr><th>Concepte</th><th>Paraula clau</th><th>Idea principal</th></tr>
@@ -1388,16 +1180,15 @@ a.<span class="fn">setNota</span>(15); <span class="cm">// llança IllegalArgume
         <tr><td>Crear un error propi del domini</td><td><code>extends Exception</code> / <code>extends RuntimeException</code></td><td><em>Checked</em> si vols obligar a tractar-lo; <em>unchecked</em> si no</td></tr>
       </tbody>
     </table>
-
     <div class="mermaid-frame">
       <pre class="mermaid">
 flowchart LR
-    A["Codi que pot fallar"] -- "try" --> B{"Excepció?"}
-    B -- "No" --> C["Continua normal"]
-    B -- "Sí" --> D["catch: es tracta l'error"]
-    C --> E["finally: neteja"]
-    D --> E
-    E --> F["El programa continua"]
+    A["Codi que pot fallar"] -- "try" --&gt; B{"Excepció?"}
+    B -- "No" --&gt; C["Continua normal"]
+    B -- "Sí" --&gt; D["catch: es tracta l'error"]
+    C --&gt; E["finally: neteja"]
+    D --&gt; E
+    E --&gt; F["El programa continua"]
 
     classDef n fill:#e7f5ff,stroke:#1971c2,stroke-width:2px,color:#000
     classDef e fill:#ffe3e3,stroke:#c92a2a,stroke-width:2px,color:#000
@@ -1407,9 +1198,6 @@ flowchart LR
     class E,F f
       </pre>
     </div>
-
-
-    
 
     <div style="height: 60px;"></div>
 
