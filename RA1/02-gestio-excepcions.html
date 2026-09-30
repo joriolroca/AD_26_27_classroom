@@ -799,11 +799,11 @@ flowchart TD
         <span class="lang-badge lang-java">Java</span>
       </div>
       <pre><span class="kw">int</span>[] notes = {5, 7, 9};
-<span class="cl">Scanner</span> sc1 = <span class="kw">null</span>;
+<span class="cl">Scanner</span> sc = <span class="kw">null</span>;
 <span class="cl">System</span>.out.<span class="fn">println</span>(<span class="str">"Quina posició vols accedir de l'array? : "</span>);
 <span class="kw">try</span> {
-    sc1 = <span class="kw">new</span> <span class="fn">Scanner</span>(<span class="cl">System</span>.in);
-    <span class="kw">int</span> index = sc1.<span class="fn">nextInt</span>();                       <span class="cm">// pot llançar InputMismatchException</span>
+    sc = <span class="kw">new</span> <span class="fn">Scanner</span>(<span class="cl">System</span>.in);
+    <span class="kw">int</span> index = sc.<span class="fn">nextInt</span>();                       <span class="cm">// pot llançar InputMismatchException</span>
     <span class="cl">System</span>.out.<span class="fn">println</span>(<span class="str">"El valor a la posició: "</span> + index
             + <span class="str">" és: "</span> + notes[index]);               <span class="cm">// pot llançar ArrayIndexOutOfBoundsException</span>
 } <span class="kw">catch</span> (<span class="cl">InputMismatchException</span> inpmsx) {
@@ -813,7 +813,7 @@ flowchart TD
 } <span class="kw">catch</span> (<span class="cl">Exception</span> e) {
     <span class="cl">System</span>.out.<span class="fn">println</span>(<span class="str">"Ha passat un error inesperat: "</span> + e.<span class="fn">getMessage</span>());
 } <span class="kw">finally</span> {
-    <span class="kw">if</span> (sc1 != <span class="kw">null</span>) sc1.<span class="fn">close</span>();
+    <span class="kw">if</span> (sc != <span class="kw">null</span>) sc.<span class="fn">close</span>();
 }</pre>
     </div>
     <p>
@@ -948,6 +948,32 @@ FINALLY: Aquest missatge es mostra sempre, hi hagi error o no.</pre>
     <h2>7. Try-with-resources</h2>
     <p>
       Tancar recursos "a mà" dins d'un <code>finally</code> és <strong>verbós i fàcil d'equivocar</strong>. Des de Java 7 existeix el <strong>try-with-resources</strong>, pensat per a qualsevol classe que implementi la interfície <code>AutoCloseable</code> (com <code>FileReader</code>, <code>BufferedReader</code>, una connexió a base de dades, etc.).
+    </p>
+    <p>
+      Amb l'exemple que hem fet servir anteriorment:
+    </p>
+    <div class="code-wrap">
+      <div class="code-header">
+        <span class="filename">Java</span>
+        <span class="lang-badge lang-java">Java</span>
+      </div>
+      <pre><span class="kw">int</span>[] notes = {5, 7, 9};
+<span class="cl">System</span>.out.<span class="fn">println</span>(<span class="str">"Quina posició vols accedir de l'array? : "</span>);
+
+<span class="kw">try</span>(<span class="cl">Scanner</span> sc = <span class="kw">new</span> <span class="fn">Scanner</span>(<span class="cl">System</span>.in); ){
+    <span class="kw">int</span> index = sc.<span class="fn">nextInt</span>();                       <span class="cm">// pot llançar InputMismatchException</span>
+    <span class="cl">System</span>.out.<span class="fn">println</span>(<span class="str">"El valor a la posició: "</span> + index
+                        + <span class="str">" és: "</span> + notes[index]);               <span class="cm">// pot llançar ArrayIndexOutOfBoundsException</span>
+} <span class="kw">catch</span> (<span class="cl">InputMismatchException</span> inpmsx) {
+    <span class="cl">System</span>.out.<span class="fn">println</span>(<span class="str">"Error a l'entrada: cal escriure un número enter."</span>);
+} <span class="kw">catch</span> (<span class="cl">ArrayIndexOutOfBoundsException</span> e) {
+    <span class="cl">System</span>.out.<span class="fn">println</span>(<span class="str">"Aquest índex no existeix a l'array."</span>);
+} <span class="kw">catch</span> (<span class="cl">Exception</span> e) {
+    <span class="cl">System</span>.out.<span class="fn">println</span>(<span class="str">"Ha passat un error inesperat: "</span> + e.<span class="fn">getMessage</span>());
+} <span class="cm">// sc es tanca AUTOMÀTICAMENT en sortir del try sense necessitat d'escriure cap finally.</span></pre>
+    </div>
+    <p>
+      Es pot fer amb múltiples classes a la vegada.
     </p>
     <div class="code-wrap">
       <div class="code-header">

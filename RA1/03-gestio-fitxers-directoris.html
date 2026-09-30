@@ -1,0 +1,1133 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gestió de fitxers i directoris – DAM · RA1</title>
+  <style>
+    /* ── Reset & Base ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:          #0f1117;
+      --surface:     #1a1d27;
+      --surface2:    #222636;
+      --border:      #2e3248;
+      --accent:      #7c6af7;
+      --accent2:     #4fc3f7;
+      --accent3:     #43e97b;
+      --accent4:     #f8a94f;
+      --accent5:     #f06292;
+      --text:        #e2e6f0;
+      --muted:       #8891aa;
+      --code-bg:     #12151f;
+      --tag-dto:     #3a2f70;
+      --tag-mapper:  #1a3a2f;
+      --tag-service: #3a2810;
+      --tag-ctrl:    #2c1a3a;
+      --font-mono:   'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+      --font-sans:   'Inter', 'Segoe UI', system-ui, sans-serif;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--font-sans);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      font-size: 15px;
+    }
+
+    /* ── Layout ── */
+    .page-wrap { display: flex; min-height: 100vh; }
+
+    nav.sidebar {
+      width: 260px;
+      flex-shrink: 0;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* capçalera: fixa, no fa scroll amb la resta del menú */
+    nav.sidebar .logo {
+      flex-shrink: 0;
+      padding: 22px 20px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    nav.sidebar .logo .eyebrow {
+      display: block;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--muted);
+    }
+
+    nav.sidebar .logo h2 {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--accent);
+      line-height: 1.3;
+      margin: 0;
+    }
+
+    nav.sidebar .logo .topic {
+      display: block;
+      font-size: 11px;
+      color: var(--accent2);
+      margin-top: 4px;
+    }
+
+    /* bloc d'enllaços: és l'únic que fa scroll intern */
+    nav.sidebar .sidebar-links {
+      flex: 1 1 auto;
+      overflow-y: auto;
+      padding: 14px 0 24px;
+    }
+
+    nav.sidebar ul { list-style: none; }
+
+    nav.sidebar ul li a {
+      display: block;
+      padding: 7px 20px;
+      text-decoration: none;
+      color: var(--muted);
+      font-size: 13px;
+      transition: all .15s;
+      border-left: 3px solid transparent;
+    }
+
+    nav.sidebar ul li a:hover,
+    nav.sidebar ul li a.active {
+      color: var(--text);
+      background: var(--surface2);
+      border-left-color: var(--accent);
+    }
+
+    nav.sidebar ul .section-label {
+      padding: 14px 20px 4px;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    main {
+      flex: 1;
+      max-width: 940px;
+      padding: 48px 56px;
+      overflow-x: hidden;
+    }
+
+    /* ── Typography ── */
+    h1 {
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 12px;
+      line-height: 1.2;
+    }
+
+    h2 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text);
+      margin: 52px 0 16px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    h3 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--accent2);
+      margin: 32px 0 10px;
+    }
+
+    h4 {
+      font-size: .95rem;
+      font-weight: 600;
+      color: var(--accent4);
+      margin: 22px 0 8px;
+    }
+
+    p { margin-bottom: 14px; color: var(--text); }
+    p + ul, p + ol { margin-top: -6px; }
+
+    ul, ol { padding-left: 20px; margin-bottom: 14px; }
+    li { margin-bottom: 6px; }
+
+    strong { color: var(--text); font-weight: 600; }
+    em { color: var(--accent4); font-style: italic; }
+
+    code {
+      font-family: var(--font-mono);
+      font-size: .82em;
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 1px 6px;
+      color: var(--accent3);
+    }
+
+    /* ── Hero ── */
+    .hero {
+      background: linear-gradient(135deg, #1a1d27 0%, #1e1633 100%);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 36px 40px;
+      margin-bottom: 32px;
+    }
+
+    .hero .subtitle {
+      color: var(--muted);
+      font-size: 1rem;
+      margin-top: 8px;
+      margin-bottom: 0;
+    }
+
+    .hero .tags { margin-top: 18px; display: flex; gap: 10px; flex-wrap: wrap; }
+
+    .tag {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      padding: 4px 12px;
+      border-radius: 20px;
+      border: 1px solid;
+    }
+
+    .tag-dto    { background: var(--tag-dto);     border-color: var(--accent);  color: var(--accent); }
+    .tag-mapper { background: var(--tag-mapper);  border-color: var(--accent3); color: var(--accent3); }
+    .tag-svc    { background: var(--tag-service); border-color: var(--accent4); color: var(--accent4); }
+    .tag-ctrl   { background: var(--tag-ctrl);    border-color: var(--accent5); color: var(--accent5); }
+    .tag-spring { background: #1a2233; border-color: var(--accent2); color: var(--accent2); }
+
+    /* ── Info boxes ── */
+    .box {
+      border-radius: 10px;
+      padding: 18px 22px;
+      margin: 20px 0;
+      border-left: 4px solid;
+    }
+
+    .box-info    { background: #151c30; border-color: var(--accent2); }
+    .box-tip     { background: #111f1a; border-color: var(--accent3); }
+    .box-warn    { background: #1f1a11; border-color: var(--accent4); }
+    .box-concept { background: #17142a; border-color: var(--accent); }
+    .box-criteri { background: #2a1030; border-color: var(--accent5); }
+
+    .box .box-title {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      margin-bottom: 8px;
+    }
+
+    .box-info    .box-title { color: var(--accent2); }
+    .box-tip     .box-title { color: var(--accent3); }
+    .box-warn    .box-title { color: var(--accent4); }
+    .box-concept .box-title { color: var(--accent); }
+    .box-criteri .box-title { color: var(--accent5); }
+
+    .box p:last-child { margin-bottom: 0; }
+    .box ul:last-child { margin-bottom: 0; }
+
+    /* llista de criteris d'avaluació — pensada per acollir-ne un o més */
+    .criteria-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .criteria-list li {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      margin-bottom: 0;
+    }
+
+    .criteria-code {
+      flex-shrink: 0;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 700;
+      background: var(--tag-ctrl);
+      border: 1px solid var(--accent5);
+      color: var(--accent5);
+      padding: 2px 9px;
+      border-radius: 20px;
+    }
+
+    .criteria-text { color: var(--text); }
+
+    /* ── Code blocks ── */
+    .code-wrap {
+      margin: 18px 0 24px;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+
+    .code-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--surface2);
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .code-header .filename {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .code-header .lang-badge {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+
+    .lang-java    { background: #2a1e0e; color: var(--accent4); border: 1px solid #6a3e0e; }
+    .lang-dto     { background: #1e1040; color: var(--accent);  border: 1px solid #4a30a0; }
+    .lang-mapper  { background: #0e2018; color: var(--accent3); border: 1px solid #1e6040; }
+    .lang-service { background: #201808; color: #f0c040;        border: 1px solid #604020; }
+    .lang-ctrl    { background: #1a0820; color: var(--accent5); border: 1px solid #602080; }
+
+    pre {
+      background: var(--code-bg);
+      padding: 20px 22px;
+      overflow-x: auto;
+      margin: 0;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      line-height: 1.65;
+      color: #c8d0e8;
+    }
+
+    /* Syntax highlight via spans */
+    .kw  { color: #c084fc; }   /* keyword */
+    .cl  { color: #93c5fd; }   /* class name */
+    .fn  { color: #67e8f9; }   /* function/method */
+    .str { color: #86efac; }   /* string */
+    .ann { color: #fb923c; }   /* annotation */
+    .cm  { color: #6b7280; font-style: italic; } /* comment */
+    .hl  { background: #2a2d3e; display: block; margin: 0 -22px; padding: 0 22px; } /* highlight line */
+
+    /* ── Diagrams (Mermaid) ── */
+    .mermaid-frame {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 28px 20px;
+      margin: 20px 0;
+      overflow-x: auto;
+      display: flex;
+      justify-content: center;
+    }
+
+    .mermaid-frame .mermaid {
+      display: block;
+      width: 100%;
+    }
+
+    .mermaid-frame svg {
+      width: 100%;
+      height: auto;
+      min-width: 640px;
+    }
+
+    /* diagrames més senzills (8.1, 9.1, connexió directa) que no cal
+       estirar a tota l'amplada del contenidor */
+    .mermaid-frame--compact .mermaid {
+      width: auto;
+    }
+
+    .mermaid-frame--compact svg {
+      width: auto;
+      max-width: 460px;
+      min-width: 0;
+    }
+
+    /* ── Comparació taula ── */
+    .compare-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin: 20px 0;
+    }
+
+    .compare-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .compare-card .cc-header {
+      padding: 12px 18px;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .cc-header.request { background: #1e1633; color: var(--accent); border-bottom: 1px solid #2e2050; }
+    .cc-header.response { background: #0e2018; color: var(--accent3); border-bottom: 1px solid #1e4030; }
+    .cc-header.good { background: #0e2018; color: var(--accent3); border-bottom: 1px solid #1e4030; }
+    .cc-header.bad  { background: #2a1030; color: var(--accent5); border-bottom: 1px solid #4a1a3a; }
+
+    .compare-card pre { font-size: 12px; }
+    .compare-body { padding: 16px 20px; }
+    .compare-body ul { margin-bottom: 0; }
+
+    /* ── Step by step ── */
+    .steps { counter-reset: step; margin: 20px 0; }
+
+    .step {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 32px;
+      padding-bottom: 32px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .step:last-child { border-bottom: none; }
+
+    .step-num {
+      flex-shrink: 0;
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: #fff;
+      font-weight: 800;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 2px;
+    }
+
+    .step-body { flex: 1; }
+    .step-body h3 { margin-top: 0; }
+
+    /* ── Table ── */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 18px 0;
+      font-size: 13.5px;
+    }
+
+    th {
+      background: var(--surface2);
+      color: var(--text);
+      font-weight: 700;
+      padding: 10px 14px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+
+    td {
+      padding: 9px 14px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+
+    tr:hover td { background: var(--surface); }
+
+    td code { font-size: .8em; }
+
+    /* ── Section divider ── */
+    .section-anchor { display: block; position: relative; top: -80px; visibility: hidden; }
+
+    /* ── Print ── */
+    @media print {
+      nav.sidebar { display: none; }
+      main { max-width: 100%; padding: 20px; }
+      .hero { break-inside: avoid; }
+      .step { break-inside: avoid; }
+      h2 { break-before: page; }
+      pre { white-space: pre-wrap; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="page-wrap">
+
+  <!-- ══════════════════════════════════════
+       SIDEBAR
+  ═══════════════════════════════════════ -->
+  <nav class="sidebar">
+    <div class="logo">
+      <span class="eyebrow">ACCÉS A DADES · RA1</span>
+      <span class="topic">Gestió de fitxers i directoris</span>
+    </div>
+    <div class="sidebar-links">
+      <ul>
+
+        <li class="section-label">Introducció</li>
+        <li><a href="#criteris">Criteris d'avaluació</a></li>
+        <li><a href="#objectius">Què aprendràs</a></li>
+        <li><a href="#apis">1. Les dues APIs</a></li>
+        <li><a href="#nio2">1.1 NIO.2</a></li>
+        <li><a href="#comparacio">1.2 Comparació</a></li>
+
+        <li class="section-label">NIO.2</li>
+        <li><a href="#path">2. Path</a></li>
+        <li><a href="#files">3. Files</a></li>
+        <li><a href="#crear-consultar">3.1 Crear i consultar</a></li>
+        <li><a href="#copiar-moure">3.2 Copiar, moure i esborrar</a></li>
+
+        <li class="section-label">Excepcions</li>
+        <li><a href="#excepcions">4. Excepcions de NIO.2</a></li>
+        <li><a href="#excepcions-catch">4.1 Cada error per separat</a></li>
+        <li><a href="#throw-throws">4.2 throw i throws</a></li>
+
+        <li class="section-label">Directoris</li>
+        <li><a href="#directoris">5. Llistar i recórrer</a></li>
+        <li><a href="#llistar">5.1 Llistar un directori</a></li>
+        <li><a href="#cercar">5.2 Cercar amb un filtre</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- ══════════════════════════════════════
+       MAIN
+  ═══════════════════════════════════════ -->
+  <main>
+
+
+    <!-- HERO -->
+    <div class="hero">
+      <h1>Gestió de fitxers i directoris</h1>
+      <p class="subtitle">
+        Com Java representa les rutes amb <code>Path</code> i actua sobre el disc amb <code>Files</code>:
+        consultar, crear, copiar, moure i esborrar fitxers i directoris, recórrer-ne el contingut
+        i tractar les excepcions que llança NIO.2.
+      </p>
+      <div class="tags">
+        <span class="tag tag-dto">DAM</span>
+        <span class="tag tag-mapper">RA1</span>
+        <span class="tag tag-svc">Fitxers i directoris</span>
+      </div>
+    </div>
+
+    <span id="criteris" class="section-anchor"></span>
+    <div class="box box-criteri">
+      <p class="box-title">Criteris d'avaluació relacionats</p>
+      <ul class="criteria-list">
+        <li>
+          <span class="criteria-code">1.1</span>
+          <span class="criteria-text">Utilitza classes per a la gestió de fitxers i directoris.</span>
+        </li>
+        <li>
+          <span class="criteria-code">1.6</span>
+          <span class="criteria-text">Preveu i gestiona les excepcions.</span>
+        </li>
+      </ul>
+    </div>
+    <span id="objectius" class="section-anchor"></span>
+    <div class="box box-concept">
+      <p class="box-title">Què aprendràs</p>
+      <p>En acabar aquesta unitat has de ser capaç de:</p>
+      <ul>
+        <li>Distingir les dues APIs de Java per treballar amb fitxers i justificar per què es fa servir NIO.2.</li>
+        <li>Representar i manipular rutes amb la interfície <code>Path</code>.</li>
+        <li>Crear, consultar, copiar, moure i esborrar fitxers i directoris amb la classe <code>Files</code>.</li>
+        <li>Identificar les excepcions que llança NIO.2 i tractar-les de manera específica.</li>
+        <li>Llistar i recórrer el contingut d'un directori.</li>
+      </ul>
+    </div>
+
+    <!-- ══════════════════════
+         1. LES DUES APIS DE JAVA
+    ═══════════════════════ -->
+    <span id="apis" class="section-anchor"></span>
+    <h2>1. Les dues APIs de Java</h2>
+    <p>
+      Java ofereix dues APIs per gestionar fitxers i directoris. Totes dues conviuen i les trobaràs al codi real.
+    </p>
+    <table>
+      <thead>
+        <tr><th></th><th><strong>java.io</strong></th><th><strong>NIO.2</strong></th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Paquet</td><td><code>java.io</code></td><td><code>java.nio.file</code></td></tr>
+        <tr><td>Des de</td><td>Java 1.0 (1996)</td><td>Java 7 (2011)</td></tr>
+        <tr><td>Classes principals</td><td><code>File</code></td><td><code>Path</code> i <code>Files</code></td></tr>
+        <tr><td>Estat</td><td>Clàssica: codi antic i molts exemples d'internet</td><td>Actual: és la que s'usa en codi nou</td></tr>
+      </tbody>
+    </table>
+    <div class="mermaid-frame">
+      <pre class="mermaid">
+flowchart LR
+    subgraph IO["java.io"]
+        FI["&lt;b&gt;File&lt;/b&gt;&lt;br/&gt;Representa la ruta&lt;br/&gt;i hi fa les operacions"]
+    end
+    subgraph NIO["NIO.2"]
+        P["&lt;b&gt;Path&lt;/b&gt;&lt;br/&gt;Només representa la ruta"]
+        F["&lt;b&gt;Files&lt;/b&gt;&lt;br/&gt;Només fa les operacions"]
+        P -- "es passa com a argument" --&gt; F
+    end
+
+    classDef antic fill:#fff4e6,stroke:#e8590c,stroke-width:2px,color:#000
+    classDef nou fill:#e7f5ff,stroke:#1971c2,stroke-width:2px,color:#000
+    class FI antic
+    class P,F nou
+      </pre>
+    </div>
+    <p>
+      Al mòdul de Programació vas poder treballar amb l'API clàssica, <code>java.io.File</code>. Enguany ho farem amb NIO.2 (paquet <code>java.nio.file</code>).
+    </p>
+    <span id="nio2" class="section-anchor"></span>
+    <h3>1.1 L'API actual: NIO.2</h3>
+    <p>
+      Un dels canvis que introdueix aquesta API és l'ús de la interfície <code>Path</code>. Fixeu-vos que mitjançant <code>Path</code> declarem la ruta del fitxer amb el qual es voldran dur a terme determinades accions.
+    </p>
+    <p>
+      Per altra banda també disposem de la classe <code>Files</code> per tal de dur a terme les operacions (comprovar existència, crear fitxer, etc. ) un cop hem declarat el <code>Path</code>. És important remarcar que <code>Path</code> per si sol no representa l'existència d'un fitxer o un directori, sols indica la seva ruta.
+    </p>
+    <div class="code-wrap">
+      <div class="code-header">
+        <span class="filename">ExempleNio.java</span>
+        <span class="lang-badge lang-java">Java</span>
+      </div>
+      <pre><span class="kw">import</span> java.io.<span class="cl">IOException</span>;
+<span class="kw">import</span> java.nio.file.<span class="cl">Files</span>;
+<span class="kw">import</span> java.nio.file.<span class="cl">Path</span>;
+
+<span class="kw">public</span> <span class="kw">class</span> <span class="cl">ExempleNio</span> {
+    <span class="kw">public</span> <span class="kw">static</span> <span class="kw">void</span> <span class="fn">main</span>(<span class="cl">String</span>[] args) <span class="kw">throws</span> <span class="cl">IOException</span> {
+        <span class="cl">Path</span> dir = <span class="cl">Path</span>.<span class="fn">of</span>(<span class="str">"dades"</span>);               <span class="cm">// representa la ruta "dades" (encara no crea res)</span>
+        <span class="cl">Path</span> f   = dir.<span class="fn">resolve</span>(<span class="str">"notes.txt"</span>);       <span class="cm">// representa la ruta "dades/notes.txt"</span>
+
+        <span class="cl">Files</span>.<span class="fn">createDirectories</span>(dir);              <span class="cm">// crea el directori i els pares que faltin</span>
+        <span class="cl">Files</span>.<span class="fn">createFile</span>(f);                       <span class="cm">// crea el fitxer buit; si ja existeix llança una excepció</span>
+
+        <span class="cl">System</span>.out.<span class="fn">println</span>(<span class="cl">Files</span>.<span class="fn">exists</span>(f));       <span class="cm">// true: comprova si existeix al disc</span>
+        <span class="cl">System</span>.out.<span class="fn">println</span>(f.<span class="fn">getFileName</span>());       <span class="cm">// notes.txt: el nom, sense la ruta</span>
+        <span class="cl">System</span>.out.<span class="fn">println</span>(<span class="cl">Files</span>.<span class="fn">size</span>(f));         <span class="cm">// 0: la mida en bytes</span>
+
+        <span class="cl">Files</span>.<span class="fn">delete</span>(f);                           <span class="cm">// esborra el fitxer; si falla llança una excepció que diu per què</span>
+    }
+}</pre>
+    </div>
+    <span id="comparacio" class="section-anchor"></span>
+    <h3>1.2 Comparació entre APIs</h3>
+    <p>
+      Tot seguit compararem el que fa <code>java.io</code> amb el que fa NIO.2:
+    </p>
+    <table>
+      <thead>
+        <tr><th>Operació</th><th><code>java.io.File</code></th><th>NIO.2</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Representar una ruta</td><td><code>new File("a/b.txt")</code></td><td><code>Path.of("a", "b.txt")</code></td></tr>
+        <tr><td>Crear directoris</td><td><code>f.mkdirs()</code></td><td><code>Files.createDirectories(p)</code></td></tr>
+        <tr><td>Esborrar</td><td><code>f.delete()</code> retorna <code>boolean</code></td><td><code>Files.delete(p)</code> llança una excepció</td></tr>
+        <tr><td>Copiar i moure</td><td>Copiar no existeix: cal fer-ho a mà</td><td><code>Files.copy()</code> i <code>Files.move()</code></td></tr>
+        <tr><td>Llistar un directori</td><td><code>f.listFiles()</code></td><td><code>Files.list(p)</code></td></tr>
+        <tr><td>Recórrer tot l'arbre</td><td>Recursivitat manual</td><td><code>Files.walk(p)</code></td></tr>
+      </tbody>
+    </table>
+    <div class="box box-info">
+      <p class="box-title">El codi nou s'escriu amb <strong>NIO.2</strong> perquè</p>
+      <ul>
+        <li>Els errors es notifiquen amb excepcions que indiquen la causa (apartat 4).</li>
+        <li>Té operacions que <code>java.io.File</code> no té: copiar, moure amb garanties, recórrer arbres, llegir atributs.</li>
+        <li>Separa la ruta (<code>Path</code>) de les operacions (<code>Files</code>), i això fa el codi més clar.</li>
+      </ul>
+    </div>
+
+    <!-- ══════════════════════
+         2. NIO2-PATH
+    ═══════════════════════ -->
+    <span id="path" class="section-anchor"></span>
+    <h2>2. NIO2-PATH</h2>
+    <p>
+      Un **<code>Path</code><strong> és una ruta: una seqüència de noms de directoris acabada en un fitxer o directori. </strong>No accedeix al disc ni modifica res: aquestes operacions les fa la classe <code>Files</code>.**
+    </p>
+    <div class="code-wrap">
+      <div class="code-header">
+        <span class="filename">ExemplePath.java</span>
+        <span class="lang-badge lang-java">Java</span>
+      </div>
+      <pre><span class="kw">import</span> java.nio.file.<span class="cl">Path</span>;
+
+<span class="kw">public</span> <span class="kw">class</span> <span class="cl">ExemplePath</span> {
+    <span class="kw">public</span> <span class="kw">static</span> <span class="kw">void</span> <span class="fn">main</span>(<span class="cl">String</span>[] args) {
+        <span class="cm">// Path.of() uneix els fragments amb el separador del sistema: / a Linux, \ a Windows</span>
+        <span class="cl">Path</span> p = <span class="cl">Path</span>.<span class="fn">of</span>(<span class="str">"dades"</span>, <span class="str">"2026"</span>, <span class="str">"vendes.csv"</span>);
+
+        <span class="cl">System</span>.out.<span class="fn">println</span>(p.<span class="fn">getFileName</span>());      <span class="cm">// vendes.csv      -&gt; l'últim element de la ruta</span>
+        <span class="cl">System</span>.out.<span class="fn">println</span>(p.<span class="fn">getParent</span>());        <span class="cm">// dades/2026      -&gt; la ruta sense l'últim element</span>
+        <span class="cl">System</span>.out.<span class="fn">println</span>(p.<span class="fn">isAbsolute</span>());       <span class="cm">// false           -&gt; és relativa</span>
+        <span class="cl">System</span>.out.<span class="fn">println</span>(p.<span class="fn">toAbsolutePath</span>());   <span class="cm">// /home/alumne/projecte/dades/2026/vendes.csv</span>
+                                                  <span class="cm">//                 -&gt; la converteix en absoluta</span>
+
+        <span class="cl">Path</span> base = <span class="cl">Path</span>.<span class="fn">of</span>(<span class="str">"dades"</span>);
+        <span class="cl">System</span>.out.<span class="fn">println</span>(base.<span class="fn">resolve</span>(<span class="str">"clients.csv"</span>));
+        <span class="cm">// dades/clients.csv -&gt; afegeix una ruta al final d'una altra</span>
+
+        <span class="cl">System</span>.out.<span class="fn">println</span>(p.<span class="fn">resolveSibling</span>(<span class="str">"compres.csv"</span>));
+        <span class="cm">// dades/2026/compres.csv -&gt; substitueix l'últim element (útil per reanomenar)</span>
+
+        <span class="cl">System</span>.out.<span class="fn">println</span>(base.<span class="fn">relativize</span>(p));
+        <span class="cm">// 2026/vendes.csv -&gt; el camí per anar de "dades" a "dades/2026/vendes.csv"</span>
+
+        <span class="cl">System</span>.out.<span class="fn">println</span>(<span class="cl">Path</span>.<span class="fn">of</span>(<span class="str">"dades/./2026/../clients.csv"</span>).<span class="fn">normalize</span>());
+        <span class="cm">// dades/clients.csv -&gt; elimina els "." i resol els ".."</span>
+    }
+}</pre>
+    </div>
+    <table>
+      <thead>
+        <tr><th>Mètode</th><th>Retorna</th><th>Què fa</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>Path.of(...)</code></td><td><code>Path</code></td><td>Crea una ruta a partir d'un o més fragments</td></tr>
+        <tr><td><code>getFileName()</code></td><td><code>Path</code></td><td>L'últim element de la ruta</td></tr>
+        <tr><td><code>getParent()</code></td><td><code>Path</code></td><td>La ruta sense l'últim element, o <code>null</code> si no en té</td></tr>
+        <tr><td><code>isAbsolute()</code></td><td><code>boolean</code></td><td>Indica si la ruta és absoluta</td></tr>
+        <tr><td><code>toAbsolutePath()</code></td><td><code>Path</code></td><td>Converteix la ruta en absoluta</td></tr>
+        <tr><td><code>resolve(altra)</code></td><td><code>Path</code></td><td>Afegeix <code>altra</code> al final de la ruta</td></tr>
+        <tr><td><code>resolveSibling(nom)</code></td><td><code>Path</code></td><td>Canvia l'últim element per <code>nom</code></td></tr>
+        <tr><td><code>relativize(altra)</code></td><td><code>Path</code></td><td>Calcula el camí relatiu per anar fins a <code>altra</code></td></tr>
+        <tr><td><code>normalize()</code></td><td><code>Path</code></td><td>Elimina els <code>.</code> i resol els <code>..</code></td></tr>
+      </tbody>
+    </table>
+    <p>
+      <code>normalize()</code> neteja una ruta d'elements redundants:
+    </p>
+    <ul>
+      <li><code>.</code> vol dir "el directori actual", així que s'elimina: <code>dades/./2026</code> → <code>dades/2026</code>.</li>
+      <li><code>..</code> vol dir "el directori pare", així que anul·la l'element anterior: <code>2026/..</code> desapareix.</li>
+    </ul>
+    <div class="code-wrap">
+      <div class="code-header">
+        <span class="filename">Text</span>
+      </div>
+      <pre>dades/./2026/../clients.csv
+dades/2026/../clients.csv       &lt;- s'elimina el "."
+dades/clients.csv               &lt;- "2026" i ".." s'anul·len</pre>
+    </div>
+    <div class="box box-info">
+      <p class="box-title">Nota</p>
+      <p>si escrius les rutes amb <code>Path.of("dades", "2026")</code> en lloc de <code>"dades\\2026"</code>, el codi funciona igual a qualsevol sistema operatiu.</p>
+    </div>
+
+    <!-- ══════════════════════
+         3. NIO2-FILES
+    ═══════════════════════ -->
+    <span id="files" class="section-anchor"></span>
+    <h2>3. NIO2-FILES</h2>
+    <p>
+      Files és el que actua sobre el disc. Fa les operacions de crear, copiar, moure, esborrar, llegir, escriure, comprovar si existeix...
+    </p>
+    <span id="crear-consultar" class="section-anchor"></span>
+    <h3>3.1 Crear i consultar</h3>
+    <div class="code-wrap">
+      <div class="code-header">
+        <span class="filename">CrearIConsultar.java</span>
+        <span class="lang-badge lang-java">Java</span>
+      </div>
+      <pre><span class="kw">import</span> java.io.<span class="cl">IOException</span>;
+<span class="kw">import</span> java.nio.file.*;
+
+<span class="kw">public</span> <span class="kw">class</span> <span class="cl">CrearIConsultar</span> {
+    <span class="kw">public</span> <span class="kw">static</span> <span class="kw">void</span> <span class="fn">main</span>(<span class="cl">String</span>[] args) <span class="kw">throws</span> <span class="cl">IOException</span> {   <span class="cm">// les excepcions es tracten a l'apartat 4</span>
+        <span class="cl">Path</span> dir    = <span class="cl">Path</span>.<span class="fn">of</span>(<span class="str">"dades"</span>, <span class="str">"informes"</span>);
+        <span class="cl">Path</span> fitxer = dir.<span class="fn">resolve</span>(<span class="str">"resum.txt"</span>);                    <span class="cm">// dades/informes/resum.txt</span>
+
+        <span class="cl">Files</span>.<span class="fn">createDirectories</span>(dir);        <span class="cm">// crea "dades" i "informes" si no existeixen</span>
+        <span class="kw">if</span> (<span class="cl">Files</span>.<span class="fn">notExists</span>(fitxer)) {       <span class="cm">// true si el fitxer NO existeix</span>
+            <span class="cl">Files</span>.<span class="fn">createFile</span>(fitxer);        <span class="cm">// crea un fitxer buit</span>
+        }
+
+        <span class="cl">System</span>.out.<span class="fn">println</span>(<span class="str">"Existeix?        "</span> + <span class="cl">Files</span>.<span class="fn">exists</span>(fitxer));               <span class="cm">// existeix al disc?</span>
+        <span class="cl">System</span>.out.<span class="fn">println</span>(<span class="str">"És fitxer?       "</span> + <span class="cl">Files</span>.<span class="fn">isRegularFile</span>(fitxer));        <span class="cm">// és un fitxer (no un directori)?</span>
+        <span class="cl">System</span>.out.<span class="fn">println</span>(<span class="str">"És directori?    "</span> + <span class="cl">Files</span>.<span class="fn">isDirectory</span>(dir));             <span class="cm">// és un directori?</span>
+        <span class="cl">System</span>.out.<span class="fn">println</span>(<span class="str">"Mida:            "</span> + <span class="cl">Files</span>.<span class="fn">size</span>(fitxer) + <span class="str">" bytes"</span>);      <span class="cm">// mida en bytes</span>
+        <span class="cl">System</span>.out.<span class="fn">println</span>(<span class="str">"Modificat:       "</span> + <span class="cl">Files</span>.<span class="fn">getLastModifiedTime</span>(fitxer));  <span class="cm">// data de l'última modificació</span>
+        <span class="cl">System</span>.out.<span class="fn">println</span>(<span class="str">"Es pot escriure? "</span> + <span class="cl">Files</span>.<span class="fn">isWritable</span>(fitxer));           <span class="cm">// tenim permís d'escriptura?</span>
+    }
+}</pre>
+    </div>
+    <p>
+      Fixeu-vos que per l'arxiu "resum.txt" hem fet directament un <code>resolve</code> i no un <code>Path.of("resum.txt")</code>. Per què?
+    </p>
+    <table>
+      <thead>
+        <tr><th>Mètode</th><th>Què fa</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>createDirectory(p)</code></td><td>Crea un sol directori. Falla si el pare no existeix o si ja existeix</td></tr>
+        <tr><td><code>createDirectories(p)</code></td><td>Crea el directori i tots els pares que faltin. No falla si ja existeix</td></tr>
+        <tr><td><code>createFile(p)</code></td><td>Crea un fitxer buit. Falla si ja existeix</td></tr>
+        <tr><td><code>exists(p)</code> / <code>notExists(p)</code></td><td>Comprova si la ruta existeix / no existeix</td></tr>
+        <tr><td><code>isRegularFile(p)</code> / <code>isDirectory(p)</code></td><td>Distingeix fitxer de directori</td></tr>
+        <tr><td><code>size(p)</code></td><td>Mida en bytes</td></tr>
+        <tr><td><code>getLastModifiedTime(p)</code></td><td>Data i hora de l'última modificació</td></tr>
+        <tr><td><code>isReadable(p)</code> / <code>isWritable(p)</code></td><td>Permisos de lectura / escriptura</td></tr>
+      </tbody>
+    </table>
+    <div class="box box-warn">
+      <p class="box-title">Compte</p>
+      <p><code>createFile()</code> no crea els directoris pares. Si <code>dades/informes</code> no existeix, llança <code>NoSuchFileException</code>. Crida abans <code>createDirectories()</code>.</p>
+    </div>
+    <span id="copiar-moure" class="section-anchor"></span>
+    <h3>3.2 Copiar, moure i esborrar</h3>
+    <div class="code-wrap">
+      <div class="code-header">
+        <span class="filename">CopiarMoureEsborrar.java</span>
+        <span class="lang-badge lang-java">Java</span>
+      </div>
+      <pre><span class="kw">import</span> java.io.<span class="cl">IOException</span>;
+<span class="kw">import</span> java.nio.file.*;
+
+<span class="kw">public</span> <span class="kw">class</span> <span class="cl">CopiarMoureEsborrar</span> {
+    <span class="kw">public</span> <span class="kw">static</span> <span class="kw">void</span> <span class="fn">main</span>(<span class="cl">String</span>[] args) <span class="kw">throws</span> <span class="cl">IOException</span> {
+        <span class="cl">Path</span> original = <span class="cl">Path</span>.<span class="fn">of</span>(<span class="str">"dades"</span>, <span class="str">"informes"</span>, <span class="str">"resum.txt"</span>);
+        <span class="cl">Path</span> copia    = <span class="cl">Path</span>.<span class="fn">of</span>(<span class="str">"backup"</span>, <span class="str">"resum.txt"</span>);
+
+        <span class="cl">Files</span>.<span class="fn">createDirectories</span>(copia.<span class="fn">getParent</span>());   <span class="cm">// crea "backup" si no existeix</span>
+
+        <span class="cm">// COPIAR: REPLACE_EXISTING sobreescriu el destí si ja existeix.</span>
+        <span class="cm">// Sense aquesta opció, si el destí existeix es llança una excepció.</span>
+        <span class="cl">Files</span>.<span class="fn">copy</span>(original, copia, <span class="cl">StandardCopyOption</span>.<span class="cl">REPLACE_EXISTING</span>);
+
+        <span class="cm">// MOURE o CANVIAR EL NOM: és la mateixa operació.</span>
+        <span class="cm">// resolveSibling() canvia el nom: backup/resum.txt -&gt; backup/resum-2026.txt</span>
+        <span class="cl">Path</span> reanomenat = copia.<span class="fn">resolveSibling</span>(<span class="str">"resum-2026.txt"</span>);
+        <span class="cl">Files</span>.<span class="fn">move</span>(copia, reanomenat, <span class="cl">StandardCopyOption</span>.<span class="cl">REPLACE_EXISTING</span>);
+
+        <span class="cm">// ESBORRAR</span>
+        <span class="cl">Files</span>.<span class="fn">delete</span>(reanomenat);                             <span class="cm">// esborra; llança una excepció si no existeix</span>
+        <span class="kw">boolean</span> esborrat = <span class="cl">Files</span>.<span class="fn">deleteIfExists</span>(reanomenat);  <span class="cm">// esborra si existeix; si no, retorna false</span>
+        <span class="cl">System</span>.out.<span class="fn">println</span>(<span class="str">"S'ha esborrat alguna cosa? "</span> + esborrat);   <span class="cm">// false: ja no hi era</span>
+    }
+}</pre>
+    </div>
+    <div class="box box-info">
+      <p class="box-title">Nota</p>
+      <p><code>StandardCopyOption.ATOMIC_MOVE</code> garanteix que el moviment es fa sencer o no es fa. És útil quan un altre programa vigila la carpeta de destí i no ha de veure mai un fitxer a mitges.</p>
+    </div>
+    <div class="box box-warn">
+      <p class="box-title">Compte</p>
+      <p><code>Files.delete()</code> només esborra directoris buits. Per esborrar un directori amb contingut, cal esborrar primer tot el que conté.</p>
+    </div>
+
+    <!-- ══════════════════════
+         4. LES EXCEPCIONS DE NIO.2
+    ═══════════════════════ -->
+    <span id="excepcions" class="section-anchor"></span>
+    <h2>4. Les excepcions de NIO.2</h2>
+    <p>
+      A diferència de <code>java.io.File</code>, els mètodes de <code>Files</code> no retornen <code>false</code> quan fallen: llancen una excepció que diu exactament què ha passat. Totes són <em>checked</em> i hereten d'<code>IOException</code>.
+    </p>
+    <table>
+      <thead>
+        <tr><th>Excepció</th><th>Quan salta</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>NoSuchFileException</code></td><td>La ruta (o el seu directori pare) no existeix</td></tr>
+        <tr><td><code>FileAlreadyExistsException</code></td><td><code>createFile()</code>, <code>copy()</code> o <code>move()</code> sense <code>REPLACE_EXISTING</code> i el destí ja existeix</td></tr>
+        <tr><td><code>DirectoryNotEmptyException</code></td><td>Intentes esborrar un directori que no és buit</td></tr>
+        <tr><td><code>NotDirectoryException</code></td><td>Esperaves un directori i és un fitxer</td></tr>
+        <tr><td><code>AccessDeniedException</code></td><td>No tens permisos sobre la ruta</td></tr>
+        <tr><td><code>IOException</code></td><td>Qualsevol altre error d'entrada/sortida</td></tr>
+      </tbody>
+    </table>
+    <span id="excepcions-catch" class="section-anchor"></span>
+    <h3>4.1 Tractar cada error per separat</h3>
+    <p>
+      Aprofitem els <code>catch</code> múltiples: primer les excepcions específiques i, al final, <code>IOException</code>.
+    </p>
+    <div class="code-wrap">
+      <div class="code-header">
+        <span class="filename">EsborrarSegur.java</span>
+        <span class="lang-badge lang-java">Java</span>
+      </div>
+      <pre><span class="kw">import</span> java.io.<span class="cl">IOException</span>;
+<span class="kw">import</span> java.nio.file.*;
+
+<span class="kw">public</span> <span class="kw">class</span> <span class="cl">EsborrarSegur</span> {
+
+    <span class="kw">public</span> <span class="kw">static</span> <span class="kw">void</span> <span class="fn">esborrar</span>(<span class="cl">Path</span> p) {
+        <span class="kw">try</span> {
+            <span class="cl">Files</span>.<span class="fn">delete</span>(p);                                    <span class="cm">// pot fallar per diversos motius</span>
+            <span class="cl">System</span>.out.<span class="fn">println</span>(<span class="str">"Esborrat: "</span> + p);
+
+        } <span class="kw">catch</span> (<span class="cl">NoSuchFileException</span> e) {
+            <span class="cl">System</span>.out.<span class="fn">println</span>(<span class="str">"No existeix: "</span> + e.<span class="fn">getFile</span>());  <span class="cm">// getFile(): la ruta que ha fallat</span>
+        } <span class="kw">catch</span> (<span class="cl">DirectoryNotEmptyException</span> e) {
+            <span class="cl">System</span>.out.<span class="fn">println</span>(<span class="str">"El directori no és buit: "</span> + e.<span class="fn">getFile</span>());
+        } <span class="kw">catch</span> (<span class="cl">AccessDeniedException</span> e) {
+            <span class="cl">System</span>.out.<span class="fn">println</span>(<span class="str">"Sense permisos: "</span> + e.<span class="fn">getFile</span>());
+        } <span class="kw">catch</span> (<span class="cl">IOException</span> e) {                               <span class="cm">// sempre l'última: és la més general</span>
+            <span class="cl">System</span>.out.<span class="fn">println</span>(<span class="str">"Error inesperat: "</span> + e.<span class="fn">getMessage</span>());
+        }
+    }
+
+    <span class="kw">public</span> <span class="kw">static</span> <span class="kw">void</span> <span class="fn">main</span>(<span class="cl">String</span>[] args) <span class="kw">throws</span> <span class="cl">IOException</span> {
+        <span class="cl">Path</span> dir = <span class="cl">Path</span>.<span class="fn">of</span>(<span class="str">"proves"</span>);
+        <span class="cl">Files</span>.<span class="fn">createDirectories</span>(dir);                       <span class="cm">// crea el directori "proves"</span>
+        <span class="cl">Files</span>.<span class="fn">writeString</span>(dir.<span class="fn">resolve</span>(<span class="str">"a.txt"</span>), <span class="str">"hola"</span>);    <span class="cm">// crea proves/a.txt amb el text "hola"</span>
+
+        <span class="fn">esborrar</span>(<span class="cl">Path</span>.<span class="fn">of</span>(<span class="str">"no-hi-es.txt"</span>));   <span class="cm">// No existeix: no-hi-es.txt</span>
+        <span class="fn">esborrar</span>(dir);                       <span class="cm">// El directori no és buit: proves</span>
+        <span class="fn">esborrar</span>(dir.<span class="fn">resolve</span>(<span class="str">"a.txt"</span>));      <span class="cm">// Esborrat: proves/a.txt</span>
+        <span class="fn">esborrar</span>(dir);                       <span class="cm">// Esborrat: proves (ara ja és buit)</span>
+    }
+}</pre>
+    </div>
+    <div class="box box-tip">
+      <p class="box-title">Recorda</p>
+      <p>si poses <code>catch (IOException e)</code> abans que els altres, el compilador dona error, perquè els <code>catch</code> específics no s'executarien mai.</p>
+    </div>
+    <span id="throw-throws" class="section-anchor"></span>
+    <h3>4.2 Llançar i declarar: throw i throws</h3>
+    <p>
+      També podem llançar aquestes excepcions nosaltres mateixos per validar una ruta abans de treballar-hi. El mètode les declara amb <code>throws</code> i qui el crida decideix com tractar-les.
+    </p>
+    <div class="code-wrap">
+      <div class="code-header">
+        <span class="filename">Validacions.java</span>
+        <span class="lang-badge lang-java">Java</span>
+      </div>
+      <pre><span class="kw">import</span> java.io.<span class="cl">IOException</span>;
+<span class="kw">import</span> java.nio.file.*;
+
+<span class="kw">public</span> <span class="kw">class</span> <span class="cl">Validacions</span> {
+
+    /** <span class="cl">Comprova</span> que la ruta existeix i és un directori. */
+    <span class="kw">public</span> <span class="kw">static</span> <span class="kw">void</span> <span class="fn">comprovarDirectori</span>(<span class="cl">Path</span> dir) <span class="kw">throws</span> <span class="cl">IOException</span> {
+        <span class="kw">if</span> (<span class="cl">Files</span>.<span class="fn">notExists</span>(dir)) {
+            <span class="kw">throw</span> <span class="kw">new</span> <span class="fn">NoSuchFileException</span>(dir.<span class="fn">toString</span>());     <span class="cm">// llancem l'excepció amb la ruta</span>
+        }
+        <span class="kw">if</span> (!<span class="cl">Files</span>.<span class="fn">isDirectory</span>(dir)) {
+            <span class="kw">throw</span> <span class="kw">new</span> <span class="fn">NotDirectoryException</span>(dir.<span class="fn">toString</span>());
+        }
+    }
+
+    <span class="kw">public</span> <span class="kw">static</span> <span class="kw">void</span> <span class="fn">main</span>(<span class="cl">String</span>[] args) {
+        <span class="cl">Path</span> dir = <span class="cl">Path</span>.<span class="fn">of</span>(<span class="str">"descarregues"</span>);
+        <span class="kw">try</span> {
+            <span class="fn">comprovarDirectori</span>(dir);
+            <span class="cl">System</span>.out.<span class="fn">println</span>(<span class="str">"Directori correcte: "</span> + dir.<span class="fn">toAbsolutePath</span>());
+        } <span class="kw">catch</span> (<span class="cl">NoSuchFileException</span> e) {
+            <span class="cl">System</span>.out.<span class="fn">println</span>(<span class="str">"No existeix: "</span> + e.<span class="fn">getFile</span>());
+        } <span class="kw">catch</span> (<span class="cl">NotDirectoryException</span> e) {
+            <span class="cl">System</span>.out.<span class="fn">println</span>(<span class="str">"No és un directori: "</span> + e.<span class="fn">getFile</span>());
+        } <span class="kw">catch</span> (<span class="cl">IOException</span> e) {
+            <span class="cl">System</span>.out.<span class="fn">println</span>(<span class="str">"Error: "</span> + e.<span class="fn">getMessage</span>());
+        }
+    }
+}</pre>
+    </div>
+
+    <!-- ══════════════════════
+         5. LLISTAR I RECÓRRER DIRECTORIS
+    ═══════════════════════ -->
+    <span id="directoris" class="section-anchor"></span>
+    <h2>5. Llistar i recórrer directoris</h2>
+    <table>
+      <thead>
+        <tr><th>Mètode</th><th>Retorna</th><th>Abast</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>Files.list(dir)</code></td><td><code>Stream&lt;Path&gt;</code></td><td>Només el primer nivell</td></tr>
+        <tr><td><code>Files.walk(dir)</code></td><td><code>Stream&lt;Path&gt;</code></td><td>Tot l'arbre, inclòs el mateix <code>dir</code></td></tr>
+        <tr><td><code>Files.walk(dir, n)</code></td><td><code>Stream&lt;Path&gt;</code></td><td>Fins a <code>n</code> nivells de profunditat</td></tr>
+        <tr><td><code>Files.find(dir, n, filtre)</code></td><td><code>Stream&lt;Path&gt;</code></td><td>Com <code>walk</code>, però només els elements que compleixen el filtre</td></tr>
+      </tbody>
+    </table>
+    <div class="box box-warn">
+      <p class="box-title">Compte</p>
+      <p>aquests <code>Stream</code> mantenen oberts recursos del sistema operatiu. Obre'ls sempre dins d'un try-with-resources.</p>
+    </div>
+    <p>
+      Els fragments d'aquest apartat van dins d'un mètode que declara <code>throws IOException</code> i necessiten els imports <code>java.nio.file.*</code>, <code>java.util.*</code> i <code>java.util.stream.Stream</code>.
+    </p>
+    <span id="llistar" class="section-anchor"></span>
+    <h3>5.1 Llistar un directori</h3>
+    <p>
+      És l'operació amb la qual recorrem els elements que hi ha en un directori. És una operació de lectura.
+    </p>
+    <p>
+      Tot seguit veureu dues versions del mateix codi.
+    </p>
+    <p>
+      Versió 1: Aquí <code>contingut</code> es pot recórrer amb un for-each perquè és un <strong>Iterable</strong>: <code>DirectoryStream</code> és una interfície que estén les interfícies <strong>Iterable</strong> i <strong>Closeable</strong>.
+    </p>
+    <div class="code-wrap">
+      <div class="code-header">
+        <span class="filename">Java</span>
+        <span class="lang-badge lang-java">Java</span>
+      </div>
+      <pre><span class="kw">try</span> (<span class="cl">DirectoryStream</span>&lt;<span class="cl">Path</span>&gt; contingut = <span class="cl">Files</span>.<span class="fn">newDirectoryStream</span>(<span class="cl">Path</span>.<span class="fn">of</span>(<span class="str">"dades"</span>))) {
+    <span class="kw">for</span> (<span class="cl">Path</span> p : contingut) {
+        <span class="kw">if</span> (<span class="cl">Files</span>.<span class="fn">isDirectory</span>(p)) {
+            <span class="cl">System</span>.out.<span class="fn">println</span>(<span class="str">"[DIR] "</span> + p.<span class="fn">getFileName</span>());
+        } <span class="kw">else</span> {
+            <span class="cl">System</span>.out.<span class="fn">println</span>(<span class="str">"[FIT] "</span> + p.<span class="fn">getFileName</span>());
+        }
+    }
+}</pre>
+    </div>
+    <p>
+      Versió 2: <code>contingut</code> és un <strong>Stream</strong> i es recorre amb <code>forEach()</code> i una expressió lambda (<code>p -&gt; { ... }</code>). La condició es resol amb l'operador ternari (<code>condició ? valor1 : valor2</code>).
+    </p>
+    <div class="code-wrap">
+      <div class="code-header">
+        <span class="filename">Java</span>
+        <span class="lang-badge lang-java">Java</span>
+      </div>
+      <pre><span class="cm">// Files.list(): un Stream amb el contingut del primer nivell de "dades"</span>
+<span class="kw">try</span> (<span class="cl">Stream</span>&lt;<span class="cl">Path</span>&gt; contingut = <span class="cl">Files</span>.<span class="fn">list</span>(<span class="cl">Path</span>.<span class="fn">of</span>(<span class="str">"dades"</span>))) {
+    contingut.<span class="fn">forEach</span>(p -&gt; {                                   <span class="cm">// per a cada element...</span>
+        <span class="cl">String</span> tipus = <span class="cl">Files</span>.<span class="fn">isDirectory</span>(p) ? <span class="str">"[DIR] "</span> : <span class="str">"[FIT] "</span>;
+        <span class="cl">System</span>.out.<span class="fn">println</span>(tipus + p.<span class="fn">getFileName</span>());           <span class="cm">// ...mostra el tipus i el nom</span>
+    });
+}   <span class="cm">// aquí es tanca l'Stream</span></pre>
+    </div>
+    <span id="cercar" class="section-anchor"></span>
+    <h3>5.2 Cercar fitxers amb un filtre</h3>
+    <div class="code-wrap">
+      <div class="code-header">
+        <span class="filename">Java</span>
+        <span class="lang-badge lang-java">Java</span>
+      </div>
+      <pre><span class="cm">// Mostra els fitxers .csv de 'dir' i baixa als subdirectoris fins on indiquem a 'nivellsRestants'. Si volem arribar fins a 5 subdirectoris (per exemple C:\user\acces\dades\curs\2026), nivellsRestants = 5. </span>
+
+<span class="cm">//Fixeu-vos la crida recursiva que fa a la mateixa funció</span>
+
+<span class="kw">static</span> <span class="kw">void</span> <span class="fn">cercarCsv</span>(<span class="cl">Path</span> dir, <span class="kw">int</span> nivellsRestants) <span class="kw">throws</span> <span class="cl">IOException</span> {
+    <span class="kw">try</span> (<span class="cl">DirectoryStream</span>&lt;<span class="cl">Path</span>&gt; contingut = <span class="cl">Files</span>.<span class="fn">newDirectoryStream</span>(dir)) {
+        <span class="kw">for</span> (<span class="cl">Path</span> p : contingut) {
+            <span class="cl">String</span> nom = p.<span class="fn">getFileName</span>().<span class="fn">toString</span>();
+
+            <span class="kw">if</span> (<span class="cl">Files</span>.<span class="fn">isRegularFile</span>(p) &amp;&amp; nom.<span class="fn">endsWith</span>(<span class="str">".csv"</span>)) {
+                <span class="cl">System</span>.out.<span class="fn">println</span>(p);                     <span class="cm">// és un .csv: el mostrem</span>
+            } <span class="kw">else</span> <span class="kw">if</span> (<span class="cl">Files</span>.<span class="fn">isDirectory</span>(p) &amp;&amp; nivellsRestants &gt; 1) {
+                <span class="fn">cercarCsv</span>(p, nivellsRestants - 1);         <span class="cm">// és una carpeta: hi entrem</span>
+            }
+        }
+    }
+}</pre>
+    </div>
+
+    <div style="height: 60px;"></div>
+
+</main>
+</div>
+
+<script>
+  // Highlight sidebar link on scroll, and keep it visible inside the sidebar
+  const anchors = document.querySelectorAll('.section-anchor');
+  const navLinks = document.querySelectorAll('nav.sidebar a');
+
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const id = entry.target.id;
+        navLinks.forEach(a => {
+          const isActive = a.getAttribute('href') === '#' + id;
+          const wasActive = a.classList.contains('active');
+          a.classList.toggle('active', isActive);
+          // si l'enllaç passa a actiu i queda fora de la zona visible del
+          // menú lateral, el desplacem perquè quedi sempre a la vista
+          if (isActive && !wasActive) {
+            a.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+          }
+        });
+      }
+    });
+  }, { rootMargin: '-80px 0px -70% 0px' });
+
+  anchors.forEach(a => observer.observe(a));
+</script>
+
+<!-- ══════════════════════════════════════
+     MERMAID — carregat des d'un CDN i
+     inicialitzat/executat manualment (sense
+     startOnLoad), tal com defineix l'apunt .md
+═══════════════════════════════════════ -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js"></script>
+<script>
+  // Tema fet a mida perquè els diagrames comparteixin el fons fosc de la
+  // pàgina i les línies/fletxes es dibuixin en blanc (alt contrast). Els
+  // colors de les caixes (classDef del propi .md) es mantenen intactes.
+  mermaid.initialize({
+    startOnLoad: false,
+    securityLevel: 'loose',
+    theme: 'base',
+    fontFamily: "Inter, 'Segoe UI', sans-serif",
+    themeVariables: {
+      background:          '#12151f',
+      mainBkg:              '#1a1d27',
+      primaryColor:         '#1a1d27',
+      primaryTextColor:     '#e2e6f0',
+      primaryBorderColor:   '#2e3248',
+      secondaryColor:       '#222636',
+      secondaryTextColor:   '#e2e6f0',
+      secondaryBorderColor: '#2e3248',
+      tertiaryColor:        '#1a1d27',
+      tertiaryTextColor:    '#e2e6f0',
+      tertiaryBorderColor:  '#2e3248',
+      lineColor:            '#ffffff',
+      defaultLinkColor:     '#ffffff',
+      textColor:            '#e2e6f0',
+      titleColor:           '#e2e6f0',
+      nodeTextColor:        '#e2e6f0',
+      edgeLabelBackground:  '#12151f',
+      clusterBkg:           '#1a1d27',
+      clusterBorder:        '#4a4f6a',
+      /* seqüència */
+      actorBkg:             '#1a1d27',
+      actorBorder:          '#4a4f6a',
+      actorTextColor:       '#e2e6f0',
+      actorLineColor:       '#ffffff',
+      signalColor:          '#ffffff',
+      signalTextColor:      '#e2e6f0',
+      labelBoxBkgColor:     '#1a1d27',
+      labelBoxBorderColor:  '#4a4f6a',
+      labelTextColor:       '#e2e6f0',
+      loopTextColor:        '#e2e6f0',
+      noteBkgColor:         '#222636',
+      noteBorderColor:      '#4a4f6a',
+      noteTextColor:        '#e2e6f0',
+      activationBkgColor:   '#222636',
+      activationBorderColor:'#4a4f6a',
+      sequenceNumberColor:  '#0f1117'
+    },
+    flowchart:  { useMaxWidth: false, htmlLabels: true, padding: 16 },
+    sequence:   { useMaxWidth: false, actorFontSize: 15, messageFontSize: 15, noteFontSize: 14 }
+  });
+
+  mermaid.run({ querySelector: '.mermaid' });
+</script>
+
+</body>
+</html>
