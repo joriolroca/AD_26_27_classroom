@@ -1,0 +1,1281 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fitxers de text – DAM · RA1</title>
+  <style>
+    /* ── Reset & Base ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:          #0f1117;
+      --surface:     #1a1d27;
+      --surface2:    #222636;
+      --border:      #2e3248;
+      --accent:      #7c6af7;
+      --accent2:     #4fc3f7;
+      --accent3:     #43e97b;
+      --accent4:     #f8a94f;
+      --accent5:     #f06292;
+      --text:        #e2e6f0;
+      --muted:       #8891aa;
+      --code-bg:     #12151f;
+      --tag-dto:     #3a2f70;
+      --tag-mapper:  #1a3a2f;
+      --tag-service: #3a2810;
+      --tag-ctrl:    #2c1a3a;
+      --font-mono:   'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+      --font-sans:   'Inter', 'Segoe UI', system-ui, sans-serif;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--font-sans);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      font-size: 15px;
+    }
+
+    /* ── Layout ── */
+    .page-wrap { display: flex; min-height: 100vh; }
+
+    nav.sidebar {
+      width: 260px;
+      flex-shrink: 0;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* capçalera: fixa, no fa scroll amb la resta del menú */
+    nav.sidebar .logo {
+      flex-shrink: 0;
+      padding: 22px 20px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    nav.sidebar .logo .eyebrow {
+      display: block;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--muted);
+    }
+
+    nav.sidebar .logo h2 {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--accent);
+      line-height: 1.3;
+      margin: 0;
+    }
+
+    nav.sidebar .logo .topic {
+      display: block;
+      font-size: 11px;
+      color: var(--accent2);
+      margin-top: 4px;
+    }
+
+    /* bloc d'enllaços: és l'únic que fa scroll intern */
+    nav.sidebar .sidebar-links {
+      flex: 1 1 auto;
+      overflow-y: auto;
+      padding: 14px 0 24px;
+    }
+
+    nav.sidebar ul { list-style: none; }
+
+    nav.sidebar ul li a {
+      display: block;
+      padding: 7px 20px;
+      text-decoration: none;
+      color: var(--muted);
+      font-size: 13px;
+      transition: all .15s;
+      border-left: 3px solid transparent;
+    }
+
+    nav.sidebar ul li a:hover,
+    nav.sidebar ul li a.active {
+      color: var(--text);
+      background: var(--surface2);
+      border-left-color: var(--accent);
+    }
+
+    nav.sidebar ul .section-label {
+      padding: 14px 20px 4px;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    main {
+      flex: 1;
+      max-width: 940px;
+      padding: 48px 56px;
+      overflow-x: hidden;
+    }
+
+    /* ── Typography ── */
+    h1 {
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 12px;
+      line-height: 1.2;
+    }
+
+    h2 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text);
+      margin: 52px 0 16px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    h3 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--accent2);
+      margin: 32px 0 10px;
+    }
+
+    h4 {
+      font-size: .95rem;
+      font-weight: 600;
+      color: var(--accent4);
+      margin: 22px 0 8px;
+    }
+
+    p { margin-bottom: 14px; color: var(--text); }
+    p + ul, p + ol { margin-top: -6px; }
+
+    ul, ol { padding-left: 20px; margin-bottom: 14px; }
+    li { margin-bottom: 6px; }
+
+    strong { color: var(--text); font-weight: 600; }
+    em { color: var(--accent4); font-style: italic; }
+
+    code {
+      font-family: var(--font-mono);
+      font-size: .82em;
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 1px 6px;
+      color: var(--accent3);
+    }
+
+    /* ── Hero ── */
+    .hero {
+      background: linear-gradient(135deg, #1a1d27 0%, #1e1633 100%);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 36px 40px;
+      margin-bottom: 32px;
+    }
+
+    .hero .subtitle {
+      color: var(--muted);
+      font-size: 1rem;
+      margin-top: 8px;
+      margin-bottom: 0;
+    }
+
+    .hero .tags { margin-top: 18px; display: flex; gap: 10px; flex-wrap: wrap; }
+
+    .tag {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      padding: 4px 12px;
+      border-radius: 20px;
+      border: 1px solid;
+    }
+
+    .tag-dto    { background: var(--tag-dto);     border-color: var(--accent);  color: var(--accent); }
+    .tag-mapper { background: var(--tag-mapper);  border-color: var(--accent3); color: var(--accent3); }
+    .tag-svc    { background: var(--tag-service); border-color: var(--accent4); color: var(--accent4); }
+    .tag-ctrl   { background: var(--tag-ctrl);    border-color: var(--accent5); color: var(--accent5); }
+    .tag-spring { background: #1a2233; border-color: var(--accent2); color: var(--accent2); }
+
+    /* ── Info boxes ── */
+    .box {
+      border-radius: 10px;
+      padding: 18px 22px;
+      margin: 20px 0;
+      border-left: 4px solid;
+    }
+
+    .box-info    { background: #151c30; border-color: var(--accent2); }
+    .box-tip     { background: #111f1a; border-color: var(--accent3); }
+    .box-warn    { background: #1f1a11; border-color: var(--accent4); }
+    .box-concept { background: #17142a; border-color: var(--accent); }
+    .box-criteri { background: #2a1030; border-color: var(--accent5); }
+
+    .box .box-title {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      margin-bottom: 8px;
+    }
+
+    .box-info    .box-title { color: var(--accent2); }
+    .box-tip     .box-title { color: var(--accent3); }
+    .box-warn    .box-title { color: var(--accent4); }
+    .box-concept .box-title { color: var(--accent); }
+    .box-criteri .box-title { color: var(--accent5); }
+
+    .box p:last-child { margin-bottom: 0; }
+    .box ul:last-child { margin-bottom: 0; }
+
+    /* llista de criteris d'avaluació — pensada per acollir-ne un o més */
+    .criteria-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .criteria-list li {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      margin-bottom: 0;
+    }
+
+    .criteria-code {
+      flex-shrink: 0;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 700;
+      background: var(--tag-ctrl);
+      border: 1px solid var(--accent5);
+      color: var(--accent5);
+      padding: 2px 9px;
+      border-radius: 20px;
+    }
+
+    .criteria-text { color: var(--text); }
+
+    /* ── Code blocks ── */
+    .code-wrap {
+      margin: 18px 0 24px;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+
+    .code-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--surface2);
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .code-header .filename {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .code-header .lang-badge {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+
+    .lang-java    { background: #2a1e0e; color: var(--accent4); border: 1px solid #6a3e0e; }
+    .lang-dto     { background: #1e1040; color: var(--accent);  border: 1px solid #4a30a0; }
+    .lang-mapper  { background: #0e2018; color: var(--accent3); border: 1px solid #1e6040; }
+    .lang-service { background: #201808; color: #f0c040;        border: 1px solid #604020; }
+    .lang-ctrl    { background: #1a0820; color: var(--accent5); border: 1px solid #602080; }
+
+    pre {
+      background: var(--code-bg);
+      padding: 20px 22px;
+      overflow-x: auto;
+      margin: 0;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      line-height: 1.65;
+      color: #c8d0e8;
+    }
+
+    /* Syntax highlight via spans */
+    .kw  { color: #c084fc; }   /* keyword */
+    .cl  { color: #93c5fd; }   /* class name */
+    .fn  { color: #67e8f9; }   /* function/method */
+    .str { color: #86efac; }   /* string */
+    .ann { color: #fb923c; }   /* annotation */
+    .cm  { color: #6b7280; font-style: italic; } /* comment */
+    .hl  { background: #2a2d3e; display: block; margin: 0 -22px; padding: 0 22px; } /* highlight line */
+
+    /* ── Diagrams (Mermaid) ── */
+    .mermaid-frame {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 28px 20px;
+      margin: 20px 0;
+      overflow-x: auto;
+      display: flex;
+      justify-content: center;
+    }
+
+    .mermaid-frame .mermaid {
+      display: block;
+      width: 100%;
+    }
+
+    .mermaid-frame svg {
+      width: 100%;
+      height: auto;
+      min-width: 640px;
+    }
+
+    /* diagrames més senzills (8.1, 9.1, connexió directa) que no cal
+       estirar a tota l'amplada del contenidor */
+    .mermaid-frame--compact .mermaid {
+      width: auto;
+    }
+
+    .mermaid-frame--compact svg {
+      width: auto;
+      max-width: 460px;
+      min-width: 0;
+    }
+
+    /* ── Comparació taula ── */
+    .compare-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin: 20px 0;
+    }
+
+    .compare-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .compare-card .cc-header {
+      padding: 12px 18px;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .cc-header.request { background: #1e1633; color: var(--accent); border-bottom: 1px solid #2e2050; }
+    .cc-header.response { background: #0e2018; color: var(--accent3); border-bottom: 1px solid #1e4030; }
+    .cc-header.good { background: #0e2018; color: var(--accent3); border-bottom: 1px solid #1e4030; }
+    .cc-header.bad  { background: #2a1030; color: var(--accent5); border-bottom: 1px solid #4a1a3a; }
+
+    .compare-card pre { font-size: 12px; }
+    .compare-body { padding: 16px 20px; }
+    .compare-body ul { margin-bottom: 0; }
+
+    /* ── Step by step ── */
+    .steps { counter-reset: step; margin: 20px 0; }
+
+    .step {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 32px;
+      padding-bottom: 32px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .step:last-child { border-bottom: none; }
+
+    .step-num {
+      flex-shrink: 0;
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: #fff;
+      font-weight: 800;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 2px;
+    }
+
+    .step-body { flex: 1; }
+    .step-body h3 { margin-top: 0; }
+
+    /* ── Table ── */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 18px 0;
+      font-size: 13.5px;
+    }
+
+    th {
+      background: var(--surface2);
+      color: var(--text);
+      font-weight: 700;
+      padding: 10px 14px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+
+    td {
+      padding: 9px 14px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+
+    tr:hover td { background: var(--surface); }
+
+    td code { font-size: .8em; }
+
+    /* ── Section divider ── */
+    .section-anchor { display: block; position: relative; top: -80px; visibility: hidden; }
+
+    /* ── Print ── */
+    @media print {
+      nav.sidebar { display: none; }
+      main { max-width: 100%; padding: 20px; }
+      .hero { break-inside: avoid; }
+      .step { break-inside: avoid; }
+      h2 { break-before: page; }
+      pre { white-space: pre-wrap; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="page-wrap">
+
+  <!-- ══════════════════════════════════════
+       SIDEBAR
+  ═══════════════════════════════════════ -->
+  <nav class="sidebar">
+    <div class="logo">
+      <span class="eyebrow">ACCÉS A DADES · RA1</span>
+      <span class="topic">Fitxers de text</span>
+    </div>
+    <div class="sidebar-links">
+      <ul>
+
+        <li class="section-label">Introducció</li>
+        <li><a href="#criteris">Criteris d'avaluació</a></li>
+        <li><a href="#objectius">Què aprendràs</a></li>
+        <li><a href="#apis">1. Les dues APIs</a></li>
+
+        <li class="section-label">Lectura</li>
+        <li><a href="#llegir">2. Llegir</a></li>
+        <li><a href="#llegir-1">2.1 Tot el fitxer en un String: readString()</a></li>
+        <li><a href="#llegir-2">2.2 Totes les línies en una llista: readAllLines()</a></li>
+        <li><a href="#llegir-3">2.3 Línia a línia: newBufferedReader()</a></li>
+        <li><a href="#llegir-4">2.4 Filtrar i comptar: Files.lines()</a></li>
+        <li><a href="#quin-metode">Quin mètode faig servir?</a></li>
+
+        <li class="section-label">Codificació</li>
+        <li><a href="#codificacio">3. Codificació UTF-8</a></li>
+
+        <li class="section-label">Escriptura</li>
+        <li><a href="#escriure">4. Escriure</a></li>
+        <li><a href="#escriure-1">4.1 Un String sencer: writeString()</a></li>
+        <li><a href="#escriure-2">4.2 Una llista de línies: write()</a></li>
+        <li><a href="#escriure-3">4.3 Línia a línia: newBufferedWriter()</a></li>
+        <li><a href="#escriure-4">4.4 Sobreescriure o afegir: StandardOpenOption</a></li>
+
+        <li class="section-label">Operacions</li>
+        <li><a href="#crud">5. CRUD</a></li>
+
+        <li class="section-label">Objectes</li>
+        <li><a href="#serialitzacio">6. Serialització</a></li>
+
+        <li class="section-label">Accés</li>
+        <li><a href="#acces">7. Formes d'accés</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- ══════════════════════════════════════
+       MAIN
+  ═══════════════════════════════════════ -->
+  <main>
+
+
+    <!-- HERO -->
+    <div class="hero">
+      <h1>Fitxers de text</h1>
+      <p class="subtitle">
+        Com llegir i escriure fitxers de text amb la classe <code>Files</code> de NIO.2: triar el mètode
+        adequat, controlar la codificació, sobreescriure o afegir contingut, fer operacions CRUD,
+        serialitzar objectes i valorar les diferents formes d'accés.
+      </p>
+      <div class="tags">
+        <span class="tag tag-dto">DAM</span>
+        <span class="tag tag-mapper">RA1</span>
+        <span class="tag tag-svc">Fitxers de text</span>
+      </div>
+    </div>
+
+    <span id="criteris" class="section-anchor"></span>
+    <div class="box box-criteri">
+      <p class="box-title">Criteris d'avaluació relacionats</p>
+      <ul class="criteria-list">
+        <li>
+          <span class="criteria-code">1.2</span>
+          <span class="criteria-text">Valora els avantatges i els inconvenients de les diferents formes d'accés.</span>
+        </li>
+        <li>
+          <span class="criteria-code">1.3</span>
+          <span class="criteria-text">Utilitza classes per recuperar informació emmagatzemada en fitxers.</span>
+        </li>
+        <li>
+          <span class="criteria-code">1.4</span>
+          <span class="criteria-text">Utilitza classes per emmagatzemar informació en fitxers.</span>
+        </li>
+        <li>
+          <span class="criteria-code">1.6</span>
+          <span class="criteria-text">Preveu i gestiona les excepcions.</span>
+        </li>
+      </ul>
+    </div>
+    <span id="objectius" class="section-anchor"></span>
+    <div class="box box-concept">
+      <p class="box-title">Què aprendràs</p>
+      <p>En acabar aquesta unitat has de ser capaç de:</p>
+      <ul>
+        <li>Distingir els fluxos de bytes dels fluxos de caràcters.</li>
+        <li>Llegir i escriure fitxers de text amb la classe <code>Files</code> de NIO.2.</li>
+        <li>Triar el mètode adequat segons la mida del fitxer i el que en vols fer.</li>
+        <li>Decidir si sobreescrius o afegeixes contingut amb <code>StandardOpenOption</code>.</li>
+        <li>Afegir, consultar, modificar i esborrar línies d'un fitxer de text (CRUD).</li>
+        <li>Indicar la codificació de caràcters i entendre per què és important.</li>
+        <li>Explicar com funciona un fitxer binari.</li>
+        <li>Valorar els avantatges i inconvenients de l'accés seqüencial i de l'accés aleatori.</li>
+      </ul>
+    </div>
+
+    <!-- ══════════════════════
+         1. LES DUES APIS PER LLEGIR I ESCRIURE
+    ═══════════════════════ -->
+    <span id="apis" class="section-anchor"></span>
+    <h2>1. Les dues APIs per llegir i escriure</h2>
+    <p>
+      Java llegeix i escriu el contingut dels fitxers amb <strong>fluxos</strong> (<em>streams</em>): canals pels quals les dades circulen en ordre, de l'origen al destí. Hi ha quatre famílies, segons dues preguntes: llegim o escrivim? bytes o caràcters?
+    </p>
+    <table>
+      <thead>
+        <tr><th></th><th><strong>Llegir</strong></th><th><strong>Escriure</strong></th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>Caràcters</strong> (fitxers de text)</td><td><code>Reader</code></td><td><code>Writer</code></td></tr>
+        <tr><td><strong>Bytes</strong> (fitxers binaris)</td><td><code>InputStream</code></td><td><code>OutputStream</code></td></tr>
+      </tbody>
+    </table>
+    <p>
+      Igual que amb la gestió de fitxers, hi ha dues APIs:
+    </p>
+    <ul>
+      <li><strong>java.io</strong> (clàssica): cal crear i encadenar objectes de fluxos, com <code>FileReader</code> i <code>BufferedReader</code>.</li>
+      <li><strong>NIO.2</strong> (actual): la classe <code>Files</code> ho fa amb un sol mètode.</li>
+    </ul>
+    <div class="box box-info">
+      <p class="box-title">Nota</p>
+      <p>En aquest mòdul treballarem amb NIO.2.</p>
+    </div>
+
+    <!-- ══════════════════════
+         2. LLEGIR
+    ═══════════════════════ -->
+    <span id="llegir" class="section-anchor"></span>
+    <h2>2. Llegir</h2>
+    <span id="llegir-1" class="section-anchor"></span>
+    <h3>2.1 Tot el fitxer en un String: <code>readString()</code></h3>
+    <p>
+      Per a fitxers petits, es llegeix tot de cop.
+    </p>
+    <div class="code-wrap">
+      <div class="code-header">
+        <span class="filename">Java</span>
+        <span class="lang-badge lang-java">Java</span>
+      </div>
+      <pre><span class="cl">String</span> text = <span class="cl">Files</span>.<span class="fn">readString</span>(<span class="cl">Path</span>.<span class="fn">of</span>(<span class="str">"notes.txt"</span>), <span class="cl">StandardCharsets</span>.UTF_8);  <span class="cm">// tot el contingut en un String</span>
+<span class="cl">System</span>.out.<span class="fn">println</span>(text);
+<span class="cl">System</span>.out.<span class="fn">println</span>(<span class="str">"Caràcters: "</span> + text.<span class="fn">length</span>());</pre>
+    </div>
+    <span id="llegir-2" class="section-anchor"></span>
+    <h3>2.2 Totes les línies en una llista: <code>readAllLines()</code></h3>
+    <p>
+      Per a fitxers petits, es llegeix tot de cop.
+    </p>
+    <div class="code-wrap">
+      <div class="code-header">
+        <span class="filename">Java</span>
+        <span class="lang-badge lang-java">Java</span>
+      </div>
+      <pre><span class="cl">List</span>&lt;<span class="cl">String</span>&gt; linies = <span class="cl">Files</span>.<span class="fn">readAllLines</span>(<span class="cl">Path</span>.<span class="fn">of</span>(<span class="str">"notes.txt"</span>), <span class="cl">StandardCharsets</span>.UTF_8);  <span class="cm">// una posició per línia</span>
+
+<span class="kw">for</span> (<span class="kw">int</span> i = 0; i &lt; linies.<span class="fn">size</span>(); i++) {
+    <span class="cl">System</span>.out.<span class="fn">println</span>((i + 1) + <span class="str">": "</span> + linies.<span class="fn">get</span>(i));   <span class="cm">// mostra cada línia numerada</span>
+}</pre>
+    </div>
+    <span id="llegir-3" class="section-anchor"></span>
+    <h3>2.3 Línia a línia: <code>newBufferedReader()</code></h3>
+    <p>
+      Només manté a la memòria la línia que s'està processant, i per això serveix per a fitxers de qualsevol mida.
+    </p>
+    <div class="code-wrap">
+      <div class="code-header">
+        <span class="filename">LlegirLinies.java</span>
+        <span class="lang-badge lang-java">Java</span>
+      </div>
+      <pre><span class="kw">import</span> java.io.<span class="cl">BufferedReader</span>;
+<span class="kw">import</span> java.io.<span class="cl">IOException</span>;
+<span class="kw">import</span> java.nio.charset.<span class="cl">StandardCharsets</span>;
+<span class="kw">import</span> java.nio.file.*;
+
+<span class="kw">public</span> <span class="kw">class</span> <span class="cl">LlegirLinies</span> {
+    <span class="kw">public</span> <span class="kw">static</span> <span class="kw">void</span> <span class="fn">main</span>(<span class="cl">String</span>[] args) {
+        <span class="cl">Path</span> fitxer = <span class="cl">Path</span>.<span class="fn">of</span>(<span class="str">"notes.txt"</span>);
+
+        <span class="cm">// newBufferedReader(): obre el fitxer per llegir-lo línia a línia</span>
+        <span class="kw">try</span> (<span class="cl">BufferedReader</span> br = <span class="cl">Files</span>.<span class="fn">newBufferedReader</span>(fitxer, <span class="cl">StandardCharsets</span>.UTF_8)) {
+            <span class="cl">String</span> linia;
+            <span class="kw">int</span> num = 0;
+            <span class="kw">while</span> ((linia = br.<span class="fn">readLine</span>()) != <span class="kw">null</span>) {   <span class="cm">// null: s'ha acabat el fitxer</span>
+                num++;
+                <span class="cl">System</span>.out.<span class="fn">println</span>(num + <span class="str">": "</span> + linia);
+            }
+        } <span class="kw">catch</span> (<span class="cl">NoSuchFileException</span> e) {
+            <span class="cl">System</span>.out.<span class="fn">println</span>(<span class="str">"No existeix el fitxer: "</span> + e.<span class="fn">getFile</span>());
+        } <span class="kw">catch</span> (<span class="cl">IOException</span> e) {
+            <span class="cl">System</span>.out.<span class="fn">println</span>(<span class="str">"Error de lectura: "</span> + e.<span class="fn">getMessage</span>());
+        }
+    }   <span class="cm">// el try-with-resources tanca el fitxer en sortir del bloc</span>
+}</pre>
+    </div>
+    <span id="llegir-4" class="section-anchor"></span>
+    <h3>2.4 Filtrar i comptar: <code>Files.lines()</code></h3>
+    <p>
+      Retorna les línies com un <code>Stream&lt;String&gt;</code>, que es va llegint a mesura que es necessita. És pràctic per filtrar, comptar o transformar.
+    </p>
+    <div class="code-wrap">
+      <div class="code-header">
+        <span class="filename">Java</span>
+        <span class="lang-badge lang-java">Java</span>
+      </div>
+      <pre><span class="kw">import</span> java.io.<span class="cl">IOException</span>;
+<span class="kw">import</span> java.nio.charset.<span class="cl">StandardCharsets</span>;
+<span class="kw">import</span> java.nio.file.<span class="cl">Files</span>;
+<span class="kw">import</span> java.nio.file.<span class="cl">Path</span>;
+<span class="kw">import</span> java.util.stream.<span class="cl">Stream</span>;
+
+<span class="kw">public</span> <span class="kw">static</span> <span class="kw">void</span> <span class="fn">main</span>(<span class="cl">String</span>[] args) {
+    <span class="cl">Path</span> fitxer = <span class="cl">Path</span>.<span class="fn">of</span>(<span class="str">"notes.txt"</span>);
+    <span class="cm">// Files.lines(): les línies del fitxer com un Stream (cal tancar-lo amb try-with-resources)</span>
+    <span class="kw">try</span> (<span class="cl">Stream</span>&lt;<span class="cl">String</span>&gt; linies = <span class="cl">Files</span>.<span class="fn">lines</span>(fitxer, <span class="cl">StandardCharsets</span>.UTF_8)) {
+        <span class="kw">long</span> errors = linies.<span class="fn">filter</span>(l -&gt; l.<span class="fn">contains</span>(<span class="str">"ERROR"</span>))   <span class="cm">// es queda amb les línies que contenen ERROR</span>
+                            .<span class="fn">count</span>();                       <span class="cm">// i les compta</span>
+        <span class="cl">System</span>.out.<span class="fn">println</span>(<span class="str">"Errors: "</span> + errors);
+    } <span class="kw">catch</span> (<span class="cl">IOException</span> ex) {
+        <span class="cl">System</span>.out.<span class="fn">println</span>(<span class="str">"Error de lectura: "</span> + ex.<span class="fn">getMessage</span>());
+    }
+}</pre>
+    </div>
+    <p>
+      Fixeu-vos que <code>linies.filter(l -&gt; l.contains("ERROR")).count()</code> equival a escriure això mateix:
+    </p>
+    <div class="code-wrap">
+      <div class="code-header">
+        <span class="filename">Java</span>
+        <span class="lang-badge lang-java">Java</span>
+      </div>
+      <pre><span class="kw">long</span> errors = 0;
+<span class="kw">for</span> (<span class="cl">String</span> linia : linies.<span class="fn">toList</span>()) {   <span class="cm">// toList() converteix l'Stream en una llista</span>
+    <span class="kw">if</span> (linia.<span class="fn">contains</span>(<span class="str">"ERROR"</span>)) {
+        errors++;
+    }
+}</pre>
+    </div>
+    <p>
+      Per recórrer-lo amb un for-each, primer cal convertir l'<code>Stream</code> en una llista amb <code>toList()</code>.
+    </p>
+    <span id="quin-metode" class="section-anchor"></span>
+    <h3>Quin mètode faig servir?</h3>
+    <div class="mermaid-frame mermaid-frame--compact">
+      <pre class="mermaid">
+flowchart TD
+    A{"Com és el fitxer?"}
+    A --&gt;|"Petit: cap a la memòria"| B["readString()&lt;br/&gt;readAllLines()"]
+    A --&gt;|"Gran o de mida desconeguda"| C["newBufferedReader()"]
+    A --&gt;|"Vull filtrar o comptar línies"| D["Files.lines()"]
+
+    classDef pregunta fill:#fff4e6,stroke:#e8590c,stroke-width:2px,color:#000
+    classDef opcio fill:#e7f5ff,stroke:#1971c2,stroke-width:2px,color:#000
+    class A pregunta
+    class B,C,D opcio
+      </pre>
+    </div>
+    <div class="box box-warn">
+      <p class="box-title">Compte</p>
+      <p><code>readString()</code> i <code>readAllLines()</code> carreguen tot el fitxer a la memòria. Amb un fitxer de diversos GB, el programa acaba amb un <code>OutOfMemoryError</code>.</p>
+    </div>
+
+    <!-- ══════════════════════
+         3. LA CODIFICACIÓ: UTF-8
+    ═══════════════════════ -->
+    <span id="codificacio" class="section-anchor"></span>
+    <h2>3. La codificació: UTF-8</h2>
+    <p>
+      Un fitxer de text és, en realitat, una seqüència de bytes. La <strong>codificació</strong> (<em>charset</em>) és la taula que diu quins bytes corresponen a cada caràcter. Si s'escriu amb una codificació i es llegeix amb una altra, els accents surten malament.
+    </p>
+    <div class="code-wrap">
+      <div class="code-header">
+        <span class="filename">Java</span>
+        <span class="lang-badge lang-java">Java</span>
+      </div>
+      <pre><span class="cl">Path</span> p = <span class="cl">Path</span>.<span class="fn">of</span>(<span class="str">"salutacio.txt"</span>);
+<span class="cl">Files</span>.<span class="fn">writeString</span>(p, <span class="str">"Això és una prova"</span>, <span class="cl">StandardCharsets</span>.UTF_8);   <span class="cm">// escriu el text en UTF-8</span>
+
+<span class="cl">String</span> correcte = <span class="cl">Files</span>.<span class="fn">readString</span>(p, <span class="cl">StandardCharsets</span>.UTF_8);       <span class="cm">// llegeix en UTF-8</span>
+<span class="cl">System</span>.out.<span class="fn">println</span>(correcte);                                        <span class="cm">// Això és una prova</span>
+
+<span class="cl">String</span> incorrecte = <span class="cl">Files</span>.<span class="fn">readString</span>(p, <span class="cl">StandardCharsets</span>.ISO_8859_1); <span class="cm">// llegeix amb una altra codificació</span>
+<span class="cl">System</span>.out.<span class="fn">println</span>(incorrecte);                                       <span class="cm">// AixÃ² Ã©s una prova</span></pre>
+    </div>
+    <table>
+      <thead>
+        <tr><th>Codificació</th><th>Característiques</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>UTF-8</strong></td><td>L'estàndard actual. Representa qualsevol caràcter: <code>à</code>, <code>ç</code>, <code>€</code>, alfabets no llatins...</td></tr>
+        <tr><td><strong>ISO-8859-1</strong></td><td>Codificació antiga d'un byte per caràcter. Té els accents occidentals, però no el símbol <code>€</code></td></tr>
+      </tbody>
+    </table>
+    <p>
+      Des de Java 18, la codificació per defecte és UTF-8 a tots els sistemes operatius. Tot i així, als apunts l'indicarem sempre amb <code>StandardCharsets.UTF_8</code>: així el codi funciona igual amb versions anteriors de Java i queda clar quina codificació es fa servir.
+    </p>
+    <div class="box box-warn">
+      <p class="box-title">Compte</p>
+      <p>Si llegeixes amb UTF-8 un fitxer escrit amb una altra codificació, <code>readString()</code> i <code>readAllLines()</code> llancen <code>MalformedInputException</code> (una subclasse d'<code>IOException</code>).</p>
+    </div>
+
+    <!-- ══════════════════════
+         4. ESCRIURE
+    ═══════════════════════ -->
+    <span id="escriure" class="section-anchor"></span>
+    <h2>4. Escriure</h2>
+    <span id="escriure-1" class="section-anchor"></span>
+    <h3>4.1 Un String sencer: <code>writeString()</code></h3>
+    <div class="code-wrap">
+      <div class="code-header">
+        <span class="filename">Java</span>
+        <span class="lang-badge lang-java">Java</span>
+      </div>
+      <pre><span class="cl">Path</span> p = <span class="cl">Path</span>.<span class="fn">of</span>(<span class="str">"salutacio.txt"</span>);
+
+<span class="cm">// Sense opcions: crea el fitxer, o el buida si ja existia, i hi escriu el text</span>
+<span class="cl">Files</span>.<span class="fn">writeString</span>(p, <span class="str">"Primera línia\n"</span>, <span class="cl">StandardCharsets</span>.UTF_8);
+
+<span class="cm">// APPEND: afegeix el text al final i conserva el que ja hi havia</span>
+<span class="cl">Files</span>.<span class="fn">writeString</span>(p, <span class="str">"Segona línia\n"</span>, <span class="cl">StandardCharsets</span>.UTF_8, <span class="cl">StandardOpenOption</span>.APPEND);</pre>
+    </div>
+    <span id="escriure-2" class="section-anchor"></span>
+    <h3>4.2 Una llista de línies: <code>write()</code></h3>
+    <div class="code-wrap">
+      <div class="code-header">
+        <span class="filename">Java</span>
+        <span class="lang-badge lang-java">Java</span>
+      </div>
+      <pre><span class="cl">List</span>&lt;<span class="cl">String</span>&gt; ciutats = <span class="cl">List</span>.<span class="fn">of</span>(<span class="str">"Barcelona"</span>, <span class="str">"Girona"</span>, <span class="str">"Lleida"</span>, <span class="str">"Tarragona"</span>);
+
+<span class="cm">// write(): escriu cada element de la llista en una línia (afegeix el salt de línia)</span>
+<span class="cl">Files</span>.<span class="fn">write</span>(<span class="cl">Path</span>.<span class="fn">of</span>(<span class="str">"ciutats.txt"</span>), ciutats, <span class="cl">StandardCharsets</span>.UTF_8);</pre>
+    </div>
+    <span id="escriure-3" class="section-anchor"></span>
+    <h3>4.3 Línia a línia: <code>newBufferedWriter()</code></h3>
+    <p>
+      Per quan les dades es generen a poc a poc o són moltes.
+    </p>
+    <div class="code-wrap">
+      <div class="code-header">
+        <span class="filename">Java</span>
+        <span class="lang-badge lang-java">Java</span>
+      </div>
+      <pre><span class="cm">// newBufferedWriter(): obre el fitxer per escriure-hi a poc a poc</span>
+<span class="kw">try</span> (<span class="cl">BufferedWriter</span> bw = <span class="cl">Files</span>.<span class="fn">newBufferedWriter</span>(<span class="cl">Path</span>.<span class="fn">of</span>(<span class="str">"taula.txt"</span>), <span class="cl">StandardCharsets</span>.UTF_8)) {
+    <span class="kw">for</span> (<span class="kw">int</span> i = 1; i &lt;= 10; i++) {
+        bw.<span class="fn">write</span>(<span class="str">"7 x "</span> + i + <span class="str">" = "</span> + (7 * i));   <span class="cm">// escriu el text (sense salt de línia)</span>
+        bw.<span class="fn">newLine</span>();                             <span class="cm">// afegeix el salt de línia del sistema operatiu</span>
+    }
+}   <span class="cm">// en tancar-se, el buffer es buida al disc</span></pre>
+    </div>
+    <div class="box box-warn">
+      <p class="box-title">Compte</p>
+      <p><code>BufferedWriter</code> guarda el text en un buffer (memòria intermèdia) i l'escriu al disc per blocs. Si no el tanques, el fitxer pot quedar buit o incomplet. Obre'l sempre amb try-with-resources.</p>
+    </div>
+    <span id="escriure-4" class="section-anchor"></span>
+    <h3>4.4 Sobreescriure o afegir: <code>StandardOpenOption</code></h3>
+    <p>
+      Els mètodes d'escriptura accepten opcions al final que indiquen com s'obre el fitxer.
+    </p>
+    <table>
+      <thead>
+        <tr><th>Opció</th><th>Comportament</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>CREATE</code></td><td>Crea el fitxer si no existeix</td></tr>
+        <tr><td><code>CREATE_NEW</code></td><td>Crea el fitxer; si ja existeix, llança <code>FileAlreadyExistsException</code></td></tr>
+        <tr><td><code>TRUNCATE_EXISTING</code></td><td>Buida el contingut abans d'escriure (<strong>sobreescriure</strong>)</td></tr>
+        <tr><td><code>APPEND</code></td><td>Escriu al final i conserva el contingut anterior (<strong>afegir</strong>)</td></tr>
+      </tbody>
+    </table>
+    <div class="code-wrap">
+      <div class="code-header">
+        <span class="filename">Java</span>
+        <span class="lang-badge lang-java">Java</span>
+      </div>
+      <pre><span class="cl">Path</span> log = <span class="cl">Path</span>.<span class="fn">of</span>(<span class="str">"app.log"</span>);
+
+<span class="cm">// Afegir al final; si el fitxer no existeix, el crea</span>
+<span class="cl">Files</span>.<span class="fn">writeString</span>(log, <span class="str">"nova entrada\n"</span>, <span class="cl">StandardCharsets</span>.UTF_8,
+                  <span class="cl">StandardOpenOption</span>.CREATE, <span class="cl">StandardOpenOption</span>.APPEND);
+
+<span class="cm">// Només si el fitxer no existeix: així no esborrem mai res</span>
+<span class="cl">Files</span>.<span class="fn">writeString</span>(<span class="cl">Path</span>.<span class="fn">of</span>(<span class="str">"config.txt"</span>), <span class="str">"idioma=ca\n"</span>, <span class="cl">StandardCharsets</span>.UTF_8,
+                  <span class="cl">StandardOpenOption</span>.CREATE_NEW);</pre>
+    </div>
+    <div class="box box-tip">
+      <p class="box-title">Recorda</p>
+      <p>Si no poses cap opció, el mètode fa servir <code>CREATE</code> i <code>TRUNCATE_EXISTING</code>: crea el fitxer si no existeix i, si existeix, en <strong>substitueix el contingut</strong>.</p>
+    </div>
+
+    <!-- ══════════════════════
+         5. CRUD SOBRE UN FITXER DE TEXT AMB BUFFEREDREADER/WRITER
+    ═══════════════════════ -->
+    <span id="crud" class="section-anchor"></span>
+    <h2>5. CRUD sobre un fitxer de text amb BufferedReader/Writer</h2>
+    <p>
+      <strong>CRUD</strong> són les quatre operacions bàsiques sobre dades: <em>Create</em> (afegir), <em>Read</em> (consultar), <em>Update</em> (modificar) i <em>Delete</em> (esborrar). Amb un fitxer de text, les dues primeres ja les saps fer. Les altres dues tenen una limitació: no es pot canviar ni esborrar una línia directament dins del fitxer.
+    </p>
+    <table>
+      <thead>
+        <tr><th>Operació</th><th>Com es fa en un fitxer de text</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Afegir</td><td>Escriure al final amb <code>APPEND</code>, sense tocar la resta</td></tr>
+        <tr><td>Consultar</td><td>Llegir les línies amb <code>BufferedReader</code></td></tr>
+        <tr><td>Modificar</td><td>Llegir-ho tot, canviar la línia a la memòria i reescriure el fitxer</td></tr>
+        <tr><td>Esborrar</td><td>Llegir-ho tot, treure la línia de la memòria i reescriure el fitxer</td></tr>
+      </tbody>
+    </table>
+    <div class="mermaid-frame">
+      <pre class="mermaid">
+flowchart LR
+    F[("tasques.txt")]
+    L["List&amp;lt;String&amp;gt;&lt;br/&gt;a la memòria"]
+    M["Llista&lt;br/&gt;modificada"]
+
+    F -- "1. BufferedReader" --&gt; L
+    L -- "2. set() / removeIf()" --&gt; M
+    M -- "3. write()" --&gt; F
+
+    classDef fitxer fill:#fff4e6,stroke:#e8590c,stroke-width:2px,color:#000
+    classDef memoria fill:#e7f5ff,stroke:#1971c2,stroke-width:2px,color:#000
+    class F fitxer
+    class L,M memoria
+      </pre>
+    </div>
+    <p>
+      Exemple: una llista de tasques, una per línia.
+    </p>
+    <div class="code-wrap">
+      <div class="code-header">
+        <span class="filename">GestorTasques.java</span>
+        <span class="lang-badge lang-java">Java</span>
+      </div>
+      <pre><span class="kw">import</span> java.io.<span class="cl">BufferedReader</span>;
+<span class="kw">import</span> java.io.<span class="cl">BufferedWriter</span>;
+<span class="kw">import</span> java.io.<span class="cl">IOException</span>;
+<span class="kw">import</span> java.nio.charset.<span class="cl">StandardCharsets</span>;
+<span class="kw">import</span> java.nio.file.*;
+<span class="kw">import</span> java.util.<span class="cl">ArrayList</span>;
+<span class="kw">import</span> java.util.<span class="cl">List</span>;
+
+<span class="kw">public</span> <span class="kw">class</span> <span class="cl">GestorTasques</span> {
+
+    <span class="kw">private</span> <span class="kw">static</span> <span class="kw">final</span> <span class="cl">Path</span> FITXER = <span class="cl">Path</span>.<span class="fn">of</span>(<span class="str">"tasques.txt"</span>);
+
+    <span class="cm">// CREATE: afegeix una tasca al final, sense tocar la resta</span>
+    <span class="kw">static</span> <span class="kw">void</span> <span class="fn">afegir</span>(<span class="cl">String</span> tasca) <span class="kw">throws</span> <span class="cl">IOException</span> {
+        <span class="kw">try</span> (<span class="cl">BufferedWriter</span> bw = <span class="cl">Files</span>.<span class="fn">newBufferedWriter</span>(FITXER, <span class="cl">StandardCharsets</span>.UTF_8,
+                <span class="cl">StandardOpenOption</span>.CREATE, <span class="cl">StandardOpenOption</span>.APPEND)) {
+            bw.<span class="fn">write</span>(tasca);
+            bw.<span class="fn">newLine</span>();                       <span class="cm">// salt de línia del sistema</span>
+        }
+    }
+
+    <span class="cm">// READ: retorna totes les tasques, llegint línia a línia</span>
+    <span class="kw">static</span> <span class="cl">List</span>&lt;<span class="cl">String</span>&gt; <span class="fn">llistar</span>() <span class="kw">throws</span> <span class="cl">IOException</span> {
+        <span class="cl">List</span>&lt;<span class="cl">String</span>&gt; tasques = <span class="kw">new</span> <span class="cl">ArrayList</span>&lt;&gt;();
+        <span class="kw">try</span> (<span class="cl">BufferedReader</span> br = <span class="cl">Files</span>.<span class="fn">newBufferedReader</span>(FITXER, <span class="cl">StandardCharsets</span>.UTF_8)) {
+            <span class="cl">String</span> linia;
+            <span class="kw">while</span> ((linia = br.<span class="fn">readLine</span>()) != <span class="kw">null</span>) {   <span class="cm">// null = final del fitxer</span>
+                tasques.<span class="fn">add</span>(linia);
+            }
+        }
+        <span class="kw">return</span> tasques;
+    }
+
+    <span class="cm">// Auxiliar: reescriu tot el fitxer amb el contingut de la llista</span>
+    <span class="kw">private</span> <span class="kw">static</span> <span class="kw">void</span> <span class="fn">reescriure</span>(<span class="cl">List</span>&lt;<span class="cl">String</span>&gt; tasques) <span class="kw">throws</span> <span class="cl">IOException</span> {
+        <span class="cm">// Sense opcions: CREATE + TRUNCATE_EXISTING + WRITE (esborra el contingut anterior)</span>
+        <span class="kw">try</span> (<span class="cl">BufferedWriter</span> bw = <span class="cl">Files</span>.<span class="fn">newBufferedWriter</span>(FITXER, <span class="cl">StandardCharsets</span>.UTF_8)) {
+            <span class="kw">for</span> (<span class="cl">String</span> t : tasques) {
+                bw.<span class="fn">write</span>(t);
+                bw.<span class="fn">newLine</span>();
+            }
+        }
+    }
+
+    <span class="cm">// UPDATE: canvia el text de la tasca que és a la posició indicada</span>
+    <span class="kw">static</span> <span class="kw">void</span> <span class="fn">modificar</span>(<span class="kw">int</span> posicio, <span class="cl">String</span> nouText) <span class="kw">throws</span> <span class="cl">IOException</span> {
+        <span class="cl">List</span>&lt;<span class="cl">String</span>&gt; tasques = <span class="fn">llistar</span>();       <span class="cm">// 1. llegir-ho tot (ja és un ArrayList modificable)</span>
+        tasques.<span class="fn">set</span>(posicio, nouText);          <span class="cm">// 2. canviar la línia a la memòria</span>
+        <span class="fn">reescriure</span>(tasques);                    <span class="cm">// 3. reescriure tot el fitxer</span>
+    }
+
+    <span class="cm">// DELETE: elimina les tasques amb aquest text</span>
+    <span class="kw">static</span> <span class="kw">void</span> <span class="fn">esborrar</span>(<span class="cl">String</span> tasca) <span class="kw">throws</span> <span class="cl">IOException</span> {
+        <span class="cl">List</span>&lt;<span class="cl">String</span>&gt; tasques = <span class="fn">llistar</span>();       <span class="cm">// 1. llegir-ho tot</span>
+        tasques.<span class="fn">removeIf</span>(t -&gt; t.<span class="fn">equals</span>(tasca)); <span class="cm">// 2. treure les línies que coincideixen</span>
+        <span class="fn">reescriure</span>(tasques);                    <span class="cm">// 3. reescriure tot el fitxer</span>
+    }
+
+    <span class="kw">public</span> <span class="kw">static</span> <span class="kw">void</span> <span class="fn">main</span>(<span class="cl">String</span>[] args) <span class="kw">throws</span> <span class="cl">IOException</span> {
+        <span class="cl">Files</span>.<span class="fn">deleteIfExists</span>(FITXER);
+
+        <span class="fn">afegir</span>(<span class="str">"Comprar pa"</span>);
+        <span class="fn">afegir</span>(<span class="str">"Estudiar NIO.2"</span>);
+        <span class="fn">afegir</span>(<span class="str">"Enviar la pràctica"</span>);
+        <span class="cl">System</span>.out.<span class="fn">println</span>(<span class="fn">llistar</span>());          <span class="cm">// [Comprar pa, Estudiar NIO.2, Enviar la pràctica]</span>
+
+        <span class="fn">modificar</span>(1, <span class="str">"Estudiar fitxers de text"</span>);
+        <span class="fn">esborrar</span>(<span class="str">"Comprar pa"</span>);
+        <span class="cl">System</span>.out.<span class="fn">println</span>(<span class="fn">llistar</span>());          <span class="cm">// [Estudiar fitxers de text, Enviar la pràctica]</span>
+    }
+}</pre>
+    </div>
+    <div class="box box-warn">
+      <p class="box-title">Compte</p>
+      <p>Modificar i esborrar reescriuen el fitxer sencer encara que només canviï una línia. Amb fitxers grans és lent, i si dos programes ho fan alhora, un pot perdre els canvis de l'altre. Són alguns dels motius per fer servir una base de dades (RA2).</p>
+    </div>
+    <div class="box box-info">
+      <p class="box-title">Nota</p>
+      <p>L'accés aleatori (apartat 7) permet modificar un registre sense reescriure el fitxer, però només quan tots els registres tenen la mateixa mida.</p>
+    </div>
+
+    <!-- ══════════════════════
+         6. SERIALITZACIÓ
+    ═══════════════════════ -->
+    <span id="serialitzacio" class="section-anchor"></span>
+    <h2>6. Serialització</h2>
+    <p>
+      La <strong>serialització</strong> és el procés que converteix un objecte en una seqüència de bytes per desar-lo en un fitxer o transmetre'l per una xarxa. La <strong>deserialització</strong> és el procés invers: reconstrueix l'objecte a partir d'aquests bytes.
+    </p>
+    <p>
+      Per entendre'n el funcionament, imaginem una classe anomenada <code>Tasques</code>:
+    </p>
+    <div class="code-wrap">
+      <div class="code-header">
+        <span class="filename">Tasques.java</span>
+        <span class="lang-badge lang-java">Java</span>
+      </div>
+      <pre><span class="kw">import</span> java.io.<span class="cl">Serializable</span>;
+<span class="kw">import</span> java.time.<span class="cl">LocalDate</span>;
+
+<span class="kw">public</span> <span class="kw">class</span> <span class="cl">Tasques</span> <span class="kw">implements</span> <span class="cl">Serializable</span> {
+
+    <span class="kw">private</span> <span class="kw">static</span> <span class="kw">final</span> <span class="kw">long</span> serialVersionUID = 1L;
+
+    <span class="kw">private</span> <span class="kw">int</span> id;
+    <span class="kw">private</span> <span class="cl">String</span> titol;
+    <span class="kw">private</span> <span class="cl">LocalDate</span> dataLimit;
+    <span class="kw">private</span> <span class="kw">boolean</span> completada;
+
+    <span class="kw">public</span> <span class="fn">Tasques</span>(<span class="kw">int</span> id, <span class="cl">String</span> titol, <span class="cl">LocalDate</span> dataLimit, <span class="kw">boolean</span> completada) {
+        <span class="kw">this</span>.id = id;
+        <span class="kw">this</span>.titol = titol;
+        <span class="kw">this</span>.dataLimit = dataLimit;
+        <span class="kw">this</span>.completada = completada;
+    }
+
+    <span class="kw">public</span> <span class="kw">int</span> <span class="fn">getId</span>() {
+        <span class="kw">return</span> id;
+    }
+
+    <span class="kw">public</span> <span class="kw">void</span> <span class="fn">setId</span>(<span class="kw">int</span> id) {
+        <span class="kw">this</span>.id = id;
+    }
+
+    <span class="kw">public</span> <span class="cl">String</span> <span class="fn">getTitol</span>() {
+        <span class="kw">return</span> titol;
+    }
+
+    <span class="kw">public</span> <span class="kw">void</span> <span class="fn">setTitol</span>(<span class="cl">String</span> titol) {
+        <span class="kw">this</span>.titol = titol;
+    }
+
+    <span class="kw">public</span> <span class="cl">LocalDate</span> <span class="fn">getDataLimit</span>() {
+        <span class="kw">return</span> dataLimit;
+    }
+
+    <span class="kw">public</span> <span class="kw">void</span> <span class="fn">setDataLimit</span>(<span class="cl">LocalDate</span> dataLimit) {
+        <span class="kw">this</span>.dataLimit = dataLimit;
+    }
+
+    <span class="kw">public</span> <span class="kw">boolean</span> <span class="fn">isCompletada</span>() {
+        <span class="kw">return</span> completada;
+    }
+
+    <span class="kw">public</span> <span class="kw">void</span> <span class="fn">setCompletada</span>(<span class="kw">boolean</span> completada) {
+        <span class="kw">this</span>.completada = completada;
+    }
+
+    <span class="ann">@Override</span>
+    <span class="kw">public</span> <span class="cl">String</span> <span class="fn">toString</span>() {
+        <span class="kw">return</span> <span class="str">"Tasques{id="</span> + id
+                + <span class="str">", titol='"</span> + titol + <span class="str">'\''</span>
+                + <span class="str">", dataLimit="</span> + dataLimit
+                + <span class="str">", completada="</span> + completada + <span class="str">'}'</span>;
+    }
+}</pre>
+    </div>
+    <p>
+      Fixeu-vos que <code>Tasques</code> ha estat definida com un <strong>POJO</strong> (Plain Old Java Object). Un POJO és una classe simple que conté, fonamentalment, els atributs, els constructors i els getters i setters. No té lògica de negoci ni mètodes que facin servir aquests atributs per produir un resultat (per exemple, convertir el títol a majúscules o validar dates a partir de la data límit).
+    </p>
+    <p>
+      D'altra banda, la classe implementa la interfície <code>Serializable</code>. És una interfície sense mètodes que només marca la classe com a serialitzable: sense ella, <code>writeObject()</code> llança <code>NotSerializableException</code>.
+    </p>
+    <p>
+      A partir d'aquí, vegem com es serialitza un objecte de la classe <code>Tasques</code>:
+    </p>
+    <div class="code-wrap">
+      <div class="code-header">
+        <span class="filename">SerialitzarTasca.java</span>
+        <span class="lang-badge lang-java">Java</span>
+      </div>
+      <pre><span class="kw">import</span> java.io.<span class="cl">IOException</span>;
+<span class="kw">import</span> java.io.<span class="cl">ObjectOutputStream</span>;
+<span class="kw">import</span> java.nio.file.<span class="cl">Files</span>;
+<span class="kw">import</span> java.nio.file.<span class="cl">Path</span>;
+<span class="kw">import</span> java.time.<span class="cl">LocalDate</span>;
+
+<span class="kw">public</span> <span class="kw">class</span> <span class="cl">SerialitzarTasca</span> {
+    <span class="kw">public</span> <span class="kw">static</span> <span class="kw">void</span> <span class="fn">main</span>(<span class="cl">String</span>[] args) {
+        <span class="cl">Path</span> fitxer = <span class="cl">Path</span>.<span class="fn">of</span>(<span class="str">"tasca.dat"</span>);
+
+        <span class="cl">Tasques</span> original = <span class="kw">new</span> <span class="fn">Tasques</span>(1, <span class="str">"Corregir pràctiques"</span>, <span class="cl">LocalDate</span>.<span class="fn">of</span>(2026, 10, 15), <span class="kw">false</span>);
+
+        <span class="kw">try</span> (<span class="cl">ObjectOutputStream</span> oos = <span class="kw">new</span> <span class="fn">ObjectOutputStream</span>(<span class="cl">Files</span>.<span class="fn">newOutputStream</span>(fitxer))) {
+            oos.<span class="fn">writeObject</span>(original);
+            <span class="cl">System</span>.out.<span class="fn">println</span>(<span class="str">"Serialitzat: "</span> + original);
+        } <span class="kw">catch</span> (<span class="cl">IOException</span> e) {
+            <span class="cl">System</span>.out.<span class="fn">println</span>(<span class="str">"Error en serialitzar: "</span> + e.<span class="fn">getMessage</span>());
+        }
+    }
+}</pre>
+    </div>
+    <p>
+      El resultat és un fitxer binari que no es pot llegir com un fitxer de text pla. Tampoc no és l'objectiu: el fitxer està pensat per ser llegit per un programa Java, no per una persona.
+    </p>
+    <p>
+      De manera anàloga, la deserialització fa el procés invers i reconstrueix l'objecte de la classe a partir del fitxer:
+    </p>
+    <div class="code-wrap">
+      <div class="code-header">
+        <span class="filename">DeserialitzarTasca.java</span>
+        <span class="lang-badge lang-java">Java</span>
+      </div>
+      <pre><span class="kw">import</span> java.io.<span class="cl">IOException</span>;
+<span class="kw">import</span> java.io.<span class="cl">ObjectInputStream</span>;
+<span class="kw">import</span> java.nio.file.<span class="cl">Files</span>;
+<span class="kw">import</span> java.nio.file.<span class="cl">Path</span>;
+
+<span class="kw">public</span> <span class="kw">class</span> <span class="cl">DeserialitzarTasca</span> {
+
+    <span class="kw">public</span> <span class="kw">static</span> <span class="kw">void</span> <span class="fn">main</span>(<span class="cl">String</span>[] args) {
+        <span class="cl">Path</span> fitxer = <span class="cl">Path</span>.<span class="fn">of</span>(<span class="str">"tasca.dat"</span>);
+
+        <span class="kw">try</span> (<span class="cl">ObjectInputStream</span> ois = <span class="kw">new</span> <span class="fn">ObjectInputStream</span>(<span class="cl">Files</span>.<span class="fn">newInputStream</span>(fitxer))) {
+            <span class="cl">Tasques</span> recuperada = (<span class="cl">Tasques</span>) ois.<span class="fn">readObject</span>();
+            <span class="cl">System</span>.out.<span class="fn">println</span>(<span class="str">"Deserialitzat: "</span> + recuperada);
+        } <span class="kw">catch</span> (<span class="cl">IOException</span> e) {
+            <span class="cl">System</span>.out.<span class="fn">println</span>(<span class="str">"Error en deserialitzar: "</span> + e.<span class="fn">getMessage</span>());
+        } <span class="kw">catch</span> (<span class="cl">ClassNotFoundException</span> e) {
+            <span class="cl">System</span>.out.<span class="fn">println</span>(<span class="str">"Classe no trobada: "</span> + e.<span class="fn">getMessage</span>());
+        }
+    }
+}</pre>
+    </div>
+    <p>
+      De la mateixa manera que es serialitza un objecte, també es poden serialitzar col·leccions d'objectes, com ara llistes (<code>ArrayList</code>) o mapes (<code>HashMap</code>).
+    </p>
+    <p>
+      Entre els avantatges de la serialització hi ha:
+    </p>
+    <ul>
+      <li>Desar i recuperar objectes sencers amb una sola instrucció.</li>
+      <li>Es conserva l'estructura completa dels objectes, incloses les referències entre ells.</li>
+      <li>No cal definir cap format de text (separadors de CSV, comes decimals, etc.) ni escriure codi per interpretar-lo.</li>
+      <li>Permet persistència senzilla i enviament per xarxa. És una manera ràpida de guardar l'estat d'un programa entre execucions, o d'enviar objectes per un socket entre dues aplicacions Java.</li>
+      <li>Amb <code>serialVersionUID</code> es controla la compatibilitat entre versions de la classe, fet que reforça el control sobre el que es guarda.</li>
+    </ul>
+    <p>
+      També té inconvenients:
+    </p>
+    <ul>
+      <li>El format és propi de Java: un programa escrit en un altre llenguatge no el pot llegir.</li>
+      <li>El fitxer no és llegible per una persona.</li>
+      <li>Deserialitzar dades de fonts desconegudes comporta riscos de seguretat.</li>
+    </ul>
+    <div class="box box-info">
+      <p class="box-title">Nota</p>
+      <p><code>ObjectOutputStream</code> és la serialització nativa de Java, però no l'única. Els objectes també es poden serialitzar en formats de text com JSON o XML, que són llegibles i independents del llenguatge (unitat 05).</p>
+    </div>
+
+    <!-- ══════════════════════
+         7. FORMES D'ACCÉS
+    ═══════════════════════ -->
+    <span id="acces" class="section-anchor"></span>
+    <h2>7. Formes d'accés</h2>
+    <p>
+      Hi ha diverses formes d'accedir al contingut d'un fitxer. Les més importants són:
+    </p>
+    <table>
+      <thead>
+        <tr><th>Forma d'accés</th><th>Classe</th><th>Avantatges</th><th>Inconvenients</th><th>Ús típic</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Seqüencial</td><td><code>Files</code>, <code>BufferedReader</code></td><td>Senzill. Eficient per processar tot el fitxer</td><td>Per trobar una dada cal llegir tot el que hi ha abans</td><td>Logs, CSV, JSON, configuració</td></tr>
+        <tr><td>Aleatori</td><td><code>RandomAccessFile</code></td><td>Accés immediat a qualsevol posició. Pot modificar una part sense reescriure el fitxer</td><td>Cal conèixer l'estructura exacta del fitxer</td><td>Registres de mida fixa, índexs</td></tr>
+        <tr><td>Memòria mapejada</td><td><code>FileChannel.map()</code></td><td>El més ràpid per a fitxers molt grans</td><td>Complex i consumeix molta memòria</td><td>Fitxers de centenars de MB o més</td></tr>
+      </tbody>
+    </table>
+
+    <div style="height: 60px;"></div>
+</main>
+</div>
+<script>
+  // Highlight sidebar link on scroll, and keep it visible inside the sidebar
+  const anchors = document.querySelectorAll('.section-anchor');
+  const navLinks = document.querySelectorAll('nav.sidebar a');
+
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const id = entry.target.id;
+        navLinks.forEach(a => {
+          const isActive = a.getAttribute('href') === '#' + id;
+          const wasActive = a.classList.contains('active');
+          a.classList.toggle('active', isActive);
+          // si l'enllaç passa a actiu i queda fora de la zona visible del
+          // menú lateral, el desplacem perquè quedi sempre a la vista
+          if (isActive && !wasActive) {
+            a.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+          }
+        });
+      }
+    });
+  }, { rootMargin: '-80px 0px -70% 0px' });
+
+  anchors.forEach(a => observer.observe(a));
+</script>
+
+<!-- ══════════════════════════════════════
+     MERMAID — carregat des d'un CDN i
+     inicialitzat/executat manualment (sense
+     startOnLoad), tal com defineix l'apunt .md
+═══════════════════════════════════════ -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js"></script>
+<script>
+  // Tema fet a mida perquè els diagrames comparteixin el fons fosc de la
+  // pàgina i les línies/fletxes es dibuixin en blanc (alt contrast). Els
+  // colors de les caixes (classDef del propi .md) es mantenen intactes.
+  mermaid.initialize({
+    startOnLoad: false,
+    securityLevel: 'loose',
+    theme: 'base',
+    fontFamily: "Inter, 'Segoe UI', sans-serif",
+    themeVariables: {
+      background:          '#12151f',
+      mainBkg:              '#1a1d27',
+      primaryColor:         '#1a1d27',
+      primaryTextColor:     '#e2e6f0',
+      primaryBorderColor:   '#2e3248',
+      secondaryColor:       '#222636',
+      secondaryTextColor:   '#e2e6f0',
+      secondaryBorderColor: '#2e3248',
+      tertiaryColor:        '#1a1d27',
+      tertiaryTextColor:    '#e2e6f0',
+      tertiaryBorderColor:  '#2e3248',
+      lineColor:            '#ffffff',
+      defaultLinkColor:     '#ffffff',
+      textColor:            '#e2e6f0',
+      titleColor:           '#e2e6f0',
+      nodeTextColor:        '#e2e6f0',
+      edgeLabelBackground:  '#12151f',
+      clusterBkg:           '#1a1d27',
+      clusterBorder:        '#4a4f6a',
+      /* seqüència */
+      actorBkg:             '#1a1d27',
+      actorBorder:          '#4a4f6a',
+      actorTextColor:       '#e2e6f0',
+      actorLineColor:       '#ffffff',
+      signalColor:          '#ffffff',
+      signalTextColor:      '#e2e6f0',
+      labelBoxBkgColor:     '#1a1d27',
+      labelBoxBorderColor:  '#4a4f6a',
+      labelTextColor:       '#e2e6f0',
+      loopTextColor:        '#e2e6f0',
+      noteBkgColor:         '#222636',
+      noteBorderColor:      '#4a4f6a',
+      noteTextColor:        '#e2e6f0',
+      activationBkgColor:   '#222636',
+      activationBorderColor:'#4a4f6a',
+      sequenceNumberColor:  '#0f1117'
+    },
+    flowchart:  { useMaxWidth: false, htmlLabels: true, padding: 16 },
+    sequence:   { useMaxWidth: false, actorFontSize: 15, messageFontSize: 15, noteFontSize: 14 }
+  });
+
+  mermaid.run({ querySelector: '.mermaid' });
+</script>
+
+</body>
+</html>
