@@ -1,0 +1,1000 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Establir i tancar la connexió – DAM · RA2</title>
+  <style>
+    /* ── Reset & Base ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:          #0f1117;
+      --surface:     #1a1d27;
+      --surface2:    #222636;
+      --border:      #2e3248;
+      --accent:      #7c6af7;
+      --accent2:     #4fc3f7;
+      --accent3:     #43e97b;
+      --accent4:     #f8a94f;
+      --accent5:     #f06292;
+      --text:        #e2e6f0;
+      --muted:       #8891aa;
+      --code-bg:     #12151f;
+      --tag-dto:     #3a2f70;
+      --tag-mapper:  #1a3a2f;
+      --tag-service: #3a2810;
+      --tag-ctrl:    #2c1a3a;
+      --font-mono:   'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+      --font-sans:   'Inter', 'Segoe UI', system-ui, sans-serif;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--font-sans);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      font-size: 15px;
+    }
+
+    /* ── Layout ── */
+    .page-wrap { display: flex; min-height: 100vh; }
+
+    nav.sidebar {
+      width: 260px;
+      flex-shrink: 0;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* capçalera: fixa, no fa scroll amb la resta del menú */
+    nav.sidebar .logo {
+      flex-shrink: 0;
+      padding: 22px 20px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    nav.sidebar .logo .eyebrow {
+      display: block;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--muted);
+    }
+
+    nav.sidebar .logo h2 {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--accent);
+      line-height: 1.3;
+      margin: 0;
+    }
+
+    nav.sidebar .logo .topic {
+      display: block;
+      font-size: 11px;
+      color: var(--accent2);
+      margin-top: 4px;
+    }
+
+    /* bloc d'enllaços: és l'únic que fa scroll intern */
+    nav.sidebar .sidebar-links {
+      flex: 1 1 auto;
+      overflow-y: auto;
+      padding: 14px 0 24px;
+    }
+
+    nav.sidebar ul { list-style: none; }
+
+    nav.sidebar ul li a {
+      display: block;
+      padding: 7px 20px;
+      text-decoration: none;
+      color: var(--muted);
+      font-size: 13px;
+      transition: all .15s;
+      border-left: 3px solid transparent;
+    }
+
+    nav.sidebar ul li a:hover,
+    nav.sidebar ul li a.active {
+      color: var(--text);
+      background: var(--surface2);
+      border-left-color: var(--accent);
+    }
+
+    nav.sidebar ul .section-label {
+      padding: 14px 20px 4px;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    main {
+      flex: 1;
+      max-width: 940px;
+      padding: 48px 56px;
+      overflow-x: hidden;
+    }
+
+    /* ── Typography ── */
+    h1 {
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 12px;
+      line-height: 1.2;
+    }
+
+    h2 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text);
+      margin: 52px 0 16px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    h3 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--accent2);
+      margin: 32px 0 10px;
+    }
+
+    h4 {
+      font-size: .95rem;
+      font-weight: 600;
+      color: var(--accent4);
+      margin: 22px 0 8px;
+    }
+
+    p { margin-bottom: 14px; color: var(--text); }
+    p + ul, p + ol { margin-top: -6px; }
+
+    ul, ol { padding-left: 20px; margin-bottom: 14px; }
+    li { margin-bottom: 6px; }
+
+    strong { color: var(--text); font-weight: 600; }
+    em { color: var(--accent4); font-style: italic; }
+
+    code {
+      font-family: var(--font-mono);
+      font-size: .82em;
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 1px 6px;
+      color: var(--accent3);
+    }
+
+    /* ── Hero ── */
+    .hero {
+      background: linear-gradient(135deg, #1a1d27 0%, #1e1633 100%);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 36px 40px;
+      margin-bottom: 32px;
+    }
+
+    .hero .subtitle {
+      color: var(--muted);
+      font-size: 1rem;
+      margin-top: 8px;
+      margin-bottom: 0;
+    }
+
+    .hero .tags { margin-top: 18px; display: flex; gap: 10px; flex-wrap: wrap; }
+
+    .tag {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      padding: 4px 12px;
+      border-radius: 20px;
+      border: 1px solid;
+    }
+
+    .tag-dto    { background: var(--tag-dto);     border-color: var(--accent);  color: var(--accent); }
+    .tag-mapper { background: var(--tag-mapper);  border-color: var(--accent3); color: var(--accent3); }
+    .tag-svc    { background: var(--tag-service); border-color: var(--accent4); color: var(--accent4); }
+    .tag-ctrl   { background: var(--tag-ctrl);    border-color: var(--accent5); color: var(--accent5); }
+    .tag-spring { background: #1a2233; border-color: var(--accent2); color: var(--accent2); }
+
+    /* ── Info boxes ── */
+    .box {
+      border-radius: 10px;
+      padding: 18px 22px;
+      margin: 20px 0;
+      border-left: 4px solid;
+    }
+
+    .box-info    { background: #151c30; border-color: var(--accent2); }
+    .box-tip     { background: #111f1a; border-color: var(--accent3); }
+    .box-warn    { background: #1f1a11; border-color: var(--accent4); }
+    .box-concept { background: #17142a; border-color: var(--accent); }
+    .box-criteri { background: #2a1030; border-color: var(--accent5); }
+
+    .box .box-title {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      margin-bottom: 8px;
+    }
+
+    .box-info    .box-title { color: var(--accent2); }
+    .box-tip     .box-title { color: var(--accent3); }
+    .box-warn    .box-title { color: var(--accent4); }
+    .box-concept .box-title { color: var(--accent); }
+    .box-criteri .box-title { color: var(--accent5); }
+
+    .box p:last-child { margin-bottom: 0; }
+    .box ul:last-child { margin-bottom: 0; }
+
+    /* llista de criteris d'avaluació — pensada per acollir-ne un o més */
+    .criteria-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .criteria-list li {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      margin-bottom: 0;
+    }
+
+    .criteria-code {
+      flex-shrink: 0;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 700;
+      background: var(--tag-ctrl);
+      border: 1px solid var(--accent5);
+      color: var(--accent5);
+      padding: 2px 9px;
+      border-radius: 20px;
+    }
+
+    .criteria-text { color: var(--text); }
+
+    /* ── Code blocks ── */
+    .code-wrap {
+      margin: 18px 0 24px;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+
+    .code-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--surface2);
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .code-header .filename {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .code-header .lang-badge {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+
+    .lang-java    { background: #2a1e0e; color: var(--accent4); border: 1px solid #6a3e0e; }
+    .lang-dto     { background: #1e1040; color: var(--accent);  border: 1px solid #4a30a0; }
+    .lang-mapper  { background: #0e2018; color: var(--accent3); border: 1px solid #1e6040; }
+    .lang-service { background: #201808; color: #f0c040;        border: 1px solid #604020; }
+    .lang-ctrl    { background: #1a0820; color: var(--accent5); border: 1px solid #602080; }
+
+    pre {
+      background: var(--code-bg);
+      padding: 20px 22px;
+      overflow-x: auto;
+      margin: 0;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      line-height: 1.65;
+      color: #c8d0e8;
+    }
+
+    /* Syntax highlight via spans */
+    .kw  { color: #c084fc; }   /* keyword */
+    .cl  { color: #93c5fd; }   /* class name */
+    .fn  { color: #67e8f9; }   /* function/method */
+    .str { color: #86efac; }   /* string */
+    .ann { color: #fb923c; }   /* annotation */
+    .cm  { color: #6b7280; font-style: italic; } /* comment */
+    .hl  { background: #2a2d3e; display: block; margin: 0 -22px; padding: 0 22px; } /* highlight line */
+
+    /* ── Diagrams (Mermaid) ── */
+    .mermaid-frame {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 28px 20px;
+      margin: 20px 0;
+      overflow-x: auto;
+      display: flex;
+      justify-content: center;
+    }
+
+    .mermaid-frame .mermaid {
+      display: block;
+      width: 100%;
+    }
+
+    .mermaid-frame svg {
+      width: 100%;
+      height: auto;
+      min-width: 640px;
+    }
+
+    /* diagrames més senzills (8.1, 9.1, connexió directa) que no cal
+       estirar a tota l'amplada del contenidor */
+    .mermaid-frame--compact .mermaid {
+      width: auto;
+    }
+
+    .mermaid-frame--compact svg {
+      width: auto;
+      max-width: 460px;
+      min-width: 0;
+    }
+
+    /* ── Comparació taula ── */
+    .compare-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin: 20px 0;
+    }
+
+    .compare-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .compare-card .cc-header {
+      padding: 12px 18px;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .cc-header.request { background: #1e1633; color: var(--accent); border-bottom: 1px solid #2e2050; }
+    .cc-header.response { background: #0e2018; color: var(--accent3); border-bottom: 1px solid #1e4030; }
+    .cc-header.good { background: #0e2018; color: var(--accent3); border-bottom: 1px solid #1e4030; }
+    .cc-header.bad  { background: #2a1030; color: var(--accent5); border-bottom: 1px solid #4a1a3a; }
+
+    .compare-card pre { font-size: 12px; }
+    .compare-body { padding: 16px 20px; }
+    .compare-body ul { margin-bottom: 0; }
+
+    /* ── Step by step ── */
+    .steps { counter-reset: step; margin: 20px 0; }
+
+    .step {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 32px;
+      padding-bottom: 32px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .step:last-child { border-bottom: none; }
+
+    .step-num {
+      flex-shrink: 0;
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: #fff;
+      font-weight: 800;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 2px;
+    }
+
+    .step-body { flex: 1; }
+    .step-body h3 { margin-top: 0; }
+
+    /* ── Table ── */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 18px 0;
+      font-size: 13.5px;
+    }
+
+    th {
+      background: var(--surface2);
+      color: var(--text);
+      font-weight: 700;
+      padding: 10px 14px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+
+    td {
+      padding: 9px 14px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+
+    tr:hover td { background: var(--surface); }
+
+    td code { font-size: .8em; }
+
+    /* ── Section divider ── */
+    .section-anchor { display: block; position: relative; top: -80px; visibility: hidden; }
+
+    /* ── Print ── */
+    @media print {
+      nav.sidebar { display: none; }
+      main { max-width: 100%; padding: 20px; }
+      .hero { break-inside: avoid; }
+      .step { break-inside: avoid; }
+      h2 { break-before: page; }
+      pre { white-space: pre-wrap; }
+    }
+
+    .lang-sql   { background: #0e2018; color: var(--accent3); border: 1px solid #1e6040; }
+    .lang-xml   { background: #1e1040; color: var(--accent);  border: 1px solid #4a30a0; }
+    .lang-props { background: #201808; color: #f0c040;        border: 1px solid #604020; }
+    .lang-shell { background: #1a0820; color: var(--accent5); border: 1px solid #602080; }
+    .lang-text  { background: #1a1d27; color: var(--muted);   border: 1px solid var(--border); }
+  </style>
+</head>
+<body>
+
+<div class="page-wrap">
+
+  <!-- ══════════════════════════════════════
+       SIDEBAR
+  ═══════════════════════════════════════ -->
+  <nav class="sidebar">
+    <div class="logo">
+      <span class="eyebrow">ACCÉS A DADES · RA2</span>
+      <span class="topic">Connexió</span>
+    </div>
+    <div class="sidebar-links">
+      <ul>
+
+        <li class="section-label">Introducció</li>
+        <li><a href="#criteris">Criteris d'avaluació</a></li>
+        <li><a href="#objectius">Què aprendràs</a></li>
+
+        <li class="section-label">Continguts</li>
+        <li><a href="#l-url-jdbc">1. L'URL JDBC</a></li>
+        <li><a href="#obrir-una-connexio">2. Obrir una connexió</a></li>
+        <li><a href="#configuracio-fora-del-codi">3. Configuració fora del codi</a></li>
+        <li><a href="#tancar-els-recursos">4. Tancar els recursos</a></li>
+        <li><a href="#errors-de-connexio-sqlexception">5. Errors de connexió: SQLException</a></li>
+        <li><a href="#pool-de-connexions">6. Pool de connexions</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- ══════════════════════════════════════
+       MAIN
+  ═══════════════════════════════════════ -->
+  <main>
+
+
+    <!-- HERO -->
+    <div class="hero">
+      <h1>Establir i tancar la connexió</h1>
+      <p class="subtitle">
+        Com s'escriu l'URL JDBC, com s'obre una connexió, com es treu la configuració del codi, com es tanquen els recursos i què aporta un pool de connexions.
+      </p>
+      <div class="tags">
+        <span class="tag tag-dto">DAM</span>
+        <span class="tag tag-mapper">RA2</span>
+        <span class="tag tag-svc">Connexió</span>
+      </div>
+    </div>
+
+    <span id="criteris" class="section-anchor"></span>
+    <div class="box box-criteri">
+      <p class="box-title">Criteris d'avaluació relacionats</p>
+      <ul class="criteria-list">
+        <li>
+          <span class="criteria-code">2.3</span>
+          <span class="criteria-text">Utilitza el connector idoni a l'aplicació.</span>
+        </li>
+        <li>
+          <span class="criteria-code">2.4</span>
+          <span class="criteria-text">Estableix la connexió.</span>
+        </li>
+        <li>
+          <span class="criteria-code">2.9</span>
+          <span class="criteria-text">Elimina els objectes un cop finalitzada la funció.</span>
+        </li>
+      </ul>
+    </div>
+    <span id="objectius" class="section-anchor"></span>
+    <div class="box box-concept">
+      <p class="box-title">Què aprendràs</p>
+      <p>En acabar aquesta unitat has de ser capaç de:</p>
+      <ul>
+        <li>Escriure l'<strong>URL JDBC</strong> correcta per a cada SGBD.</li>
+        <li>Obrir una connexió amb <code>DriverManager</code>.</li>
+        <li>Treure les credencials del codi amb un fitxer <code>.properties</code>.</li>
+        <li>Tancar correctament connexions, sentències i resultats amb <strong>try-with-resources</strong>.</li>
+        <li>Interpretar una <code>SQLException</code>.</li>
+        <li>Explicar què és un <strong>pool de connexions</strong> i per què s'utilitza.</li>
+      </ul>
+    </div>
+
+
+    <!-- ══════════════════════
+         1. L'URL JDBC
+    ═══════════════════════ -->
+    <span id="l-url-jdbc" class="section-anchor"></span>
+    <h2>1. L'URL JDBC</h2>
+    <p>
+      Per connectar-se, el <code>DriverManager</code> necessita saber <strong>quin driver</strong> fer servir i <strong>on</strong> és la base de dades. Tot això va dins de l'URL JDBC:
+    </p>
+    <div class="code-wrap">
+      <div class="code-header">
+        <span class="filename">Text</span>
+        <span class="lang-badge lang-text">Text</span>
+      </div>
+      <pre>jdbc:&lt;subprotocol&gt;:&lt;identificador de la base de dades&gt;</pre>
+    </div>
+    <ul>
+      <li><code>jdbc</code> és fix.</li>
+      <li>El <strong>subprotocol</strong> identifica el driver (<code>postgresql</code>, <code>h2</code>, <code>mysql</code>...).</li>
+      <li>La resta depèn de cada driver: normalment màquina, port i nom de la base de dades, i opcionalment paràmetres.</li>
+    </ul>
+    <table>
+      <thead>
+        <tr><th>SGBD</th><th>Exemple d'URL</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>PostgreSQL</td><td><code>jdbc:postgresql://localhost:5432/botiga</code></td></tr>
+        <tr><td>H2 (fitxer)</td><td><code>jdbc:h2:./dades/botiga</code></td></tr>
+        <tr><td>H2 (memòria)</td><td><code>jdbc:h2:mem:botiga</code></td></tr>
+        <tr><td>MySQL</td><td><code>jdbc:mysql://localhost:3306/botiga</code></td></tr>
+        <tr><td>MariaDB</td><td><code>jdbc:mariadb://localhost:3306/botiga</code></td></tr>
+        <tr><td>Oracle</td><td><code>jdbc:oracle:thin:@//localhost:1521/XEPDB1</code></td></tr>
+        <tr><td>SQL Server</td><td><code>jdbc:sqlserver://localhost:1433;databaseName=botiga</code></td></tr>
+        <tr><td>SQLite</td><td><code>jdbc:sqlite:botiga.db</code></td></tr>
+      </tbody>
+    </table>
+    <p>
+      Els paràmetres addicionals s'afegeixen amb una sintaxi que també depèn del driver:
+    </p>
+    <div class="code-wrap">
+      <div class="code-header">
+        <span class="filename">Text</span>
+        <span class="lang-badge lang-text">Text</span>
+      </div>
+      <pre>jdbc:postgresql://localhost:5432/botiga?ApplicationName=botiga&amp;connectTimeout=5</pre>
+    </div>
+    <div class="box box-warn">
+      <p class="box-title">Compte</p>
+    <p>
+      l'usuari i la contrasenya es poden posar a l'URL, però no és recomanable. Es passen com a paràmetres separats de <code>getConnection</code>, o millor encara, des d'un fitxer de configuració (apartat 3).
+    </p>
+    </div>
+
+    <!-- ══════════════════════
+         2. OBRIR UNA CONNEXIÓ
+    ═══════════════════════ -->
+    <span id="obrir-una-connexio" class="section-anchor"></span>
+    <h2>2. Obrir una connexió</h2>
+    <p>
+      La classe <code>DriverManager</code> té tres versions de <code>getConnection</code>:
+    </p>
+    <div class="code-wrap">
+      <div class="code-header">
+        <span class="filename">Java</span>
+        <span class="lang-badge lang-java">Java</span>
+      </div>
+      <pre><span class="cl">Connection</span> c1 = <span class="cl">DriverManager</span>.<span class="fn">getConnection</span>(url);                       <span class="cm">// sense credencials (H2 en memòria)</span>
+<span class="cl">Connection</span> c2 = <span class="cl">DriverManager</span>.<span class="fn">getConnection</span>(url, usuari, contrasenya);  <span class="cm">// la més habitual</span>
+<span class="cl">Connection</span> c3 = <span class="cl">DriverManager</span>.<span class="fn">getConnection</span>(url, propietats);           <span class="cm">// amb un objecte Properties</span></pre>
+    </div>
+    <p>
+      Un objecte <code>Connection</code> representa una <strong>sessió</strong> oberta amb el SGBD. Mentre està oberta ocupa recursos al client i, sobretot, al servidor: un procés, memòria i una de les connexions permeses (PostgreSQL n'accepta 100 per defecte).
+    </p>
+    <div class="code-wrap">
+      <div class="code-header">
+        <span class="filename">Java</span>
+        <span class="lang-badge lang-java">Java</span>
+      </div>
+      <pre><span class="cl">String</span> URL = <span class="str">"jdbc:postgresql://localhost:5432/postgres"</span>;
+<span class="cl">String</span> USER = <span class="str">"postgres"</span>;
+<span class="cl">String</span> PASS = <span class="str">"1234"</span>;
+
+<span class="kw">try</span> (<span class="cl">Connection</span> con = <span class="cl">DriverManager</span>.<span class="fn">getConnection</span>(URL, USER, PASS)) {
+    <span class="cl">System</span>.out.<span class="fn">println</span>(<span class="str">"Connectat a "</span> + con.<span class="fn">getMetaData</span>().<span class="fn">getDatabaseProductName</span>());
+} <span class="kw">catch</span> (<span class="cl">SQLException</span> e) {
+    <span class="cl">System</span>.err.<span class="fn">println</span>(<span class="str">"Error de connexió: "</span> + e.<span class="fn">getMessage</span>());
+}</pre>
+    </div>
+
+    <!-- ══════════════════════
+         3. CONFIGURACIÓ FORA DEL CODI
+    ═══════════════════════ -->
+    <span id="configuracio-fora-del-codi" class="section-anchor"></span>
+    <h2>3. Configuració fora del codi</h2>
+    <p>
+      Escriure l'URL i la contrasenya dins del codi té dos problemes: per canviar de base de dades cal recompilar, i la contrasenya acaba al repositori de codi.
+    </p>
+    <p>
+      La solució és un fitxer de propietats, <code>conn.properties</code>, dins de la carpeta <code>src/main/resources</code> del projecte:
+    </p>
+    <div class="code-wrap">
+      <div class="code-header">
+        <span class="filename">Text</span>
+        <span class="lang-badge lang-text">Text</span>
+      </div>
+      <pre>simplebanc/
+├── pom.xml
+└── src/
+    └── main/
+        ├── java/
+        │   └── ...
+        └── resources/
+            └── conn.properties</pre>
+    </div>
+    <p>
+      Un fitxer <code>.properties</code> és un fitxer de text amb una propietat per cada línia, en format <code>clau=valor</code>. Les línies que comencen per <code>#</code> són comentaris:
+    </p>
+    <div class="code-wrap">
+      <div class="code-header">
+        <span class="filename">conn.properties</span>
+        <span class="lang-badge lang-props">Properties</span>
+      </div>
+      <pre><span class="cm"># Gestor independent: PostgreSQL al contenidor Docker</span>
+<span class="fn">db.url</span>=<span class="str">jdbc:postgresql://localhost:5432/Iticbanc</span>
+<span class="fn">db.usuari</span>=<span class="str">M06ACTRA2</span>
+<span class="fn">db.contrasenya</span>=<span class="str">ssshhh..itsasecret!</span></pre>
+    </div>
+    <p>
+      Java llegeix aquests fitxers amb la classe <code>Properties</code>. El mètode <code>load()</code> rep un lector, llegeix totes les línies i guarda cada parella clau-valor. Després, <code>getProperty("clau")</code> retorna el valor:
+    </p>
+    <div class="code-wrap">
+      <div class="code-header">
+        <span class="filename">Java</span>
+        <span class="lang-badge lang-java">Java</span>
+      </div>
+      <pre><span class="cl">Properties</span> p = <span class="kw">new</span> <span class="fn">Properties</span>();
+p.<span class="fn">load</span>(<span class="cl">Files</span>.<span class="fn">newBufferedReader</span>(<span class="cl">Path</span>.<span class="fn">of</span>(<span class="str">"src"</span>, <span class="str">"main"</span>, <span class="str">"resources"</span>, <span class="str">"conn.properties"</span>)));
+
+<span class="cl">String</span> url = p.<span class="fn">getProperty</span>(<span class="str">"db.url"</span>);        <span class="cm">// "jdbc:postgresql://localhost:5432/Iticbanc"</span></pre>
+    </div>
+    <p>
+      Amb això ja es pot escriure una classe que centralitza l'obtenció de connexions. <strong>Totes les unitats següents la faran servir</strong>:
+    </p>
+    <div class="code-wrap">
+      <div class="code-header">
+        <span class="filename">ConnexioBD.java</span>
+        <span class="lang-badge lang-java">Java</span>
+      </div>
+      <pre><span class="kw">import</span> java.io.<span class="cl">BufferedReader</span>;
+<span class="kw">import</span> java.io.<span class="cl">IOException</span>;
+<span class="kw">import</span> java.nio.file.<span class="cl">Files</span>;
+<span class="kw">import</span> java.nio.file.<span class="cl">Path</span>;
+<span class="kw">import</span> java.sql.<span class="cl">Connection</span>;
+<span class="kw">import</span> java.sql.<span class="cl">DriverManager</span>;
+<span class="kw">import</span> java.sql.<span class="cl">SQLException</span>;
+<span class="kw">import</span> java.util.<span class="cl">Properties</span>;
+
+<span class="kw">public</span> <span class="kw">final</span> <span class="kw">class</span> <span class="cl">ConnexioBD</span> {
+
+    <span class="kw">private</span> <span class="kw">static</span> <span class="kw">final</span> <span class="cl">Path</span> FITXER_CONFIG =
+            <span class="cl">Path</span>.<span class="fn">of</span>(<span class="str">"src"</span>, <span class="str">"main"</span>, <span class="str">"resources"</span>, <span class="str">"conn.properties"</span>);
+
+    <span class="kw">private</span> <span class="kw">static</span> <span class="kw">final</span> <span class="cl">Properties</span> CONFIG = <span class="fn">carregarConfiguracio</span>();
+
+    <span class="kw">private</span> <span class="fn">ConnexioBD</span>() {
+        <span class="cm">// Classe d'utilitat: no s'instancia</span>
+    }
+
+    <span class="kw">private</span> <span class="kw">static</span> <span class="cl">Properties</span> <span class="fn">carregarConfiguracio</span>() {
+        <span class="cl">Properties</span> p = <span class="kw">new</span> <span class="fn">Properties</span>();
+        <span class="cm">// El lector es declara al try-with-resources perquè es tanqui sol</span>
+        <span class="kw">try</span> (<span class="cl">BufferedReader</span> lector = <span class="cl">Files</span>.<span class="fn">newBufferedReader</span>(FITXER_CONFIG)) {
+            p.<span class="fn">load</span>(lector);
+        } <span class="kw">catch</span> (<span class="cl">IOException</span> e) {
+            <span class="kw">throw</span> <span class="kw">new</span> <span class="fn">IllegalStateException</span>(<span class="str">"No s'ha pogut llegir "</span> + FITXER_CONFIG.<span class="fn">toAbsolutePath</span>(), e);
+        }
+        <span class="kw">return</span> p;
+    }
+
+    <span class="cm">/** Retorna una connexió nova. Qui la demana és responsable de tancar-la. */</span>
+    <span class="kw">public</span> <span class="kw">static</span> <span class="cl">Connection</span> <span class="fn">obtenir</span>() <span class="kw">throws</span> <span class="cl">SQLException</span> {
+        <span class="kw">return</span> <span class="cl">DriverManager</span>.<span class="fn">getConnection</span>(
+                CONFIG.<span class="fn">getProperty</span>(<span class="str">"db.url"</span>),
+                CONFIG.<span class="fn">getProperty</span>(<span class="str">"db.usuari"</span>),
+                CONFIG.<span class="fn">getProperty</span>(<span class="str">"db.contrasenya"</span>));
+    }
+}</pre>
+    </div>
+    <p>
+      Ús:
+    </p>
+    <div class="code-wrap">
+      <div class="code-header">
+        <span class="filename">Java</span>
+        <span class="lang-badge lang-java">Java</span>
+      </div>
+      <pre><span class="kw">try</span> (<span class="cl">Connection</span> con = <span class="cl">ConnexioBD</span>.<span class="fn">obtenir</span>()) {
+    <span class="cl">System</span>.out.<span class="fn">println</span>(<span class="str">"Connectat a "</span> + con.<span class="fn">getMetaData</span>().<span class="fn">getURL</span>());
+}</pre>
+    </div>
+    <div class="box box-info">
+      <p class="box-title">Nota</p>
+    <p>
+      <code>Files.newBufferedReader</code> llegeix el fitxer en UTF-8, de manera que els valors poden contenir accents sense problemes.
+    </p>
+    </div>
+    <div class="box box-warn">
+      <p class="box-title">Compte</p>
+    <p>
+      en un projecte real, <code>conn.properties</code> amb credencials de producció no es puja mai al repositori: s'afegeix al <code>.gitignore</code> i es distribueix un <code>conn.properties.exemple</code> sense contrasenyes.
+    </p>
+    </div>
+
+    <!-- ══════════════════════
+         4. TANCAR ELS RECURSOS
+    ═══════════════════════ -->
+    <span id="tancar-els-recursos" class="section-anchor"></span>
+    <h2>4. Tancar els recursos</h2>
+    <p>
+      <code>Connection</code>, <code>Statement</code>, <code>PreparedStatement</code>, <code>CallableStatement</code> i <code>ResultSet</code> ocupen recursos al client i al servidor. <strong>S'han de tancar sempre</strong> quan s'acaben de fer servir, tant si l'operació ha anat bé com si ha fallat.
+    </p>
+    <p>
+      Si no es tanquen, el programa acumula connexions obertes (<em>connection leak</em>) fins que el servidor arriba al límit i rebutja les noves amb l'error <code>too many clients already</code>.
+    </p>
+
+    <!-- ══════════════════════
+         5. ERRORS DE CONNEXIÓ: SQLEXCEPTION
+    ═══════════════════════ -->
+    <span id="errors-de-connexio-sqlexception" class="section-anchor"></span>
+    <h2>5. Errors de connexió: SQLException</h2>
+    <p>
+      Gairebé tots els mètodes de JDBC declaren <code>throws SQLException</code>, que és una excepció <strong>comprovada</strong> (<em>checked</em>). A més del missatge, porta dos codis útils:
+    </p>
+    <table>
+      <thead>
+        <tr><th>Mètode</th><th>Retorna</th><th>Exemple</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>getMessage()</code></td><td>Descripció de l'error, del driver</td><td><code>Connection to localhost:5432 refused</code></td></tr>
+        <tr><td><code>getSQLState()</code></td><td>Codi estàndard de 5 caràcters (SQL:2003)</td><td><code>08001</code></td></tr>
+        <tr><td><code>getErrorCode()</code></td><td>Codi propi del fabricant</td><td><code>0</code> a PostgreSQL, varia a cada SGBD</td></tr>
+      </tbody>
+    </table>
+
+    <!-- ══════════════════════
+         6. POOL DE CONNEXIONS
+    ═══════════════════════ -->
+    <span id="pool-de-connexions" class="section-anchor"></span>
+    <h2>6. Pool de connexions</h2>
+    <p>
+      Obrir una connexió és <strong>lent</strong>: cal establir la connexió TCP, autenticar-se i crear la sessió al servidor. Per a un programa que fa poques operacions no importa, però una aplicació que atén centenars de peticions per segon no es pot permetre obrir i tancar una connexió per a cadascuna.
+    </p>
+    <div class="box box-concept">
+      <p class="box-title">Definició</p>
+    <p>
+      Un <strong>pool de connexions</strong> és un conjunt de connexions que es creen per endavant i es reutilitzen. Quan l'aplicació en demana una, el pool en presta una de lliure; quan l'aplicació la "tanca", en realitat la retorna al pool, oberta i a punt per a la petició següent.
+    </p>
+    </div>
+    <div class="mermaid-frame">
+      <pre class="mermaid">
+flowchart LR
+    subgraph APP ["Aplicació"]
+        P1["Petició 1"]
+        P2["Petició 2"]
+        P3["Petició 3"]
+    end
+    subgraph POOL ["Pool (DataSource)"]
+        C1["Connexió 1&lt;br/&gt;en ús"]
+        C2["Connexió 2&lt;br/&gt;en ús"]
+        C3["Connexió 3&lt;br/&gt;lliure"]
+    end
+    BD[("PostgreSQL")]
+
+    P1 --&gt; C1
+    P2 --&gt; C2
+    C1 --&gt; BD
+    C2 --&gt; BD
+    C3 --&gt; BD
+    P3 -. "espera o agafa la 3" .-&gt; C3
+
+    classDef us fill:#fff4e6,stroke:#e8590c,stroke-width:2px,color:#000
+    classDef lliure fill:#ebfbee,stroke:#2f9e44,stroke-width:2px,color:#000
+    class C1,C2 us
+    class C3 lliure
+      </pre>
+    </div>
+    <p>
+      A JDBC, el pool s'obté a través de la interfície <code>javax.sql.DataSource</code>, que té un mètode <code>getConnection()</code>. El codi que fa servir la connexió <strong>no canvia</strong>: continua cridant <code>close()</code> dins del <em>try-with-resources</em>.
+    </p>
+    <p>
+      La biblioteca de pool més utilitzada a Java és <strong>HikariCP</strong>. Com a exemple, l'únic canvi seria a <code>ConnexioBD</code>:
+    </p>
+    <div class="code-wrap">
+      <div class="code-header">
+        <span class="filename">pom.xml (fragment)</span>
+        <span class="lang-badge lang-xml">XML</span>
+      </div>
+      <pre><span class="kw">&lt;dependency</span><span class="kw">&gt;</span>
+    <span class="kw">&lt;groupId</span><span class="kw">&gt;</span>com.zaxxer<span class="kw">&lt;/groupId</span><span class="kw">&gt;</span>
+    <span class="kw">&lt;artifactId</span><span class="kw">&gt;</span>HikariCP<span class="kw">&lt;/artifactId</span><span class="kw">&gt;</span>
+    <span class="kw">&lt;version</span><span class="kw">&gt;</span>5.1.0<span class="kw">&lt;/version</span><span class="kw">&gt;</span>
+<span class="kw">&lt;/dependency</span><span class="kw">&gt;</span></pre>
+    </div>
+    <div class="code-wrap">
+      <div class="code-header">
+        <span class="filename">Java</span>
+        <span class="lang-badge lang-java">Java</span>
+      </div>
+      <pre><span class="kw">import</span> com.zaxxer.hikari.<span class="cl">HikariConfig</span>;
+<span class="kw">import</span> com.zaxxer.hikari.<span class="cl">HikariDataSource</span>;
+<span class="kw">import</span> com.zaxxer.hikari.pool.<span class="cl">HikariPool</span>.<span class="cl">PoolInitializationException</span>;
+
+<span class="cm">// Es crea una sola vegada, en arrencar l'aplicació</span>
+<span class="cl">HikariConfig</span> config = <span class="kw">new</span> <span class="fn">HikariConfig</span>();
+config.<span class="fn">setJdbcUrl</span>(<span class="str">"jdbc:postgresql://localhost:5432/botiga"</span>);
+config.<span class="fn">setUsername</span>(<span class="str">"dam"</span>);
+config.<span class="fn">setPassword</span>(<span class="str">"dam"</span>);
+config.<span class="fn">setMaximumPoolSize</span>(10);            <span class="cm">// com a molt 10 connexions obertes alhora</span>
+
+<span class="kw">try</span> (<span class="cl">HikariDataSource</span> pool = <span class="kw">new</span> <span class="fn">HikariDataSource</span>(config)) {
+    <span class="cm">// A cada operació:</span>
+    <span class="kw">try</span> (<span class="cl">Connection</span> con = pool.<span class="fn">getConnection</span>()) {   <span class="cm">// presta una connexió del pool</span>
+        <span class="cm">// ...</span>
+    }                                               <span class="cm">// close() la retorna al pool</span>
+} <span class="kw">catch</span> (<span class="cl">PoolInitializationException</span> e) {           <span class="cm">// el pool no ha pogut arrencar</span>
+    <span class="cl">System</span>.out.<span class="fn">println</span>(<span class="str">"No s'ha pogut connectar a la base de dades: "</span> + e.<span class="fn">getMessage</span>());
+} <span class="kw">catch</span> (<span class="cl">SQLException</span> e) {                          <span class="cm">// error en una operació</span>
+    <span class="cl">System</span>.out.<span class="fn">println</span>(<span class="str">"Error de base de dades: "</span> + e.<span class="fn">getMessage</span>());
+}
+</pre>
+    </div>
+    <table>
+      <thead>
+        <tr><th></th><th><code>DriverManager</code></th><th>Pool (<code>DataSource</code>)</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>Cost per operació</strong></td><td>Obre una connexió nova</td><td>Reutilitza una connexió oberta</td></tr>
+        <tr><td><strong>Connexions al servidor</strong></td><td>Tantes com operacions simultànies</td><td>Limitades per la mida del pool</td></tr>
+        <tr><td><strong>Configuració</strong></td><td>Cap</td><td>Mida, temps d'espera, validació...</td></tr>
+        <tr><td><strong>Adequat per a</strong></td><td>Programes senzills, exercicis</td><td>Aplicacions amb molts usuaris o peticions</td></tr>
+      </tbody>
+    </table>
+    <div class="box box-info">
+      <p class="box-title">Nota</p>
+    <p>
+      als exercicis d'aquest RA farem servir <code>DriverManager</code>. El pool és important conèixer-lo perquè és el que trobaràs a qualsevol aplicació professional.
+    </p>
+    </div>
+
+    <div style="height: 60px;"></div>
+</main>
+</div>
+<script>
+  // Highlight sidebar link on scroll, and keep it visible inside the sidebar
+  const anchors = document.querySelectorAll('.section-anchor');
+  const navLinks = document.querySelectorAll('nav.sidebar a');
+
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const id = entry.target.id;
+        navLinks.forEach(a => {
+          const isActive = a.getAttribute('href') === '#' + id;
+          const wasActive = a.classList.contains('active');
+          a.classList.toggle('active', isActive);
+          // si l'enllaç passa a actiu i queda fora de la zona visible del
+          // menú lateral, el desplacem perquè quedi sempre a la vista
+          if (isActive && !wasActive) {
+            a.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+          }
+        });
+      }
+    });
+  }, { rootMargin: '-80px 0px -70% 0px' });
+
+  anchors.forEach(a => observer.observe(a));
+</script>
+
+<!-- ══════════════════════════════════════
+     MERMAID — carregat des d'un CDN i
+     inicialitzat/executat manualment (sense
+     startOnLoad), tal com defineix l'apunt .md
+═══════════════════════════════════════ -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js"></script>
+<script>
+  // Tema fet a mida perquè els diagrames comparteixin el fons fosc de la
+  // pàgina i les línies/fletxes es dibuixin en blanc (alt contrast). Els
+  // colors de les caixes (classDef del propi .md) es mantenen intactes.
+  mermaid.initialize({
+    startOnLoad: false,
+    securityLevel: 'loose',
+    theme: 'base',
+    fontFamily: "Inter, 'Segoe UI', sans-serif",
+    themeVariables: {
+      background:          '#12151f',
+      mainBkg:              '#1a1d27',
+      primaryColor:         '#1a1d27',
+      primaryTextColor:     '#e2e6f0',
+      primaryBorderColor:   '#2e3248',
+      secondaryColor:       '#222636',
+      secondaryTextColor:   '#e2e6f0',
+      secondaryBorderColor: '#2e3248',
+      tertiaryColor:        '#1a1d27',
+      tertiaryTextColor:    '#e2e6f0',
+      tertiaryBorderColor:  '#2e3248',
+      lineColor:            '#ffffff',
+      defaultLinkColor:     '#ffffff',
+      textColor:            '#e2e6f0',
+      titleColor:           '#e2e6f0',
+      nodeTextColor:        '#e2e6f0',
+      edgeLabelBackground:  '#12151f',
+      clusterBkg:           '#1a1d27',
+      clusterBorder:        '#4a4f6a',
+      /* seqüència */
+      actorBkg:             '#1a1d27',
+      actorBorder:          '#4a4f6a',
+      actorTextColor:       '#e2e6f0',
+      actorLineColor:       '#ffffff',
+      signalColor:          '#ffffff',
+      signalTextColor:      '#e2e6f0',
+      labelBoxBkgColor:     '#1a1d27',
+      labelBoxBorderColor:  '#4a4f6a',
+      labelTextColor:       '#e2e6f0',
+      loopTextColor:        '#e2e6f0',
+      noteBkgColor:         '#222636',
+      noteBorderColor:      '#4a4f6a',
+      noteTextColor:        '#e2e6f0',
+      activationBkgColor:   '#222636',
+      activationBorderColor:'#4a4f6a',
+      sequenceNumberColor:  '#0f1117'
+    },
+    flowchart:  { useMaxWidth: false, htmlLabels: true, padding: 16 },
+    sequence:   { useMaxWidth: false, actorFontSize: 15, messageFontSize: 15, noteFontSize: 14 }
+  });
+
+  mermaid.run({ querySelector: '.mermaid' });
+</script>
+
+</body>
+</html>

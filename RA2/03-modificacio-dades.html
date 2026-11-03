@@ -1,0 +1,1079 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Modificar el contingut de la base de dades – DAM · RA2</title>
+  <style>
+    /* ── Reset & Base ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:          #0f1117;
+      --surface:     #1a1d27;
+      --surface2:    #222636;
+      --border:      #2e3248;
+      --accent:      #7c6af7;
+      --accent2:     #4fc3f7;
+      --accent3:     #43e97b;
+      --accent4:     #f8a94f;
+      --accent5:     #f06292;
+      --text:        #e2e6f0;
+      --muted:       #8891aa;
+      --code-bg:     #12151f;
+      --tag-dto:     #3a2f70;
+      --tag-mapper:  #1a3a2f;
+      --tag-service: #3a2810;
+      --tag-ctrl:    #2c1a3a;
+      --font-mono:   'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+      --font-sans:   'Inter', 'Segoe UI', system-ui, sans-serif;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--font-sans);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      font-size: 15px;
+    }
+
+    /* ── Layout ── */
+    .page-wrap { display: flex; min-height: 100vh; }
+
+    nav.sidebar {
+      width: 260px;
+      flex-shrink: 0;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* capçalera: fixa, no fa scroll amb la resta del menú */
+    nav.sidebar .logo {
+      flex-shrink: 0;
+      padding: 22px 20px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    nav.sidebar .logo .eyebrow {
+      display: block;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--muted);
+    }
+
+    nav.sidebar .logo h2 {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--accent);
+      line-height: 1.3;
+      margin: 0;
+    }
+
+    nav.sidebar .logo .topic {
+      display: block;
+      font-size: 11px;
+      color: var(--accent2);
+      margin-top: 4px;
+    }
+
+    /* bloc d'enllaços: és l'únic que fa scroll intern */
+    nav.sidebar .sidebar-links {
+      flex: 1 1 auto;
+      overflow-y: auto;
+      padding: 14px 0 24px;
+    }
+
+    nav.sidebar ul { list-style: none; }
+
+    nav.sidebar ul li a {
+      display: block;
+      padding: 7px 20px;
+      text-decoration: none;
+      color: var(--muted);
+      font-size: 13px;
+      transition: all .15s;
+      border-left: 3px solid transparent;
+    }
+
+    nav.sidebar ul li a:hover,
+    nav.sidebar ul li a.active {
+      color: var(--text);
+      background: var(--surface2);
+      border-left-color: var(--accent);
+    }
+
+    nav.sidebar ul .section-label {
+      padding: 14px 20px 4px;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    main {
+      flex: 1;
+      max-width: 940px;
+      padding: 48px 56px;
+      overflow-x: hidden;
+    }
+
+    /* ── Typography ── */
+    h1 {
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 12px;
+      line-height: 1.2;
+    }
+
+    h2 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text);
+      margin: 52px 0 16px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    h3 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--accent2);
+      margin: 32px 0 10px;
+    }
+
+    h4 {
+      font-size: .95rem;
+      font-weight: 600;
+      color: var(--accent4);
+      margin: 22px 0 8px;
+    }
+
+    p { margin-bottom: 14px; color: var(--text); }
+    p + ul, p + ol { margin-top: -6px; }
+
+    ul, ol { padding-left: 20px; margin-bottom: 14px; }
+    li { margin-bottom: 6px; }
+
+    strong { color: var(--text); font-weight: 600; }
+    em { color: var(--accent4); font-style: italic; }
+
+    code {
+      font-family: var(--font-mono);
+      font-size: .82em;
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 1px 6px;
+      color: var(--accent3);
+    }
+
+    /* ── Hero ── */
+    .hero {
+      background: linear-gradient(135deg, #1a1d27 0%, #1e1633 100%);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 36px 40px;
+      margin-bottom: 32px;
+    }
+
+    .hero .subtitle {
+      color: var(--muted);
+      font-size: 1rem;
+      margin-top: 8px;
+      margin-bottom: 0;
+    }
+
+    .hero .tags { margin-top: 18px; display: flex; gap: 10px; flex-wrap: wrap; }
+
+    .tag {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      padding: 4px 12px;
+      border-radius: 20px;
+      border: 1px solid;
+    }
+
+    .tag-dto    { background: var(--tag-dto);     border-color: var(--accent);  color: var(--accent); }
+    .tag-mapper { background: var(--tag-mapper);  border-color: var(--accent3); color: var(--accent3); }
+    .tag-svc    { background: var(--tag-service); border-color: var(--accent4); color: var(--accent4); }
+    .tag-ctrl   { background: var(--tag-ctrl);    border-color: var(--accent5); color: var(--accent5); }
+    .tag-spring { background: #1a2233; border-color: var(--accent2); color: var(--accent2); }
+
+    /* ── Info boxes ── */
+    .box {
+      border-radius: 10px;
+      padding: 18px 22px;
+      margin: 20px 0;
+      border-left: 4px solid;
+    }
+
+    .box-info    { background: #151c30; border-color: var(--accent2); }
+    .box-tip     { background: #111f1a; border-color: var(--accent3); }
+    .box-warn    { background: #1f1a11; border-color: var(--accent4); }
+    .box-concept { background: #17142a; border-color: var(--accent); }
+    .box-criteri { background: #2a1030; border-color: var(--accent5); }
+
+    .box .box-title {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      margin-bottom: 8px;
+    }
+
+    .box-info    .box-title { color: var(--accent2); }
+    .box-tip     .box-title { color: var(--accent3); }
+    .box-warn    .box-title { color: var(--accent4); }
+    .box-concept .box-title { color: var(--accent); }
+    .box-criteri .box-title { color: var(--accent5); }
+
+    .box p:last-child { margin-bottom: 0; }
+    .box ul:last-child { margin-bottom: 0; }
+
+    /* llista de criteris d'avaluació — pensada per acollir-ne un o més */
+    .criteria-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .criteria-list li {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      margin-bottom: 0;
+    }
+
+    .criteria-code {
+      flex-shrink: 0;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 700;
+      background: var(--tag-ctrl);
+      border: 1px solid var(--accent5);
+      color: var(--accent5);
+      padding: 2px 9px;
+      border-radius: 20px;
+    }
+
+    .criteria-text { color: var(--text); }
+
+    /* ── Code blocks ── */
+    .code-wrap {
+      margin: 18px 0 24px;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+
+    .code-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--surface2);
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .code-header .filename {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .code-header .lang-badge {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+
+    .lang-java    { background: #2a1e0e; color: var(--accent4); border: 1px solid #6a3e0e; }
+    .lang-dto     { background: #1e1040; color: var(--accent);  border: 1px solid #4a30a0; }
+    .lang-mapper  { background: #0e2018; color: var(--accent3); border: 1px solid #1e6040; }
+    .lang-service { background: #201808; color: #f0c040;        border: 1px solid #604020; }
+    .lang-ctrl    { background: #1a0820; color: var(--accent5); border: 1px solid #602080; }
+
+    pre {
+      background: var(--code-bg);
+      padding: 20px 22px;
+      overflow-x: auto;
+      margin: 0;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      line-height: 1.65;
+      color: #c8d0e8;
+    }
+
+    /* Syntax highlight via spans */
+    .kw  { color: #c084fc; }   /* keyword */
+    .cl  { color: #93c5fd; }   /* class name */
+    .fn  { color: #67e8f9; }   /* function/method */
+    .str { color: #86efac; }   /* string */
+    .ann { color: #fb923c; }   /* annotation */
+    .cm  { color: #6b7280; font-style: italic; } /* comment */
+    .hl  { background: #2a2d3e; display: block; margin: 0 -22px; padding: 0 22px; } /* highlight line */
+
+    /* ── Diagrams (Mermaid) ── */
+    .mermaid-frame {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 28px 20px;
+      margin: 20px 0;
+      overflow-x: auto;
+      display: flex;
+      justify-content: center;
+    }
+
+    .mermaid-frame .mermaid {
+      display: block;
+      width: 100%;
+    }
+
+    .mermaid-frame svg {
+      width: 100%;
+      height: auto;
+      min-width: 640px;
+    }
+
+    /* diagrames més senzills (8.1, 9.1, connexió directa) que no cal
+       estirar a tota l'amplada del contenidor */
+    .mermaid-frame--compact .mermaid {
+      width: auto;
+    }
+
+    .mermaid-frame--compact svg {
+      width: auto;
+      max-width: 460px;
+      min-width: 0;
+    }
+
+    /* ── Comparació taula ── */
+    .compare-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin: 20px 0;
+    }
+
+    .compare-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .compare-card .cc-header {
+      padding: 12px 18px;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .cc-header.request { background: #1e1633; color: var(--accent); border-bottom: 1px solid #2e2050; }
+    .cc-header.response { background: #0e2018; color: var(--accent3); border-bottom: 1px solid #1e4030; }
+    .cc-header.good { background: #0e2018; color: var(--accent3); border-bottom: 1px solid #1e4030; }
+    .cc-header.bad  { background: #2a1030; color: var(--accent5); border-bottom: 1px solid #4a1a3a; }
+
+    .compare-card pre { font-size: 12px; }
+    .compare-body { padding: 16px 20px; }
+    .compare-body ul { margin-bottom: 0; }
+
+    /* ── Step by step ── */
+    .steps { counter-reset: step; margin: 20px 0; }
+
+    .step {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 32px;
+      padding-bottom: 32px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .step:last-child { border-bottom: none; }
+
+    .step-num {
+      flex-shrink: 0;
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: #fff;
+      font-weight: 800;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 2px;
+    }
+
+    .step-body { flex: 1; }
+    .step-body h3 { margin-top: 0; }
+
+    /* ── Table ── */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 18px 0;
+      font-size: 13.5px;
+    }
+
+    th {
+      background: var(--surface2);
+      color: var(--text);
+      font-weight: 700;
+      padding: 10px 14px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+
+    td {
+      padding: 9px 14px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+
+    tr:hover td { background: var(--surface); }
+
+    td code { font-size: .8em; }
+
+    /* ── Section divider ── */
+    .section-anchor { display: block; position: relative; top: -80px; visibility: hidden; }
+
+    /* ── Print ── */
+    @media print {
+      nav.sidebar { display: none; }
+      main { max-width: 100%; padding: 20px; }
+      .hero { break-inside: avoid; }
+      .step { break-inside: avoid; }
+      h2 { break-before: page; }
+      pre { white-space: pre-wrap; }
+    }
+
+    .lang-sql   { background: #0e2018; color: var(--accent3); border: 1px solid #1e6040; }
+    .lang-xml   { background: #1e1040; color: var(--accent);  border: 1px solid #4a30a0; }
+    .lang-props { background: #201808; color: #f0c040;        border: 1px solid #604020; }
+    .lang-shell { background: #1a0820; color: var(--accent5); border: 1px solid #602080; }
+    .lang-text  { background: #1a1d27; color: var(--muted);   border: 1px solid var(--border); }
+  </style>
+</head>
+<body>
+
+<div class="page-wrap">
+
+  <!-- ══════════════════════════════════════
+       SIDEBAR
+  ═══════════════════════════════════════ -->
+  <nav class="sidebar">
+    <div class="logo">
+      <span class="eyebrow">ACCÉS A DADES · RA2</span>
+      <span class="topic">Modificar dades</span>
+    </div>
+    <div class="sidebar-links">
+      <ul>
+
+        <li class="section-label">Introducció</li>
+        <li><a href="#criteris">Criteris d'avaluació</a></li>
+        <li><a href="#objectius">Què aprendràs</a></li>
+
+        <li class="section-label">Continguts</li>
+        <li><a href="#ddl-i-dml">1. DDL i DML</a></li>
+        <li><a href="#la-interficie-statement">2. La interfície Statement</a></li>
+        <li><a href="#executeupdate">3. executeUpdate</a></li>
+        <li><a href="#el-problema-de-concatenar-injeccio-sql">4. El problema de concatenar: injecció SQL</a></li>
+        <li><a href="#preparedstatement">5. PreparedStatement</a></li>
+        <li><a href="#metodes-setxxx">5.1 Mètodes setXxx</a></li>
+        <li><a href="#insert-i-claus-generades">6. INSERT i claus generades</a></li>
+        <li><a href="#inserir-una-fila">6.1 Inserir una fila</a></li>
+        <li><a href="#valors-null">6.2 Valors NULL</a></li>
+        <li><a href="#recuperar-l-id-generat">6.3 Recuperar l'id generat</a></li>
+        <li><a href="#update-i-delete">7. UPDATE i DELETE</a></li>
+        <li><a href="#modificar">7.1 Modificar</a></li>
+        <li><a href="#esborrar">7.2 Esborrar</a></li>
+        <li><a href="#errors-d-integritat">8. Errors d'integritat</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- ══════════════════════════════════════
+       MAIN
+  ═══════════════════════════════════════ -->
+  <main>
+
+
+    <!-- HERO -->
+    <div class="hero">
+      <h1>Modificar el contingut de la base de dades</h1>
+      <p class="subtitle">
+        Com s'insereixen, es modifiquen i s'esborren dades des de Java amb <code>Statement</code> i <code>PreparedStatement</code>, com es recupera la clau generada i com es tracten els errors d'integritat.
+      </p>
+      <div class="tags">
+        <span class="tag tag-dto">DAM</span>
+        <span class="tag tag-mapper">RA2</span>
+        <span class="tag tag-svc">Modificar dades</span>
+      </div>
+    </div>
+
+    <span id="criteris" class="section-anchor"></span>
+    <div class="box box-criteri">
+      <p class="box-title">Criteris d'avaluació relacionats</p>
+      <ul class="criteria-list">
+        <li>
+          <span class="criteria-code">2.6</span>
+          <span class="criteria-text">Desenvolupa aplicacions que modifiquen el contingut de la base de dades.</span>
+        </li>
+        <li>
+          <span class="criteria-code">2.9</span>
+          <span class="criteria-text">Elimina els objectes un cop finalitzada la funció.</span>
+        </li>
+      </ul>
+    </div>
+    <span id="objectius" class="section-anchor"></span>
+    <div class="box box-concept">
+      <p class="box-title">Què aprendràs</p>
+      <p>En acabar aquesta unitat has de ser capaç de:</p>
+      <ul>
+        <li>Inserir, modificar i esborrar files des de Java.</li>
+        <li>Explicar què és la <strong>injecció SQL</strong> i per què <code>Statement</code> no és segur amb dades de l'usuari.</li>
+        <li>Fer servir <code>PreparedStatement</code> i els seus mètodes <code>setXxx</code>.</li>
+        <li>Recuperar la clau generada pel SGBD després d'un <code>INSERT</code>.</li>
+        <li>Tractar els errors d'integritat que retorna el SGBD.</li>
+      </ul>
+    </div>
+
+
+    <!-- ══════════════════════
+         1. DDL I DML
+    ═══════════════════════ -->
+    <span id="ddl-i-dml" class="section-anchor"></span>
+    <h2>1. DDL i DML</h2>
+    <p>
+      Les sentències SQL es classifiquen segons què fan:
+    </p>
+    <table>
+      <thead>
+        <tr><th>Tipus</th><th>Nom</th><th>Sentències</th><th>Unitat</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>DDL</strong></td><td><em>Data Definition Language</em></td><td><code>CREATE</code>, <code>ALTER</code>, <code>DROP</code>, <code>TRUNCATE</code></td><td>09</td></tr>
+        <tr><td><strong>DML</strong></td><td><em>Data Manipulation Language</em></td><td><code>INSERT</code>, <code>UPDATE</code>, <code>DELETE</code></td><td>03</td></tr>
+        <tr><td><strong>DQL</strong></td><td><em>Data Query Language</em></td><td><code>SELECT</code></td><td>04</td></tr>
+        <tr><td><strong>TCL</strong></td><td><em>Transaction Control Language</em></td><td><code>COMMIT</code>, <code>ROLLBACK</code>, <code>SAVEPOINT</code></td><td>05</td></tr>
+      </tbody>
+    </table>
+    <p>
+      Les sentències DDL defineixen l'<strong>estructura</strong>: quines taules hi ha, quines columnes tenen i quines restriccions s'apliquen. Normalment s'executen una vegada, en instal·lar l'aplicació o quan canvia la versió.
+    </p>
+
+    <!-- ══════════════════════
+         2. LA INTERFÍCIE STATEMENT
+    ═══════════════════════ -->
+    <span id="la-interficie-statement" class="section-anchor"></span>
+    <h2>2. La interfície Statement</h2>
+    <p>
+      Un <code>Statement</code> s'obté a partir de la connexió i serveix per executar sentències SQL <strong>fixes</strong>, sense paràmetres. Té tres mètodes d'execució:
+    </p>
+    <table>
+      <thead>
+        <tr><th>Mètode</th><th>Retorna</th><th>S'utilitza per a</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>executeQuery(sql)</code></td><td><code>ResultSet</code></td><td><code>SELECT</code></td></tr>
+        <tr><td><code>executeUpdate(sql)</code></td><td><code>int</code>: files afectades (0 per a DDL)</td><td><code>INSERT</code>, <code>UPDATE</code>, <code>DELETE</code> i DDL</td></tr>
+        <tr><td><code>execute(sql)</code></td><td><code>boolean</code>: <code>true</code> si el resultat és un <code>ResultSet</code></td><td>Qualsevol sentència, quan no se sap de quin tipus és</td></tr>
+      </tbody>
+    </table>
+    <p>
+      Tots els exemples parteixen del mètode <code>obtenir()</code> de la classe <code>ConnexioBD</code>, descrita a la unitat 02:
+    </p>
+    <div class="code-wrap">
+      <div class="code-header">
+        <span class="filename">ConnexioBD.java</span>
+        <span class="lang-badge lang-java">Java</span>
+      </div>
+      <pre><span class="kw">import</span> java.io.<span class="cl">BufferedReader</span>;
+<span class="kw">import</span> java.io.<span class="cl">IOException</span>;
+<span class="kw">import</span> java.nio.file.<span class="cl">Files</span>;
+<span class="kw">import</span> java.nio.file.<span class="cl">Path</span>;
+<span class="kw">import</span> java.sql.<span class="cl">Connection</span>;
+<span class="kw">import</span> java.sql.<span class="cl">DriverManager</span>;
+<span class="kw">import</span> java.sql.<span class="cl">SQLException</span>;
+<span class="kw">import</span> java.util.<span class="cl">Properties</span>;
+
+<span class="kw">public</span> <span class="kw">final</span> <span class="kw">class</span> <span class="cl">ConnexioBD</span> {
+
+    <span class="kw">private</span> <span class="kw">static</span> <span class="kw">final</span> <span class="cl">Path</span> FITXER_CONFIG =
+            <span class="cl">Path</span>.<span class="fn">of</span>(<span class="str">"src"</span>, <span class="str">"main"</span>, <span class="str">"resources"</span>, <span class="str">"conn.properties"</span>);
+
+    <span class="kw">private</span> <span class="kw">static</span> <span class="kw">final</span> <span class="cl">Properties</span> CONFIG = <span class="fn">carregarConfiguracio</span>();
+
+    <span class="kw">private</span> <span class="fn">ConnexioBD</span>() {
+        <span class="cm">// Classe d'utilitat: no s'instancia</span>
+    }
+
+    <span class="kw">private</span> <span class="kw">static</span> <span class="cl">Properties</span> <span class="fn">carregarConfiguracio</span>() {
+        <span class="cl">Properties</span> p = <span class="kw">new</span> <span class="fn">Properties</span>();
+        <span class="cm">// El lector es declara al try-with-resources perquè es tanqui sol</span>
+        <span class="kw">try</span> (<span class="cl">BufferedReader</span> lector = <span class="cl">Files</span>.<span class="fn">newBufferedReader</span>(FITXER_CONFIG)) {
+            p.<span class="fn">load</span>(lector);
+        } <span class="kw">catch</span> (<span class="cl">IOException</span> e) {
+            <span class="kw">throw</span> <span class="kw">new</span> <span class="fn">IllegalStateException</span>(<span class="str">"No s'ha pogut llegir "</span> + FITXER_CONFIG.<span class="fn">toAbsolutePath</span>(), e);
+        }
+        <span class="kw">return</span> p;
+    }
+
+    <span class="cm">/** Retorna una connexió nova. Qui la demana és responsable de tancar-la. */</span>
+    <span class="kw">public</span> <span class="kw">static</span> <span class="cl">Connection</span> <span class="fn">obtenir</span>() <span class="kw">throws</span> <span class="cl">SQLException</span> {
+        <span class="kw">return</span> <span class="cl">DriverManager</span>.<span class="fn">getConnection</span>(
+                CONFIG.<span class="fn">getProperty</span>(<span class="str">"db.url"</span>),
+                CONFIG.<span class="fn">getProperty</span>(<span class="str">"db.usuari"</span>),
+                CONFIG.<span class="fn">getProperty</span>(<span class="str">"db.contrasenya"</span>));
+    }
+}</pre>
+    </div>
+
+    <!-- ══════════════════════
+         3. EXECUTEUPDATE
+    ═══════════════════════ -->
+    <span id="executeupdate" class="section-anchor"></span>
+    <h2>3. executeUpdate</h2>
+    <p>
+      Les sentències DML (<code>INSERT</code>, <code>UPDATE</code>, <code>DELETE</code>) s'executen amb <code>executeUpdate</code>, que retorna el <strong>nombre de files afectades</strong>:
+    </p>
+    <div class="code-wrap">
+      <div class="code-header">
+        <span class="filename">Java</span>
+        <span class="lang-badge lang-java">Java</span>
+      </div>
+      <pre><span class="kw">try</span> (<span class="cl">Connection</span> con = <span class="cl">ConnexioBD</span>.<span class="fn">obtenir</span>();
+     <span class="cl">Statement</span> st = con.<span class="fn">createStatement</span>()) {
+
+    <span class="kw">int</span> files = st.<span class="fn">executeUpdate</span>(
+            <span class="str">"INSERT INTO articles (nom, preu, estoc) VALUES ('Teclat', 24.90, 10)"</span>);
+    <span class="cl">System</span>.out.<span class="fn">println</span>(<span class="str">"Files inserides: "</span> + files);      <span class="cm">// 1</span>
+}</pre>
+    </div>
+    <p>
+      El valor de retorn és important: un <code>UPDATE</code> o un <code>DELETE</code> que retorna <code>0</code> vol dir que cap fila complia la condició del <code>WHERE</code>, i normalment l'aplicació ho ha de comunicar a l'usuari.
+    </p>
+
+    <!-- ══════════════════════
+         4. EL PROBLEMA DE CONCATENAR: INJECCIÓ SQL
+    ═══════════════════════ -->
+    <span id="el-problema-de-concatenar-injeccio-sql" class="section-anchor"></span>
+    <h2>4. El problema de concatenar: injecció SQL</h2>
+    <p>
+      L'exemple anterior té els valors escrits al codi. En una aplicació real els valors vénen de l'usuari, i la temptació és construir la sentència concatenant:
+    </p>
+    <div class="code-wrap">
+      <div class="code-header">
+        <span class="filename">Java</span>
+        <span class="lang-badge lang-java">Java</span>
+      </div>
+      <pre><span class="cm">// MALAMENT: el valor de l'usuari es concatena dins de l'SQL</span>
+<span class="kw">public</span> <span class="kw">static</span> <span class="kw">void</span> <span class="fn">esborrarClient</span>(<span class="cl">String</span> email) <span class="kw">throws</span> <span class="cl">SQLException</span> {
+    <span class="cl">String</span> sql = <span class="str">"DELETE FROM clients WHERE email = '"</span> + email + <span class="str">"'"</span>;
+    <span class="kw">try</span> (<span class="cl">Connection</span> con = <span class="cl">ConnexioBD</span>.<span class="fn">obtenir</span>();
+         <span class="cl">Statement</span> st = con.<span class="fn">createStatement</span>()) {
+        st.<span class="fn">executeUpdate</span>(sql);
+    }
+}</pre>
+    </div>
+    <p>
+      Amb un email normal, la sentència resultant és la que esperem:
+    </p>
+    <div class="code-wrap">
+      <div class="code-header">
+        <span class="filename">SQL</span>
+        <span class="lang-badge lang-sql">SQL</span>
+      </div>
+      <pre><span class="kw">DELETE</span> <span class="kw">FROM</span> clients <span class="kw">WHERE</span> email = <span class="str">'pau@exemple.cat'</span></pre>
+    </div>
+    <p>
+      Però si l'usuari escriu <code>x' OR '1'='1</code>, la sentència queda així:
+    </p>
+    <div class="code-wrap">
+      <div class="code-header">
+        <span class="filename">SQL</span>
+        <span class="lang-badge lang-sql">SQL</span>
+      </div>
+      <pre><span class="kw">DELETE</span> <span class="kw">FROM</span> clients <span class="kw">WHERE</span> email = <span class="str">'x'</span> <span class="kw">OR</span> <span class="str">'1'</span>=<span class="str">'1'</span></pre>
+    </div>
+    <p>
+      La condició <code>'1'='1'</code> és sempre certa: <strong>s'esborren tots els clients</strong>.
+    </p>
+    <div class="box box-concept">
+      <p class="box-title">Definició</p>
+    <p>
+      La <strong>injecció SQL</strong> és un atac que consisteix a introduir fragments d'SQL en una dada d'entrada perquè, en concatenar-la, alterin la sentència que executa l'aplicació. Permet llegir, modificar o esborrar dades sense autorització.
+    </p>
+    </div>
+    <p>
+      A més del problema de seguretat, concatenar també falla amb dades perfectament legítimes: un client que es digui <code>O'Brien</code> trenca la sentència per culpa de l'apòstrof.
+    </p>
+
+    <!-- ══════════════════════
+         5. PREPAREDSTATEMENT
+    ═══════════════════════ -->
+    <span id="preparedstatement" class="section-anchor"></span>
+    <h2>5. PreparedStatement</h2>
+    <p>
+      <code>PreparedStatement</code> és una subinterfície de <code>Statement</code> que treballa amb sentències <strong>precompilades</strong> amb <strong>paràmetres</strong>. Cada valor variable es marca amb un <code>?</code> i s'assigna després amb un mètode <code>setXxx</code>:
+    </p>
+    <div class="code-wrap">
+      <div class="code-header">
+        <span class="filename">Java</span>
+        <span class="lang-badge lang-java">Java</span>
+      </div>
+      <pre><span class="cm">// BÉ: el valor viatja separat de l'SQL</span>
+<span class="kw">public</span> <span class="kw">static</span> <span class="kw">int</span> <span class="fn">esborrarClient</span>(<span class="cl">String</span> email) <span class="kw">throws</span> <span class="cl">SQLException</span> {
+    <span class="cl">String</span> sql = <span class="str">"DELETE FROM clients WHERE email = ?"</span>;
+
+    <span class="kw">try</span> (<span class="cl">Connection</span> con = <span class="cl">ConnexioBD</span>.<span class="fn">obtenir</span>();
+         <span class="cl">PreparedStatement</span> ps = con.<span class="fn">prepareStatement</span>(sql)) {
+
+        ps.<span class="fn">setString</span>(1, email);          <span class="cm">// el primer ? és el número 1</span>
+        <span class="kw">return</span> ps.<span class="fn">executeUpdate</span>();
+    }
+}</pre>
+    </div>
+    <p>
+      Ara, si l'usuari escriu <code>x' OR '1'='1</code>, el SGBD busca un client amb aquest email literal, no en troba cap i no esborra res.
+    </p>
+    <p>
+      <strong>Avantatges de <code>PreparedStatement</code></strong>
+    </p>
+    <ul>
+      <li><strong>Seguretat</strong>: impossibilita la injecció SQL.</li>
+      <li><strong>Correcció</strong>: el driver s'encarrega dels apòstrofs, els decimals, les dates i els <code>NULL</code>.</li>
+      <li><strong>Rendiment</strong>: si es reutilitza amb valors diferents, el SGBD no ha de tornar a analitzar la sentència.</li>
+      <li><strong>Llegibilitat</strong>: l'SQL es llegeix sencer, sense cometes i <code>+</code> pel mig.</li>
+    </ul>
+    <div class="box box-tip">
+      <p class="box-title">Recorda</p>
+    <p>
+      a partir d'ara, <strong>qualsevol sentència amb valors que no siguin constants del programa</strong> es fa amb <code>PreparedStatement</code>.
+    </p>
+    </div>
+    <span id="metodes-setxxx" class="section-anchor"></span>
+    <h3>5.1 Mètodes setXxx</h3>
+    <table>
+      <thead>
+        <tr><th>Tipus SQL</th><th>Tipus Java</th><th>Mètode</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>INTEGER</code></td><td><code>int</code></td><td><code>setInt(i, valor)</code></td></tr>
+        <tr><td><code>BIGINT</code></td><td><code>long</code></td><td><code>setLong(i, valor)</code></td></tr>
+        <tr><td><code>NUMERIC(p,s)</code></td><td><code>BigDecimal</code></td><td><code>setBigDecimal(i, valor)</code></td></tr>
+        <tr><td><code>DOUBLE PRECISION</code></td><td><code>double</code></td><td><code>setDouble(i, valor)</code></td></tr>
+        <tr><td><code>VARCHAR</code>, <code>TEXT</code></td><td><code>String</code></td><td><code>setString(i, valor)</code></td></tr>
+        <tr><td><code>BOOLEAN</code></td><td><code>boolean</code></td><td><code>setBoolean(i, valor)</code></td></tr>
+        <tr><td><code>DATE</code></td><td><code>LocalDate</code></td><td><code>setObject(i, valor)</code></td></tr>
+        <tr><td><code>TIMESTAMP</code></td><td><code>LocalDateTime</code></td><td><code>setObject(i, valor)</code></td></tr>
+        <tr><td>Qualsevol, a <code>NULL</code></td><td></td><td><code>setNull(i, Types.XXX)</code></td></tr>
+      </tbody>
+    </table>
+    <div class="box box-warn">
+      <p class="box-title">Compte</p>
+    <p>
+      per a imports i preus fes servir sempre <code>BigDecimal</code> i <code>NUMERIC</code>, mai <code>double</code>. Els <code>double</code> no poden representar exactament valors com <code>0.1</code> i acumulen errors d'arrodoniment.
+    </p>
+    </div>
+    <div class="box box-info">
+      <p class="box-title">Nota</p>
+    <p>
+      les dates de <code>java.time</code> (<code>LocalDate</code>, <code>LocalDateTime</code>) es passen amb <code>setObject</code> des de JDBC 4.2. Les classes antigues <code>java.sql.Date</code> i <code>java.sql.Timestamp</code> encara funcionen, però no cal fer-les servir.
+    </p>
+    </div>
+
+    <!-- ══════════════════════
+         6. INSERT I CLAUS GENERADES
+    ═══════════════════════ -->
+    <span id="insert-i-claus-generades" class="section-anchor"></span>
+    <h2>6. INSERT i claus generades</h2>
+    <span id="inserir-una-fila" class="section-anchor"></span>
+    <h3>6.1 Inserir una fila</h3>
+    <div class="code-wrap">
+      <div class="code-header">
+        <span class="filename">Java</span>
+        <span class="lang-badge lang-java">Java</span>
+      </div>
+      <pre><span class="kw">public</span> <span class="kw">static</span> <span class="kw">void</span> <span class="fn">inserirArticle</span>(<span class="cl">String</span> nom, <span class="cl">BigDecimal</span> preu, <span class="kw">int</span> estoc) <span class="kw">throws</span> <span class="cl">SQLException</span> {
+    <span class="cl">String</span> sql = <span class="str">"INSERT INTO articles (nom, preu, estoc) VALUES (?, ?, ?)"</span>;
+
+    <span class="kw">try</span> (<span class="cl">Connection</span> con = <span class="cl">ConnexioBD</span>.<span class="fn">obtenir</span>();
+         <span class="cl">PreparedStatement</span> ps = con.<span class="fn">prepareStatement</span>(sql)) {
+
+        ps.<span class="fn">setString</span>(1, nom);
+        ps.<span class="fn">setBigDecimal</span>(2, preu);
+        ps.<span class="fn">setInt</span>(3, estoc);
+        ps.<span class="fn">executeUpdate</span>();
+    }
+}
+
+<span class="cm">// Ús:</span>
+<span class="fn">inserirArticle</span>(<span class="str">"Ratolí sense fil"</span>, <span class="kw">new</span> <span class="fn">BigDecimal</span>(<span class="str">"19.95"</span>), 25);</pre>
+    </div>
+    <span id="valors-null" class="section-anchor"></span>
+    <h3>6.2 Valors NULL</h3>
+    <p>
+      La columna <code>ciutat</code> de <code>clients</code> admet <code>NULL</code>. Si l'usuari no l'indica, s'ha d'inserir un <code>NULL</code>, no una cadena buida:
+    </p>
+    <div class="code-wrap">
+      <div class="code-header">
+        <span class="filename">Java</span>
+        <span class="lang-badge lang-java">Java</span>
+      </div>
+      <pre><span class="kw">if</span> (ciutat == <span class="kw">null</span> || ciutat.<span class="fn">isBlank</span>()) {
+    ps.<span class="fn">setNull</span>(3, <span class="cl">Types</span>.VARCHAR);
+} <span class="kw">else</span> {
+    ps.<span class="fn">setString</span>(3, ciutat);
+}</pre>
+    </div>
+    <span id="recuperar-l-id-generat" class="section-anchor"></span>
+    <h3>6.3 Recuperar l'id generat</h3>
+    <p>
+      Les taules de la botiga tenen l'<code>id</code> generat pel SGBD (<code>GENERATED ALWAYS AS IDENTITY</code>). Moltes vegades, just després d'inserir, el programa necessita saber quin <code>id</code> s'ha assignat; per exemple, per inserir les línies d'un encàrrec que s'acaba de crear.
+    </p>
+    <p>
+      Per obtenir-lo s'indica en preparar la sentència quines columnes generades es volen recuperar, i després es llegeixen amb <code>getGeneratedKeys()</code>:
+    </p>
+    <div class="code-wrap">
+      <div class="code-header">
+        <span class="filename">Java</span>
+        <span class="lang-badge lang-java">Java</span>
+      </div>
+      <pre><span class="kw">public</span> <span class="kw">static</span> <span class="kw">int</span> <span class="fn">inserirClient</span>(<span class="cl">String</span> nom, <span class="cl">String</span> email, <span class="cl">String</span> ciutat) <span class="kw">throws</span> <span class="cl">SQLException</span> {
+    <span class="cl">String</span> sql = <span class="str">"INSERT INTO clients (nom, email, ciutat) VALUES (?, ?, ?)"</span>;
+
+    <span class="kw">try</span> (<span class="cl">Connection</span> con = <span class="cl">ConnexioBD</span>.<span class="fn">obtenir</span>();
+         <span class="cl">PreparedStatement</span> ps = con.<span class="fn">prepareStatement</span>(sql, <span class="kw">new</span> <span class="cl">String</span>[] { <span class="str">"id"</span> })) {
+
+        ps.<span class="fn">setString</span>(1, nom);
+        ps.<span class="fn">setString</span>(2, email);
+        <span class="kw">if</span> (ciutat == <span class="kw">null</span>) {
+            ps.<span class="fn">setNull</span>(3, <span class="cl">Types</span>.VARCHAR);
+        } <span class="kw">else</span> {
+            ps.<span class="fn">setString</span>(3, ciutat);
+        }
+        ps.<span class="fn">executeUpdate</span>();
+
+        <span class="cm">// getGeneratedKeys retorna un ResultSet amb una fila per cada fila inserida</span>
+        <span class="kw">try</span> (<span class="cl">ResultSet</span> claus = ps.<span class="fn">getGeneratedKeys</span>()) {
+            <span class="kw">if</span> (claus.<span class="fn">next</span>()) {
+                <span class="kw">return</span> claus.<span class="fn">getInt</span>(1);
+            }
+            <span class="kw">throw</span> <span class="kw">new</span> <span class="fn">SQLException</span>(<span class="str">"No s'ha retornat cap id"</span>);
+        }
+    }
+}</pre>
+    </div>
+    <div class="box box-info">
+      <p class="box-title">Nota</p>
+    <p>
+      també existeix la forma <code>prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)</code>. Funciona, però amb PostgreSQL retorna <strong>totes</strong> les columnes de la fila inserida. Indicar el nom de la columna (<code>new String[] { "id" }</code>) és més precís i funciona igual a H2 i a PostgreSQL.
+    </p>
+    </div>
+
+    <!-- ══════════════════════
+         7. UPDATE I DELETE
+    ═══════════════════════ -->
+    <span id="update-i-delete" class="section-anchor"></span>
+    <h2>7. UPDATE i DELETE</h2>
+    <span id="modificar" class="section-anchor"></span>
+    <h3>7.1 Modificar</h3>
+    <div class="code-wrap">
+      <div class="code-header">
+        <span class="filename">Java</span>
+        <span class="lang-badge lang-java">Java</span>
+      </div>
+      <pre><span class="kw">public</span> <span class="kw">static</span> <span class="kw">boolean</span> <span class="fn">actualitzarPreu</span>(<span class="kw">int</span> idArticle, <span class="cl">BigDecimal</span> preuNou) <span class="kw">throws</span> <span class="cl">SQLException</span> {
+    <span class="cl">String</span> sql = <span class="str">"UPDATE articles SET preu = ? WHERE id = ?"</span>;
+
+    <span class="kw">try</span> (<span class="cl">Connection</span> con = <span class="cl">ConnexioBD</span>.<span class="fn">obtenir</span>();
+         <span class="cl">PreparedStatement</span> ps = con.<span class="fn">prepareStatement</span>(sql)) {
+
+        ps.<span class="fn">setBigDecimal</span>(1, preuNou);
+        ps.<span class="fn">setInt</span>(2, idArticle);
+        <span class="kw">return</span> ps.<span class="fn">executeUpdate</span>() == 1;          <span class="cm">// false si l'article no existeix</span>
+    }
+}</pre>
+    </div>
+    <p>
+      Un <code>UPDATE</code> pot afectar moltes files. Per exemple, apujar un percentatge tots els articles amb poc estoc:
+    </p>
+    <div class="code-wrap">
+      <div class="code-header">
+        <span class="filename">Java</span>
+        <span class="lang-badge lang-java">Java</span>
+      </div>
+      <pre><span class="cl">String</span> sql = <span class="str">"UPDATE articles SET preu = ROUND(preu * (1 + ? / 100.0), 2) WHERE estoc &lt; ?"</span>;
+
+<span class="kw">try</span> (<span class="cl">Connection</span> con = <span class="cl">ConnexioBD</span>.<span class="fn">obtenir</span>();
+     <span class="cl">PreparedStatement</span> ps = con.<span class="fn">prepareStatement</span>(sql)) {
+
+    ps.<span class="fn">setBigDecimal</span>(1, <span class="kw">new</span> <span class="fn">BigDecimal</span>(<span class="str">"5"</span>));   <span class="cm">// +5 %</span>
+    ps.<span class="fn">setInt</span>(2, 3);                            <span class="cm">// articles amb menys de 3 unitats</span>
+    <span class="kw">int</span> files = ps.<span class="fn">executeUpdate</span>();
+    <span class="cl">System</span>.out.<span class="fn">println</span>(files + <span class="str">" articles actualitzats"</span>);
+}</pre>
+    </div>
+    <span id="esborrar" class="section-anchor"></span>
+    <h3>7.2 Esborrar</h3>
+    <div class="code-wrap">
+      <div class="code-header">
+        <span class="filename">Java</span>
+        <span class="lang-badge lang-java">Java</span>
+      </div>
+      <pre><span class="kw">public</span> <span class="kw">static</span> <span class="kw">boolean</span> <span class="fn">esborrarArticle</span>(<span class="kw">int</span> idArticle) <span class="kw">throws</span> <span class="cl">SQLException</span> {
+    <span class="cl">String</span> sql = <span class="str">"DELETE FROM articles WHERE id = ?"</span>;
+
+    <span class="kw">try</span> (<span class="cl">Connection</span> con = <span class="cl">ConnexioBD</span>.<span class="fn">obtenir</span>();
+         <span class="cl">PreparedStatement</span> ps = con.<span class="fn">prepareStatement</span>(sql)) {
+
+        ps.<span class="fn">setInt</span>(1, idArticle);
+        <span class="kw">return</span> ps.<span class="fn">executeUpdate</span>() &gt; 0;
+    }
+}</pre>
+    </div>
+    <div class="box box-warn">
+      <p class="box-title">Compte</p>
+    <p>
+      un <code>UPDATE</code> o un <code>DELETE</code> sense <code>WHERE</code> afecta <strong>totes</strong> les files de la taula. Revisa sempre la condició abans d'executar-los.
+    </p>
+    </div>
+
+    <!-- ══════════════════════
+         8. ERRORS D'INTEGRITAT
+    ═══════════════════════ -->
+    <span id="errors-d-integritat" class="section-anchor"></span>
+    <h2>8. Errors d'integritat</h2>
+    <p>
+      Les restriccions de l'esquema (unitat 09) les comprova el SGBD. Quan una sentència les incompleix, el driver llança una <code>SQLException</code> amb un <code>SQLState</code> de la classe <code>23</code>:
+    </p>
+    <table>
+      <thead>
+        <tr><th>SQLState</th><th>Restricció</th><th>Exemple a la botiga</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>23505</code></td><td><code>UNIQUE</code> o <code>PRIMARY KEY</code></td><td>Inserir un client amb un email que ja existeix</td></tr>
+        <tr><td><code>23503</code></td><td><code>FOREIGN KEY</code></td><td>Esborrar un article que apareix en alguna línia d'encàrrec</td></tr>
+        <tr><td><code>23502</code></td><td><code>NOT NULL</code></td><td>Inserir un article sense nom</td></tr>
+        <tr><td><code>23514</code></td><td><code>CHECK</code></td><td>Posar un preu negatiu</td></tr>
+      </tbody>
+    </table>
+    <p>
+      L'aplicació no ha de mostrar a l'usuari el missatge tècnic del SGBD, sinó interpretar-lo.
+    </p>
+
+    <div style="height: 60px;"></div>
+</main>
+</div>
+<script>
+  // Highlight sidebar link on scroll, and keep it visible inside the sidebar
+  const anchors = document.querySelectorAll('.section-anchor');
+  const navLinks = document.querySelectorAll('nav.sidebar a');
+
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const id = entry.target.id;
+        navLinks.forEach(a => {
+          const isActive = a.getAttribute('href') === '#' + id;
+          const wasActive = a.classList.contains('active');
+          a.classList.toggle('active', isActive);
+          // si l'enllaç passa a actiu i queda fora de la zona visible del
+          // menú lateral, el desplacem perquè quedi sempre a la vista
+          if (isActive && !wasActive) {
+            a.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+          }
+        });
+      }
+    });
+  }, { rootMargin: '-80px 0px -70% 0px' });
+
+  anchors.forEach(a => observer.observe(a));
+</script>
+
+<!-- ══════════════════════════════════════
+     MERMAID — carregat des d'un CDN i
+     inicialitzat/executat manualment (sense
+     startOnLoad), tal com defineix l'apunt .md
+═══════════════════════════════════════ -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js"></script>
+<script>
+  // Tema fet a mida perquè els diagrames comparteixin el fons fosc de la
+  // pàgina i les línies/fletxes es dibuixin en blanc (alt contrast). Els
+  // colors de les caixes (classDef del propi .md) es mantenen intactes.
+  mermaid.initialize({
+    startOnLoad: false,
+    securityLevel: 'loose',
+    theme: 'base',
+    fontFamily: "Inter, 'Segoe UI', sans-serif",
+    themeVariables: {
+      background:          '#12151f',
+      mainBkg:              '#1a1d27',
+      primaryColor:         '#1a1d27',
+      primaryTextColor:     '#e2e6f0',
+      primaryBorderColor:   '#2e3248',
+      secondaryColor:       '#222636',
+      secondaryTextColor:   '#e2e6f0',
+      secondaryBorderColor: '#2e3248',
+      tertiaryColor:        '#1a1d27',
+      tertiaryTextColor:    '#e2e6f0',
+      tertiaryBorderColor:  '#2e3248',
+      lineColor:            '#ffffff',
+      defaultLinkColor:     '#ffffff',
+      textColor:            '#e2e6f0',
+      titleColor:           '#e2e6f0',
+      nodeTextColor:        '#e2e6f0',
+      edgeLabelBackground:  '#12151f',
+      clusterBkg:           '#1a1d27',
+      clusterBorder:        '#4a4f6a',
+      /* seqüència */
+      actorBkg:             '#1a1d27',
+      actorBorder:          '#4a4f6a',
+      actorTextColor:       '#e2e6f0',
+      actorLineColor:       '#ffffff',
+      signalColor:          '#ffffff',
+      signalTextColor:      '#e2e6f0',
+      labelBoxBkgColor:     '#1a1d27',
+      labelBoxBorderColor:  '#4a4f6a',
+      labelTextColor:       '#e2e6f0',
+      loopTextColor:        '#e2e6f0',
+      noteBkgColor:         '#222636',
+      noteBorderColor:      '#4a4f6a',
+      noteTextColor:        '#e2e6f0',
+      activationBkgColor:   '#222636',
+      activationBorderColor:'#4a4f6a',
+      sequenceNumberColor:  '#0f1117'
+    },
+    flowchart:  { useMaxWidth: false, htmlLabels: true, padding: 16 },
+    sequence:   { useMaxWidth: false, actorFontSize: 15, messageFontSize: 15, noteFontSize: 14 }
+  });
+
+  mermaid.run({ querySelector: '.mermaid' });
+</script>
+
+</body>
+</html>

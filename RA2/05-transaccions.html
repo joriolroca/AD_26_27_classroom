@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Transaccions – DAM · RA2</title>
+  <style>
+    /* ── Reset & Base ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:          #0f1117;
+      --surface:     #1a1d27;
+      --surface2:    #222636;
+      --border:      #2e3248;
+      --accent:      #7c6af7;
+      --accent2:     #4fc3f7;
+      --accent3:     #43e97b;
+      --accent4:     #f8a94f;
+      --accent5:     #f06292;
+      --text:        #e2e6f0;
+      --muted:       #8891aa;
+      --code-bg:     #12151f;
+      --tag-dto:     #3a2f70;
+      --tag-mapper:  #1a3a2f;
+      --tag-service: #3a2810;
+      --tag-ctrl:    #2c1a3a;
+      --font-mono:   'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+      --font-sans:   'Inter', 'Segoe UI', system-ui, sans-serif;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--font-sans);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      font-size: 15px;
+    }
+
+    /* ── Layout ── */
+    .page-wrap { display: flex; min-height: 100vh; }
+
+    nav.sidebar {
+      width: 260px;
+      flex-shrink: 0;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* capçalera: fixa, no fa scroll amb la resta del menú */
+    nav.sidebar .logo {
+      flex-shrink: 0;
+      padding: 22px 20px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    nav.sidebar .logo .eyebrow {
+      display: block;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--muted);
+    }
+
+    nav.sidebar .logo h2 {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--accent);
+      line-height: 1.3;
+      margin: 0;
+    }
+
+    nav.sidebar .logo .topic {
+      display: block;
+      font-size: 11px;
+      color: var(--accent2);
+      margin-top: 4px;
+    }
+
+    /* bloc d'enllaços: és l'únic que fa scroll intern */
+    nav.sidebar .sidebar-links {
+      flex: 1 1 auto;
+      overflow-y: auto;
+      padding: 14px 0 24px;
+    }
+
+    nav.sidebar ul { list-style: none; }
+
+    nav.sidebar ul li a {
+      display: block;
+      padding: 7px 20px;
+      text-decoration: none;
+      color: var(--muted);
+      font-size: 13px;
+      transition: all .15s;
+      border-left: 3px solid transparent;
+    }
+
+    nav.sidebar ul li a:hover,
+    nav.sidebar ul li a.active {
+      color: var(--text);
+      background: var(--surface2);
+      border-left-color: var(--accent);
+    }
+
+    nav.sidebar ul .section-label {
+      padding: 14px 20px 4px;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    main {
+      flex: 1;
+      max-width: 940px;
+      padding: 48px 56px;
+      overflow-x: hidden;
+    }
+
+    /* ── Typography ── */
+    h1 {
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 12px;
+      line-height: 1.2;
+    }
+
+    h2 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text);
+      margin: 52px 0 16px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    h3 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--accent2);
+      margin: 32px 0 10px;
+    }
+
+    h4 {
+      font-size: .95rem;
+      font-weight: 600;
+      color: var(--accent4);
+      margin: 22px 0 8px;
+    }
+
+    p { margin-bottom: 14px; color: var(--text); }
+    p + ul, p + ol { margin-top: -6px; }
+
+    ul, ol { padding-left: 20px; margin-bottom: 14px; }
+    li { margin-bottom: 6px; }
+
+    strong { color: var(--text); font-weight: 600; }
+    em { color: var(--accent4); font-style: italic; }
+
+    code {
+      font-family: var(--font-mono);
+      font-size: .82em;
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 1px 6px;
+      color: var(--accent3);
+    }
+
+    /* ── Hero ── */
+    .hero {
+      background: linear-gradient(135deg, #1a1d27 0%, #1e1633 100%);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 36px 40px;
+      margin-bottom: 32px;
+    }
+
+    .hero .subtitle {
+      color: var(--muted);
+      font-size: 1rem;
+      margin-top: 8px;
+      margin-bottom: 0;
+    }
+
+    .hero .tags { margin-top: 18px; display: flex; gap: 10px; flex-wrap: wrap; }
+
+    .tag {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      padding: 4px 12px;
+      border-radius: 20px;
+      border: 1px solid;
+    }
+
+    .tag-dto    { background: var(--tag-dto);     border-color: var(--accent);  color: var(--accent); }
+    .tag-mapper { background: var(--tag-mapper);  border-color: var(--accent3); color: var(--accent3); }
+    .tag-svc    { background: var(--tag-service); border-color: var(--accent4); color: var(--accent4); }
+    .tag-ctrl   { background: var(--tag-ctrl);    border-color: var(--accent5); color: var(--accent5); }
+    .tag-spring { background: #1a2233; border-color: var(--accent2); color: var(--accent2); }
+
+    /* ── Info boxes ── */
+    .box {
+      border-radius: 10px;
+      padding: 18px 22px;
+      margin: 20px 0;
+      border-left: 4px solid;
+    }
+
+    .box-info    { background: #151c30; border-color: var(--accent2); }
+    .box-tip     { background: #111f1a; border-color: var(--accent3); }
+    .box-warn    { background: #1f1a11; border-color: var(--accent4); }
+    .box-concept { background: #17142a; border-color: var(--accent); }
+    .box-criteri { background: #2a1030; border-color: var(--accent5); }
+
+    .box .box-title {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      margin-bottom: 8px;
+    }
+
+    .box-info    .box-title { color: var(--accent2); }
+    .box-tip     .box-title { color: var(--accent3); }
+    .box-warn    .box-title { color: var(--accent4); }
+    .box-concept .box-title { color: var(--accent); }
+    .box-criteri .box-title { color: var(--accent5); }
+
+    .box p:last-child { margin-bottom: 0; }
+    .box ul:last-child { margin-bottom: 0; }
+
+    /* llista de criteris d'avaluació — pensada per acollir-ne un o més */
+    .criteria-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .criteria-list li {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      margin-bottom: 0;
+    }
+
+    .criteria-code {
+      flex-shrink: 0;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 700;
+      background: var(--tag-ctrl);
+      border: 1px solid var(--accent5);
+      color: var(--accent5);
+      padding: 2px 9px;
+      border-radius: 20px;
+    }
+
+    .criteria-text { color: var(--text); }
+
+    /* ── Code blocks ── */
+    .code-wrap {
+      margin: 18px 0 24px;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+
+    .code-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--surface2);
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .code-header .filename {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .code-header .lang-badge {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+
+    .lang-java    { background: #2a1e0e; color: var(--accent4); border: 1px solid #6a3e0e; }
+    .lang-dto     { background: #1e1040; color: var(--accent);  border: 1px solid #4a30a0; }
+    .lang-mapper  { background: #0e2018; color: var(--accent3); border: 1px solid #1e6040; }
+    .lang-service { background: #201808; color: #f0c040;        border: 1px solid #604020; }
+    .lang-ctrl    { background: #1a0820; color: var(--accent5); border: 1px solid #602080; }
+
+    pre {
+      background: var(--code-bg);
+      padding: 20px 22px;
+      overflow-x: auto;
+      margin: 0;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      line-height: 1.65;
+      color: #c8d0e8;
+    }
+
+    /* Syntax highlight via spans */
+    .kw  { color: #c084fc; }   /* keyword */
+    .cl  { color: #93c5fd; }   /* class name */
+    .fn  { color: #67e8f9; }   /* function/method */
+    .str { color: #86efac; }   /* string */
+    .ann { color: #fb923c; }   /* annotation */
+    .cm  { color: #6b7280; font-style: italic; } /* comment */
+    .hl  { background: #2a2d3e; display: block; margin: 0 -22px; padding: 0 22px; } /* highlight line */
+
+    /* ── Diagrams (Mermaid) ── */
+    .mermaid-frame {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 28px 20px;
+      margin: 20px 0;
+      overflow-x: auto;
+      display: flex;
+      justify-content: center;
+    }
+
+    .mermaid-frame .mermaid {
+      display: block;
+      width: 100%;
+    }
+
+    .mermaid-frame svg {
+      width: 100%;
+      height: auto;
+      min-width: 640px;
+    }
+
+    /* diagrames més senzills (8.1, 9.1, connexió directa) que no cal
+       estirar a tota l'amplada del contenidor */
+    .mermaid-frame--compact .mermaid {
+      width: auto;
+    }
+
+    .mermaid-frame--compact svg {
+      width: auto;
+      max-width: 460px;
+      min-width: 0;
+    }
+
+    /* ── Comparació taula ── */
+    .compare-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin: 20px 0;
+    }
+
+    .compare-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .compare-card .cc-header {
+      padding: 12px 18px;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .cc-header.request { background: #1e1633; color: var(--accent); border-bottom: 1px solid #2e2050; }
+    .cc-header.response { background: #0e2018; color: var(--accent3); border-bottom: 1px solid #1e4030; }
+    .cc-header.good { background: #0e2018; color: var(--accent3); border-bottom: 1px solid #1e4030; }
+    .cc-header.bad  { background: #2a1030; color: var(--accent5); border-bottom: 1px solid #4a1a3a; }
+
+    .compare-card pre { font-size: 12px; }
+    .compare-body { padding: 16px 20px; }
+    .compare-body ul { margin-bottom: 0; }
+
+    /* ── Step by step ── */
+    .steps { counter-reset: step; margin: 20px 0; }
+
+    .step {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 32px;
+      padding-bottom: 32px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .step:last-child { border-bottom: none; }
+
+    .step-num {
+      flex-shrink: 0;
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: #fff;
+      font-weight: 800;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 2px;
+    }
+
+    .step-body { flex: 1; }
+    .step-body h3 { margin-top: 0; }
+
+    /* ── Table ── */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 18px 0;
+      font-size: 13.5px;
+    }
+
+    th {
+      background: var(--surface2);
+      color: var(--text);
+      font-weight: 700;
+      padding: 10px 14px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+
+    td {
+      padding: 9px 14px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+
+    tr:hover td { background: var(--surface); }
+
+    td code { font-size: .8em; }
+
+    /* ── Section divider ── */
+    .section-anchor { display: block; position: relative; top: -80px; visibility: hidden; }
+
+    /* ── Print ── */
+    @media print {
+      nav.sidebar { display: none; }
+      main { max-width: 100%; padding: 20px; }
+      .hero { break-inside: avoid; }
+      .step { break-inside: avoid; }
+      h2 { break-before: page; }
+      pre { white-space: pre-wrap; }
+    }
+
+    .lang-sql   { background: #0e2018; color: var(--accent3); border: 1px solid #1e6040; }
+    .lang-xml   { background: #1e1040; color: var(--accent);  border: 1px solid #4a30a0; }
+    .lang-props { background: #201808; color: #f0c040;        border: 1px solid #604020; }
+    .lang-shell { background: #1a0820; color: var(--accent5); border: 1px solid #602080; }
+    .lang-text  { background: #1a1d27; color: var(--muted);   border: 1px solid var(--border); }
+  </style>
+</head>
+<body>
+
+<div class="page-wrap">
+
+  <!-- ══════════════════════════════════════
+       SIDEBAR
+  ═══════════════════════════════════════ -->
+  <nav class="sidebar">
+    <div class="logo">
+      <span class="eyebrow">ACCÉS A DADES · RA2</span>
+      <span class="topic">Transaccions</span>
+    </div>
+    <div class="sidebar-links">
+      <ul>
+
+        <li class="section-label">Introducció</li>
+        <li><a href="#criteris">Criteris d'avaluació</a></li>
+        <li><a href="#objectius">Què aprendràs</a></li>
+
+        <li class="section-label">Continguts</li>
+        <li><a href="#que-es-una-transaccio">1. Què és una transacció</a></li>
+        <li><a href="#el-mode-autocommit">2. El mode autocommit</a></li>
+        <li><a href="#commit-i-rollback">3. Commit i rollback</a></li>
+        <li><a href="#incorrecte-l-error-es-perd">3.1 Incorrecte: l'error es perd</a></li>
+        <li><a href="#correcte-el-patro-de-transaccio">3.2 Correcte: el patró de transacció</a></li>
+        <li><a href="#un-cas-complet-crear-un-encarrec">4. Un cas complet: crear un encàrrec</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- ══════════════════════════════════════
+       MAIN
+  ═══════════════════════════════════════ -->
+  <main>
+
+
+    <!-- HERO -->
+    <div class="hero">
+      <h1>Transaccions</h1>
+      <p class="subtitle">
+        Què és una transacció, com funciona el mode autocommit de JDBC i quin és el patró correcte de <code>commit</code> i <code>rollback</code>.
+      </p>
+      <div class="tags">
+        <span class="tag tag-dto">DAM</span>
+        <span class="tag tag-mapper">RA2</span>
+        <span class="tag tag-svc">Transaccions</span>
+      </div>
+    </div>
+
+    <span id="criteris" class="section-anchor"></span>
+    <div class="box box-criteri">
+      <p class="box-title">Criteris d'avaluació relacionats</p>
+      <ul class="criteria-list">
+        <li>
+          <span class="criteria-code">2.6</span>
+          <span class="criteria-text">Desenvolupa aplicacions que modifiquen el contingut de la base de dades.</span>
+        </li>
+        <li>
+          <span class="criteria-code">2.10</span>
+          <span class="criteria-text">Gestiona les transaccions.</span>
+        </li>
+      </ul>
+    </div>
+    <span id="objectius" class="section-anchor"></span>
+    <div class="box box-concept">
+      <p class="box-title">Què aprendràs</p>
+      <p>En acabar aquesta unitat has de ser capaç de:</p>
+      <ul>
+        <li>Explicar què és una <strong>transacció</strong> i les propietats <strong>ACID</strong>.</li>
+        <li>Entendre el mode <strong>autocommit</strong> de JDBC i quan s'ha de desactivar.</li>
+        <li>Aplicar el patró correcte de <code>commit</code> i <code>rollback</code>.</li>
+      </ul>
+    </div>
+
+
+    <!-- ══════════════════════
+         1. QUÈ ÉS UNA TRANSACCIÓ
+    ═══════════════════════ -->
+    <span id="que-es-una-transaccio" class="section-anchor"></span>
+    <h2>1. Què és una transacció</h2>
+    <p>
+      Crear un encàrrec a la botiga no és una sola operació. Cal:
+    </p>
+    <ol>
+      <li>Inserir l'encàrrec a <code>encarrecs</code>.</li>
+      <li>Inserir cada línia a <code>linies_encarrec</code>.</li>
+      <li>Descomptar l'estoc de cada article a <code>articles</code>.</li>
+    </ol>
+    <p>
+      Si el programa falla després del pas 2 (per exemple, perquè un article no té prou estoc), la base de dades queda <strong>inconsistent</strong>: un encàrrec registrat amb un estoc que no s'ha descomptat.
+    </p>
+    <div class="box box-concept">
+      <p class="box-title">Definició</p>
+    <p>
+      Una <strong>transacció</strong> és un conjunt d'operacions sobre la base de dades que s'executen com una unitat: o s'apliquen <strong>totes</strong>, o no se n'aplica <strong>cap</strong>.
+    </p>
+    </div>
+    <p>
+      Les transaccions compleixen les propietats <strong>ACID</strong>:
+    </p>
+    <table>
+      <thead>
+        <tr><th>Propietat</th><th>Significat</th><th>A la botiga</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>Atomicitat</strong> (<em>Atomicity</em>)</td><td>Tot o res</td><td>No pot quedar un encàrrec sense les seves línies</td></tr>
+        <tr><td><strong>Consistència</strong> (<em>Consistency</em>)</td><td>La base de dades passa d'un estat vàlid a un altre estat vàlid</td><td>L'estoc mai queda negatiu (<code>CHECK</code>)</td></tr>
+        <tr><td><strong>Aïllament</strong> (<em>Isolation</em>)</td><td>Les transaccions simultànies no s'interfereixen</td><td>Dos clients que compren alhora no es trepitgen</td></tr>
+        <tr><td><strong>Durabilitat</strong> (<em>Durability</em>)</td><td>Un cop confirmada, la transacció es manté encara que caigui el sistema</td><td>Un encàrrec confirmat no es perd per un tall de llum</td></tr>
+      </tbody>
+    </table>
+    <p>
+      Una transacció acaba de dues maneres:
+    </p>
+    <ul>
+      <li><strong><code>COMMIT</code></strong>: es confirmen tots els canvis i passen a ser definitius i visibles per a tothom.</li>
+      <li><strong><code>ROLLBACK</code></strong>: es desfan tots els canvis fets des de l'inici de la transacció.</li>
+    </ul>
+    <div class="mermaid-frame">
+      <pre class="mermaid">
+stateDiagram-v2
+    [*] --&gt; Activa : primera sentència
+    Activa --&gt; Activa : INSERT / UPDATE / DELETE
+    Activa --&gt; Confirmada : commit()
+    Activa --&gt; Desfeta : rollback()
+    Confirmada --&gt; [*]
+    Desfeta --&gt; [*]
+      </pre>
+    </div>
+
+    <!-- ══════════════════════
+         2. EL MODE AUTOCOMMIT
+    ═══════════════════════ -->
+    <span id="el-mode-autocommit" class="section-anchor"></span>
+    <h2>2. El mode autocommit</h2>
+    <p>
+      Per defecte, una connexió JDBC treballa en mode <strong>autocommit</strong>: cada sentència és una transacció per si mateixa i, si s'executa correctament, el driver fa un <code>COMMIT</code> automàticament.
+    </p>
+    <p>
+      És el que ha passat a totes les unitats anteriors sense que ho haguem notat. Per a operacions d'una sola sentència és el comportament correcte. Però quan diverses sentències han d'anar juntes, cal desactivar-lo:
+    </p>
+    <table>
+      <thead>
+        <tr><th>Mètode de <code>Connection</code></th><th>Què fa</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>setAutoCommit(false)</code></td><td>Desactiva l'autocommit: la transacció continua oberta fins que es crida <code>commit()</code> o <code>rollback()</code></td></tr>
+        <tr><td><code>getAutoCommit()</code></td><td>Indica si l'autocommit està activat</td></tr>
+        <tr><td><code>commit()</code></td><td>Confirma la transacció actual</td></tr>
+        <tr><td><code>rollback()</code></td><td>Desfà la transacció actual</td></tr>
+      </tbody>
+    </table>
+    <div class="box box-warn">
+      <p class="box-title">Compte</p>
+    <p>
+      si es desactiva l'autocommit i es tanca la connexió sense fer <code>commit()</code>, el comportament depèn del driver. PostgreSQL i H2 fan <code>rollback</code>, però no t'hi refiïs: acaba sempre explícitament amb <code>commit()</code> o <code>rollback()</code>.
+    </p>
+    </div>
+
+    <!-- ══════════════════════
+         3. COMMIT I ROLLBACK
+    ═══════════════════════ -->
+    <span id="commit-i-rollback" class="section-anchor"></span>
+    <h2>3. Commit i rollback</h2>
+    <span id="incorrecte-l-error-es-perd" class="section-anchor"></span>
+    <h3>3.1 Incorrecte: l'error es perd</h3>
+    <div class="code-wrap">
+      <div class="code-header">
+        <span class="filename">Java</span>
+        <span class="lang-badge lang-java">Java</span>
+      </div>
+      <pre><span class="cm">// MALAMENT</span>
+con.<span class="fn">setAutoCommit</span>(<span class="kw">false</span>);
+<span class="kw">try</span> (<span class="cl">PreparedStatement</span> ps = con.<span class="fn">prepareStatement</span>(sql)) {
+    ps.<span class="fn">setInt</span>(1, quantitat);
+    ps.<span class="fn">setInt</span>(2, idArticle);
+    ps.<span class="fn">executeUpdate</span>();
+    con.<span class="fn">commit</span>();
+} <span class="kw">catch</span> (<span class="cl">SQLException</span> e) {
+    con.<span class="fn">rollback</span>();          <span class="cm">// es desfà, però ningú se n'assabenta</span>
+}</pre>
+    </div>
+    <p>
+      Aquest codi té dos problemes:
+    </p>
+    <ul>
+      <li>L'excepció <strong>es perd</strong>: qui ha cridat el mètode creu que tot ha anat bé.</li>
+      <li>Si <code>rollback()</code> també falla (per exemple, perquè la connexió s'ha tallat), aquesta nova excepció amaga la primera.</li>
+    </ul>
+    <span id="correcte-el-patro-de-transaccio" class="section-anchor"></span>
+    <h3>3.2 Correcte: el patró de transacció</h3>
+    <div class="code-wrap">
+      <div class="code-header">
+        <span class="filename">Java</span>
+        <span class="lang-badge lang-java">Java</span>
+      </div>
+      <pre><span class="cm">// BÉ</span>
+<span class="kw">public</span> <span class="kw">static</span> <span class="kw">void</span> <span class="fn">operacioTransaccional</span>() <span class="kw">throws</span> <span class="cl">SQLException</span> {
+    <span class="kw">try</span> (<span class="cl">Connection</span> con = <span class="cl">ConnexioBD</span>.<span class="fn">obtenir</span>()) {
+        con.<span class="fn">setAutoCommit</span>(<span class="kw">false</span>);                    <span class="cm">// 1. comença la transacció</span>
+
+        <span class="kw">try</span> {
+            <span class="cm">// 2. totes les sentències fan servir la mateixa connexió</span>
+            <span class="cm">// ...</span>
+            con.<span class="fn">commit</span>();                            <span class="cm">// 3a. tot ha anat bé: confirma</span>
+
+        } <span class="kw">catch</span> (<span class="cl">SQLException</span> e) {
+            con.<span class="fn">rollback</span>();                          <span class="cm">// 3b. alguna cosa ha fallat: desfà</span>
+            <span class="kw">throw</span> e;                                 <span class="cm">//     i avisa qui ha cridat el mètode</span>
+        }
+    }                                                <span class="cm">// 4. la connexió es tanca sempre</span>
+}</pre>
+    </div>
+    <p>
+      Les claus del patró:
+    </p>
+    <ul>
+      <li><strong>Totes les sentències de la transacció han d'anar per la mateixa connexió.</strong> Una transacció pertany a una connexió: si una sentència obté una connexió nova amb <code>ConnexioBD.obtenir()</code>, queda fora de la transacció.</li>
+      <li>El <code>rollback()</code> es fa al <code>catch</code> i després es <strong>torna a llançar</strong> l'excepció.</li>
+      <li>La connexió es tanca amb el <em>try-with-resources</em> exterior, tant si ha anat bé com si no.</li>
+    </ul>
+    <div class="box box-info">
+      <p class="box-title">Nota</p>
+    <p>
+      si la connexió prové d'un pool (unitat 02), abans de retornar-la s'ha de deixar l'autocommit com estava (<code>con.setAutoCommit(true)</code>), perquè la següent operació que la rebi no es trobi una connexió en mode transacció. Amb <code>DriverManager</code> no cal, perquè la connexió es destrueix en tancar-la.
+    </p>
+    </div>
+
+    <!-- ══════════════════════
+         4. UN CAS COMPLET: CREAR UN ENCÀRREC
+    ═══════════════════════ -->
+    <span id="un-cas-complet-crear-un-encarrec" class="section-anchor"></span>
+    <h2>4. Un cas complet: crear un encàrrec</h2>
+    <p>
+      Apliquem el patró al cas de l'apartat 1. Cada línia de l'encàrrec es representa amb un <code>record</code>:
+    </p>
+    <div class="code-wrap">
+      <div class="code-header">
+        <span class="filename">LiniaNova.java</span>
+        <span class="lang-badge lang-java">Java</span>
+      </div>
+      <pre><span class="kw">public</span> <span class="kw">record</span> <span class="fn">LiniaNova</span>(<span class="kw">int</span> idArticle, <span class="kw">int</span> quantitat) { }</pre>
+    </div>
+    <div class="code-wrap">
+      <div class="code-header">
+        <span class="filename">Java</span>
+        <span class="lang-badge lang-java">Java</span>
+      </div>
+      <pre><span class="kw">public</span> <span class="kw">static</span> <span class="kw">int</span> <span class="fn">crearEncarrec</span>(<span class="kw">int</span> idClient, <span class="cl">List</span>&lt;<span class="cl">LiniaNova</span>&gt; linies) <span class="kw">throws</span> <span class="cl">SQLException</span> {
+    <span class="cl">String</span> sqlEncarrec = <span class="str">"INSERT INTO encarrecs (id_client) VALUES (?)"</span>;
+    <span class="cl">String</span> sqlEstoc = <span class="str">"""
+            UPDATE articles SET estoc = estoc - ?
+            WHERE id = ? AND estoc &gt;= ?"""</span>;
+    <span class="cl">String</span> sqlLinia = <span class="str">"""
+            INSERT INTO linies_encarrec (id_encarrec, id_article, quantitat, preu_unitari)
+            SELECT ?, id, ?, preu FROM articles WHERE id = ?"""</span>;
+
+    <span class="kw">try</span> (<span class="cl">Connection</span> con = <span class="cl">ConnexioBD</span>.<span class="fn">obtenir</span>()) {
+        con.<span class="fn">setAutoCommit</span>(<span class="kw">false</span>);
+
+        <span class="kw">try</span> (<span class="cl">PreparedStatement</span> psEnc = con.<span class="fn">prepareStatement</span>(sqlEncarrec, <span class="kw">new</span> <span class="cl">String</span>[] { <span class="str">"id"</span> });
+             <span class="cl">PreparedStatement</span> psEstoc = con.<span class="fn">prepareStatement</span>(sqlEstoc);
+             <span class="cl">PreparedStatement</span> psLinia = con.<span class="fn">prepareStatement</span>(sqlLinia)) {
+
+            <span class="cm">// 1. Encàrrec</span>
+            psEnc.<span class="fn">setInt</span>(1, idClient);
+            psEnc.<span class="fn">executeUpdate</span>();
+            <span class="kw">int</span> idEncarrec;
+            <span class="kw">try</span> (<span class="cl">ResultSet</span> claus = psEnc.<span class="fn">getGeneratedKeys</span>()) {
+                claus.<span class="fn">next</span>();
+                idEncarrec = claus.<span class="fn">getInt</span>(1);
+            }
+
+            <span class="kw">for</span> (<span class="cl">LiniaNova</span> l : linies) {
+                <span class="cm">// 2. Descomptar l'estoc, només si n'hi ha prou</span>
+                psEstoc.<span class="fn">setInt</span>(1, l.<span class="fn">quantitat</span>());
+                psEstoc.<span class="fn">setInt</span>(2, l.<span class="fn">idArticle</span>());
+                psEstoc.<span class="fn">setInt</span>(3, l.<span class="fn">quantitat</span>());
+                <span class="kw">if</span> (psEstoc.<span class="fn">executeUpdate</span>() == 0) {
+                    <span class="kw">throw</span> <span class="kw">new</span> <span class="fn">SQLException</span>(<span class="str">"Estoc insuficient per a l'article "</span> + l.<span class="fn">idArticle</span>());
+                }
+
+                <span class="cm">// 3. Línia, amb el preu actual de l'article</span>
+                psLinia.<span class="fn">setInt</span>(1, idEncarrec);
+                psLinia.<span class="fn">setInt</span>(2, l.<span class="fn">quantitat</span>());
+                psLinia.<span class="fn">setInt</span>(3, l.<span class="fn">idArticle</span>());
+                psLinia.<span class="fn">executeUpdate</span>();
+            }
+
+            con.<span class="fn">commit</span>();
+            <span class="kw">return</span> idEncarrec;
+
+        } <span class="kw">catch</span> (<span class="cl">SQLException</span> e) {
+            con.<span class="fn">rollback</span>();       <span class="cm">// ni encàrrec, ni línies, ni canvis d'estoc</span>
+            <span class="kw">throw</span> e;
+        }
+    }
+}</pre>
+    </div>
+    <p>
+      Fixa't en el <code>UPDATE ... WHERE id = ? AND estoc &gt;= ?</code>: si no hi ha prou estoc, no actualitza cap fila i <code>executeUpdate</code> retorna <code>0</code>. Llavors el mateix programa llança l'excepció que provoca el <code>rollback</code>, i <strong>l'encàrrec que ja s'havia inserit també es desfà</strong>.
+    </p>
+    <div class="mermaid-frame">
+      <pre class="mermaid">
+sequenceDiagram
+    participant J as Programa Java
+    participant BD as Base de dades
+
+    J-&gt;&gt;BD: setAutoCommit(false)
+    J-&gt;&gt;BD: INSERT encarrecs (id 15)
+    J-&gt;&gt;BD: UPDATE estoc article 3 (1 fila)
+    J-&gt;&gt;BD: INSERT linia (15, 3)
+    J-&gt;&gt;BD: UPDATE estoc article 8 (0 files)
+    Note over J: estoc insuficient:&lt;br/&gt;llança SQLException
+    J-&gt;&gt;BD: rollback()
+    Note over BD: L'encàrrec 15, la línia&lt;br/&gt;i l'estoc de l'article 3&lt;br/&gt;tornen a l'estat inicial
+      </pre>
+    </div>
+    <div class="box box-tip">
+      <p class="box-title">Recorda</p>
+    <p>
+      el mateix patró és el que fa que un lot de sentències executat amb <code>executeBatch()</code> s'apliqui sencer o no s'apliqui gens: <code>setAutoCommit(false)</code>, <code>executeBatch()</code>, <code>commit()</code> i <code>rollback()</code> al <code>catch</code>.
+    </p>
+    </div>
+    <div class="box box-info">
+      <p class="box-title">Nota</p>
+    <p>
+      a PostgreSQL també les sentències DDL formen part de la transacció i es poden desfer amb <code>rollback</code>. A MySQL i Oracle, en canvi, un <code>CREATE</code> o un <code>DROP</code> fa un <code>COMMIT</code> implícit de tot el que hi havia pendent.
+    </p>
+    </div>
+
+    <div style="height: 60px;"></div>
+</main>
+</div>
+<script>
+  // Highlight sidebar link on scroll, and keep it visible inside the sidebar
+  const anchors = document.querySelectorAll('.section-anchor');
+  const navLinks = document.querySelectorAll('nav.sidebar a');
+
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const id = entry.target.id;
+        navLinks.forEach(a => {
+          const isActive = a.getAttribute('href') === '#' + id;
+          const wasActive = a.classList.contains('active');
+          a.classList.toggle('active', isActive);
+          // si l'enllaç passa a actiu i queda fora de la zona visible del
+          // menú lateral, el desplacem perquè quedi sempre a la vista
+          if (isActive && !wasActive) {
+            a.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+          }
+        });
+      }
+    });
+  }, { rootMargin: '-80px 0px -70% 0px' });
+
+  anchors.forEach(a => observer.observe(a));
+</script>
+
+<!-- ══════════════════════════════════════
+     MERMAID — carregat des d'un CDN i
+     inicialitzat/executat manualment (sense
+     startOnLoad), tal com defineix l'apunt .md
+═══════════════════════════════════════ -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js"></script>
+<script>
+  // Tema fet a mida perquè els diagrames comparteixin el fons fosc de la
+  // pàgina i les línies/fletxes es dibuixin en blanc (alt contrast). Els
+  // colors de les caixes (classDef del propi .md) es mantenen intactes.
+  mermaid.initialize({
+    startOnLoad: false,
+    securityLevel: 'loose',
+    theme: 'base',
+    fontFamily: "Inter, 'Segoe UI', sans-serif",
+    themeVariables: {
+      background:          '#12151f',
+      mainBkg:              '#1a1d27',
+      primaryColor:         '#1a1d27',
+      primaryTextColor:     '#e2e6f0',
+      primaryBorderColor:   '#2e3248',
+      secondaryColor:       '#222636',
+      secondaryTextColor:   '#e2e6f0',
+      secondaryBorderColor: '#2e3248',
+      tertiaryColor:        '#1a1d27',
+      tertiaryTextColor:    '#e2e6f0',
+      tertiaryBorderColor:  '#2e3248',
+      lineColor:            '#ffffff',
+      defaultLinkColor:     '#ffffff',
+      textColor:            '#e2e6f0',
+      titleColor:           '#e2e6f0',
+      nodeTextColor:        '#e2e6f0',
+      edgeLabelBackground:  '#12151f',
+      clusterBkg:           '#1a1d27',
+      clusterBorder:        '#4a4f6a',
+      /* seqüència */
+      actorBkg:             '#1a1d27',
+      actorBorder:          '#4a4f6a',
+      actorTextColor:       '#e2e6f0',
+      actorLineColor:       '#ffffff',
+      signalColor:          '#ffffff',
+      signalTextColor:      '#e2e6f0',
+      labelBoxBkgColor:     '#1a1d27',
+      labelBoxBorderColor:  '#4a4f6a',
+      labelTextColor:       '#e2e6f0',
+      loopTextColor:        '#e2e6f0',
+      noteBkgColor:         '#222636',
+      noteBorderColor:      '#4a4f6a',
+      noteTextColor:        '#e2e6f0',
+      activationBkgColor:   '#222636',
+      activationBorderColor:'#4a4f6a',
+      sequenceNumberColor:  '#0f1117'
+    },
+    flowchart:  { useMaxWidth: false, htmlLabels: true, padding: 16 },
+    sequence:   { useMaxWidth: false, actorFontSize: 15, messageFontSize: 15, noteFontSize: 14 }
+  });
+
+  mermaid.run({ querySelector: '.mermaid' });
+</script>
+
+</body>
+</html>
