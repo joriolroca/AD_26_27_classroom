@@ -1,0 +1,1529 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fitxers XML – DAM · RA1</title>
+  <style>
+    /* ── Reset & Base ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:          #0f1117;
+      --surface:     #1a1d27;
+      --surface2:    #222636;
+      --border:      #2e3248;
+      --accent:      #7c6af7;
+      --accent2:     #4fc3f7;
+      --accent3:     #43e97b;
+      --accent4:     #f8a94f;
+      --accent5:     #f06292;
+      --text:        #e2e6f0;
+      --muted:       #8891aa;
+      --code-bg:     #12151f;
+      --tag-dto:     #3a2f70;
+      --tag-mapper:  #1a3a2f;
+      --tag-service: #3a2810;
+      --tag-ctrl:    #2c1a3a;
+      --font-mono:   'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+      --font-sans:   'Inter', 'Segoe UI', system-ui, sans-serif;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--font-sans);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      font-size: 15px;
+    }
+
+    /* ── Layout ── */
+    .page-wrap { display: flex; min-height: 100vh; }
+
+    nav.sidebar {
+      width: 260px;
+      flex-shrink: 0;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* capçalera: fixa, no fa scroll amb la resta del menú */
+    nav.sidebar .logo {
+      flex-shrink: 0;
+      padding: 22px 20px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    nav.sidebar .logo .eyebrow {
+      display: block;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--muted);
+    }
+
+    nav.sidebar .logo h2 {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--accent);
+      line-height: 1.3;
+      margin: 0;
+    }
+
+    nav.sidebar .logo .topic {
+      display: block;
+      font-size: 11px;
+      color: var(--accent2);
+      margin-top: 4px;
+    }
+
+    /* bloc d'enllaços: és l'únic que fa scroll intern */
+    nav.sidebar .sidebar-links {
+      flex: 1 1 auto;
+      overflow-y: auto;
+      padding: 14px 0 24px;
+    }
+
+    nav.sidebar ul { list-style: none; }
+
+    nav.sidebar ul li a {
+      display: block;
+      padding: 7px 20px;
+      text-decoration: none;
+      color: var(--muted);
+      font-size: 13px;
+      transition: all .15s;
+      border-left: 3px solid transparent;
+    }
+
+    nav.sidebar ul li a:hover,
+    nav.sidebar ul li a.active {
+      color: var(--text);
+      background: var(--surface2);
+      border-left-color: var(--accent);
+    }
+
+    nav.sidebar ul .section-label {
+      padding: 14px 20px 4px;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    main {
+      flex: 1;
+      max-width: 940px;
+      padding: 48px 56px;
+      overflow-x: hidden;
+    }
+
+    /* ── Typography ── */
+    h1 {
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 12px;
+      line-height: 1.2;
+    }
+
+    h2 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text);
+      margin: 52px 0 16px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    h3 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--accent2);
+      margin: 32px 0 10px;
+    }
+
+    h4 {
+      font-size: .95rem;
+      font-weight: 600;
+      color: var(--accent4);
+      margin: 22px 0 8px;
+    }
+
+    p { margin-bottom: 14px; color: var(--text); }
+    p + ul, p + ol { margin-top: -6px; }
+
+    ul, ol { padding-left: 20px; margin-bottom: 14px; }
+    li { margin-bottom: 6px; }
+
+    strong { color: var(--text); font-weight: 600; }
+    em { color: var(--accent4); font-style: italic; }
+
+    code {
+      font-family: var(--font-mono);
+      font-size: .82em;
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 1px 6px;
+      color: var(--accent3);
+    }
+
+    /* ── Hero ── */
+    .hero {
+      background: linear-gradient(135deg, #1a1d27 0%, #1e1633 100%);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 36px 40px;
+      margin-bottom: 32px;
+    }
+
+    .hero .subtitle {
+      color: var(--muted);
+      font-size: 1rem;
+      margin-top: 8px;
+      margin-bottom: 0;
+    }
+
+    .hero .tags { margin-top: 18px; display: flex; gap: 10px; flex-wrap: wrap; }
+
+    .tag {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      padding: 4px 12px;
+      border-radius: 20px;
+      border: 1px solid;
+    }
+
+    .tag-dto    { background: var(--tag-dto);     border-color: var(--accent);  color: var(--accent); }
+    .tag-mapper { background: var(--tag-mapper);  border-color: var(--accent3); color: var(--accent3); }
+    .tag-svc    { background: var(--tag-service); border-color: var(--accent4); color: var(--accent4); }
+    .tag-ctrl   { background: var(--tag-ctrl);    border-color: var(--accent5); color: var(--accent5); }
+    .tag-spring { background: #1a2233; border-color: var(--accent2); color: var(--accent2); }
+
+    /* ── Info boxes ── */
+    .box {
+      border-radius: 10px;
+      padding: 18px 22px;
+      margin: 20px 0;
+      border-left: 4px solid;
+    }
+
+    .box-info    { background: #151c30; border-color: var(--accent2); }
+    .box-tip     { background: #111f1a; border-color: var(--accent3); }
+    .box-warn    { background: #1f1a11; border-color: var(--accent4); }
+    .box-concept { background: #17142a; border-color: var(--accent); }
+    .box-criteri { background: #2a1030; border-color: var(--accent5); }
+
+    .box .box-title {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      margin-bottom: 8px;
+    }
+
+    .box-info    .box-title { color: var(--accent2); }
+    .box-tip     .box-title { color: var(--accent3); }
+    .box-warn    .box-title { color: var(--accent4); }
+    .box-concept .box-title { color: var(--accent); }
+    .box-criteri .box-title { color: var(--accent5); }
+
+    .box p:last-child { margin-bottom: 0; }
+    .box ul:last-child { margin-bottom: 0; }
+
+    /* llista de criteris d'avaluació — pensada per acollir-ne un o més */
+    .criteria-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .criteria-list li {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      margin-bottom: 0;
+    }
+
+    .criteria-code {
+      flex-shrink: 0;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 700;
+      background: var(--tag-ctrl);
+      border: 1px solid var(--accent5);
+      color: var(--accent5);
+      padding: 2px 9px;
+      border-radius: 20px;
+    }
+
+    .criteria-text { color: var(--text); }
+
+    /* ── Code blocks ── */
+    .code-wrap {
+      margin: 18px 0 24px;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+
+    .code-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--surface2);
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .code-header .filename {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .code-header .lang-badge {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+
+    .lang-java    { background: #2a1e0e; color: var(--accent4); border: 1px solid #6a3e0e; }
+    .lang-dto     { background: #1e1040; color: var(--accent);  border: 1px solid #4a30a0; }
+    .lang-mapper  { background: #0e2018; color: var(--accent3); border: 1px solid #1e6040; }
+    .lang-service { background: #201808; color: #f0c040;        border: 1px solid #604020; }
+    .lang-ctrl    { background: #1a0820; color: var(--accent5); border: 1px solid #602080; }
+
+    pre {
+      background: var(--code-bg);
+      padding: 20px 22px;
+      overflow-x: auto;
+      margin: 0;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      line-height: 1.65;
+      color: #c8d0e8;
+    }
+
+    /* Syntax highlight via spans */
+    .kw  { color: #c084fc; }   /* keyword */
+    .cl  { color: #93c5fd; }   /* class name */
+    .fn  { color: #67e8f9; }   /* function/method */
+    .str { color: #86efac; }   /* string */
+    .ann { color: #fb923c; }   /* annotation */
+    .cm  { color: #6b7280; font-style: italic; } /* comment */
+    .hl  { background: #2a2d3e; display: block; margin: 0 -22px; padding: 0 22px; } /* highlight line */
+
+    /* ── Diagrams (Mermaid) ── */
+    .mermaid-frame {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 28px 20px;
+      margin: 20px 0;
+      overflow-x: auto;
+      display: flex;
+      justify-content: center;
+    }
+
+    .mermaid-frame .mermaid {
+      display: block;
+      width: 100%;
+    }
+
+    .mermaid-frame svg {
+      width: 100%;
+      height: auto;
+      min-width: 640px;
+    }
+
+    /* diagrames més senzills (8.1, 9.1, connexió directa) que no cal
+       estirar a tota l'amplada del contenidor */
+    .mermaid-frame--compact .mermaid {
+      width: auto;
+    }
+
+    .mermaid-frame--compact svg {
+      width: auto;
+      max-width: 460px;
+      min-width: 0;
+    }
+
+    /* ── Comparació taula ── */
+    .compare-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin: 20px 0;
+    }
+
+    .compare-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .compare-card .cc-header {
+      padding: 12px 18px;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .cc-header.request { background: #1e1633; color: var(--accent); border-bottom: 1px solid #2e2050; }
+    .cc-header.response { background: #0e2018; color: var(--accent3); border-bottom: 1px solid #1e4030; }
+    .cc-header.good { background: #0e2018; color: var(--accent3); border-bottom: 1px solid #1e4030; }
+    .cc-header.bad  { background: #2a1030; color: var(--accent5); border-bottom: 1px solid #4a1a3a; }
+
+    .compare-card pre { font-size: 12px; }
+    .compare-body { padding: 16px 20px; }
+    .compare-body ul { margin-bottom: 0; }
+
+    /* ── Step by step ── */
+    .steps { counter-reset: step; margin: 20px 0; }
+
+    .step {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 32px;
+      padding-bottom: 32px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .step:last-child { border-bottom: none; }
+
+    .step-num {
+      flex-shrink: 0;
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: #fff;
+      font-weight: 800;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 2px;
+    }
+
+    .step-body { flex: 1; }
+    .step-body h3 { margin-top: 0; }
+
+    /* ── Table ── */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 18px 0;
+      font-size: 13.5px;
+    }
+
+    th {
+      background: var(--surface2);
+      color: var(--text);
+      font-weight: 700;
+      padding: 10px 14px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+
+    td {
+      padding: 9px 14px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+
+    tr:hover td { background: var(--surface); }
+
+    td code { font-size: .8em; }
+
+    /* ── Section divider ── */
+    .section-anchor { display: block; position: relative; top: -80px; visibility: hidden; }
+
+    /* ── Print ── */
+    @media print {
+      nav.sidebar { display: none; }
+      main { max-width: 100%; padding: 20px; }
+      .hero { break-inside: avoid; }
+      .step { break-inside: avoid; }
+      h2 { break-before: page; }
+      pre { white-space: pre-wrap; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="page-wrap">
+
+  <nav class="sidebar">
+    <div class="logo">
+      <span class="eyebrow">ACCÉS A DADES · RA1</span>
+      <span class="topic">Fitxers XML</span>
+    </div>
+    <div class="sidebar-links">
+      <ul>
+
+        <li class="section-label">Introducció</li>
+        <li><a href="#criteris">Criteris d'avaluació</a></li>
+        <li><a href="#objectius">Què aprendràs</a></li>
+        <li><a href="#xml">1. Què és XML</a></li>
+
+        <li class="section-label">Conceptes</li>
+        <li><a href="#conceptes">2. Conceptes bàsics</a></li>
+        <li><a href="#conceptes-1">2.1 Les peces d'un XML</a></li>
+        <li><a href="#conceptes-2">2.2 Element fulla i element no-fulla</a></li>
+        <li><a href="#conceptes-3">2.3 Els nodes de text "invisibles"</a></li>
+        <li><a href="#recorregut">3. El recorregut complet: de text a XML i d'XML a text</a></li>
+
+        <li class="section-label">Escriptura</li>
+        <li><a href="#escriure">4. Escriure XML amb DOM</a></li>
+        <li><a href="#escriure-1">4.1 Els passos</a></li>
+        <li><a href="#escriure-2">4.2 Codi complet</a></li>
+        <li><a href="#escriure-3">4.3 Mètodes que cal recordar</a></li>
+
+        <li class="section-label">Lectura</li>
+        <li><a href="#llegir">5. Llegir XML amb DOM coneixent l'estructura</a></li>
+        <li><a href="#llegir-1">5.1 Els quatre passos</a></li>
+        <li><a href="#llegir-2">5.2 Codi complet</a></li>
+        <li><a href="#llegir-3">5.3 Mètodes que cal recordar</a></li>
+        <li><a href="#generic">6. Llegir XML amb DOM sense conèixer l'estructura</a></li>
+        <li><a href="#generic-1">6.1 Codi complet</a></li>
+        <li><a href="#generic-2">6.2 El paper del paràmetre nivell</a></li>
+        <li><a href="#generic-3">6.3 Mètodes que cal recordar</a></li>
+
+        <li class="section-label">Excepcions</li>
+        <li><a href="#excepcions">7. Excepcions: per què apareix SAX si fem servir DOM</a></li>
+
+        <li class="section-label">Pràctica</li>
+        <li><a href="#exercicis">8. Exercicis</a></li>
+        <li><a href="#exercicis-1">8.1 Part 1: la mateixa sortida, a fitxer</a></li>
+        <li><a href="#exercicis-2">8.2 Part 2: tornar al fitxer pla original</a></li>
+
+        <li class="section-label">Avaluació</li>
+        <li><a href="#avaluacio">9. Criteris d'avaluació</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <main>
+
+    <div class="hero">
+      <h1>Lectura i escriptura de fitxers XML amb DOM</h1>
+      <p class="subtitle">
+        Com es representa un XML a memòria amb DOM, com s'escriu a partir d'un fitxer de text pla i com es llegeix,
+        tant si en coneixes l'estructura com si no, gestionant les excepcions pròpies de DOM.
+      </p>
+      <div class="tags">
+        <span class="tag tag-dto">DAM</span>
+        <span class="tag tag-mapper">RA1</span>
+        <span class="tag tag-svc">Fitxers XML</span>
+      </div>
+    </div>
+
+    <span id="criteris" class="section-anchor"></span>
+    <div class="box box-criteri">
+      <p class="box-title">Criteris d'avaluació relacionats</p>
+      <ul class="criteria-list">
+        <li>
+          <span class="criteria-code">1.1</span>
+          <span class="criteria-text">Utilitza classes per a la gestió de fitxers i directoris.</span>
+        </li>
+        <li>
+          <span class="criteria-code">1.2</span>
+          <span class="criteria-text">Valora els avantatges i els inconvenients de les diferents formes d'accés.</span>
+        </li>
+        <li>
+          <span class="criteria-code">1.3</span>
+          <span class="criteria-text">Utilitza classes per recuperar informació emmagatzemada en fitxers.</span>
+        </li>
+        <li>
+          <span class="criteria-code">1.4</span>
+          <span class="criteria-text">Utilitza classes per emmagatzemar informació en fitxers.</span>
+        </li>
+        <li>
+          <span class="criteria-code">1.5</span>
+          <span class="criteria-text">Utilitza classes per realitzar conversions entre diferents formats de fitxers.</span>
+        </li>
+        <li>
+          <span class="criteria-code">1.6</span>
+          <span class="criteria-text">Preveu i gestiona les excepcions.</span>
+        </li>
+      </ul>
+    </div>
+    <span id="objectius" class="section-anchor"></span>
+    <div class="box box-concept">
+      <p class="box-title">Què aprendràs</p>
+      <p>En acabar aquesta unitat has de ser capaç de:</p>
+      <ul>
+        <li>Identificar els components d'un XML: element, element arrel, atribut, text i node.</li>
+        <li>Explicar com DOM representa un XML a memòria.</li>
+        <li>Distingir un element fulla d'un element no-fulla.</li>
+        <li>Escriure un fitxer XML amb DOM a partir d'un fitxer de text pla.</li>
+        <li>Llegir un fitxer XML amb DOM, tant si en coneixes l'estructura com si no.</li>
+        <li>Fer servir <code>Path</code> i <code>Files</code> per a l'entrada i la sortida.</li>
+        <li>Gestionar les excepcions pròpies de DOM.</li>
+      </ul>
+    </div>
+
+    <span id="xml" class="section-anchor"></span>
+    <h2>1. Què és XML</h2>
+    <p>
+      <strong>XML</strong> (<em>eXtensible Markup Language</em>) és un format de text que guarda informació estructurada amb etiquetes. Com CSV i JSON, serveix per intercanviar dades entre aplicacions.
+    </p>
+    <p>
+      En aquestes notes treballarem amb aquest fitxer, <code>alumnes.xml</code>:
+    </p>
+    <div class="code-wrap">
+      <div class="code-header">
+        <span class="filename">alumnes.xml</span>
+        <span class="lang-badge lang-mapper">XML</span>
+      </div>
+      <pre><span class="cm">&lt;?xml version="1.0" encoding="UTF-8" standalone="no"?&gt;</span>
+&lt;<span class="kw">alumnes</span>&gt;
+  &lt;<span class="kw">alumne</span> <span class="fn">id</span>=<span class="str">"1"</span>&gt;
+    &lt;<span class="kw">nom</span>&gt;Anna&lt;/<span class="kw">nom</span>&gt;
+    &lt;<span class="kw">cognoms</span>&gt;Puig Serra&lt;/<span class="kw">cognoms</span>&gt;
+    &lt;<span class="kw">edat</span>&gt;19&lt;/<span class="kw">edat</span>&gt;
+    &lt;<span class="kw">nota_mitjana</span>&gt;8.5&lt;/<span class="kw">nota_mitjana</span>&gt;
+  &lt;/<span class="kw">alumne</span>&gt;
+  &lt;<span class="kw">alumne</span> <span class="fn">id</span>=<span class="str">"2"</span>&gt;
+    &lt;<span class="kw">nom</span>&gt;Marc&lt;/<span class="kw">nom</span>&gt;
+    &lt;<span class="kw">cognoms</span>&gt;Vidal Roca&lt;/<span class="kw">cognoms</span>&gt;
+    &lt;<span class="kw">edat</span>&gt;20&lt;/<span class="kw">edat</span>&gt;
+    &lt;<span class="kw">nota_mitjana</span>&gt;6.0&lt;/<span class="kw">nota_mitjana</span>&gt;
+  &lt;/<span class="kw">alumne</span>&gt;
+&lt;/<span class="kw">alumnes</span>&gt;</pre>
+    </div>
+    <p>
+      La primera línia és la <strong>declaració</strong>: indica la versió d'XML i la codificació del fitxer.
+    </p>
+
+    <span id="conceptes" class="section-anchor"></span>
+    <h2>2. Conceptes bàsics</h2>
+    <span id="conceptes-1" class="section-anchor"></span>
+    <h3>2.1 Les peces d'un XML</h3>
+    <ul>
+      <li><strong>Node</strong>: qualsevol peça de l'arbre. És el nom genèric: un element, un atribut o un text són tots nodes.</li>
+      <li><strong>Element</strong>: una etiqueta amb el seu contingut, des de l'obertura fins al tancament. Exemple: <code>&lt;nom&gt;Anna&lt;/nom&gt;</code>.</li>
+      <li><strong>Element arrel</strong>: l'element que ho conté tot. Només n'hi pot haver un. Exemple: <code>&lt;alumnes&gt;</code>.</li>
+      <li><strong>Atribut</strong>: una dada extra escrita dins de l'etiqueta d'obertura, en format <code>nom="valor"</code>. Exemple: <code>id="1"</code>.</li>
+      <li><strong>Text</strong>: el contingut escrit entre l'obertura i el tancament d'un element. Exemple: <code>Anna</code>.</li>
+    </ul>
+    <p>
+      Així és com es veu una part del primer alumne en forma d'arbre:
+    </p>
+    <div class="mermaid-frame mermaid-frame--compact">
+      <pre class="mermaid">
+flowchart TD
+    A["alumne&lt;br/&gt;(element)"]
+    B["id = 1&lt;br/&gt;(atribut)"]
+    C["nom&lt;br/&gt;(element)"]
+    D["nota_mitjana&lt;br/&gt;(element)"]
+    E["Anna&lt;br/&gt;(text)"]
+    F["8.5&lt;br/&gt;(text)"]
+
+    A -.-&gt; B
+    A --&gt; C
+    A --&gt; D
+    C --&gt; E
+    D --&gt; F
+
+    classDef element fill:#e7f5ff,stroke:#1971c2,stroke-width:2px,color:#000
+    classDef atribut fill:#fff4e6,stroke:#e8590c,stroke-width:2px,color:#000
+    classDef text fill:#ebfbee,stroke:#2f9e44,stroke-width:2px,color:#000
+    class A,C,D element
+    class B atribut
+    class E,F text
+      </pre>
+    </div>
+    <div class="box box-warn">
+      <p class="box-title">Compte</p>
+      <p>El text "Anna" no és l'element <code>&lt;nom&gt;</code>, sinó un node fill seu. Per això cal <code>getTextContent()</code> per obtenir-lo.</p>
+    </div>
+    <div class="box box-warn">
+      <p class="box-title">Compte</p>
+      <p>L'atribut està dibuixat amb una fletxa discontínua perquè en DOM <strong>no és un fill</strong> de l'element. <code>getChildNodes()</code> no el retorna. Els atributs s'obtenen a part, amb <code>getAttribute("id")</code> si en saps el nom o amb <code>getAttributes()</code> si no el saps.</p>
+    </div>
+    <span id="conceptes-2" class="section-anchor"></span>
+    <h3>2.2 Element fulla i element no-fulla</h3>
+    <p>
+      Per recórrer un XML del qual no coneixem l'estructura (apartat 6), cal distingir dos tipus d'elements:
+    </p>
+    <ul>
+      <li><strong>Element no-fulla</strong>: té almenys un fill que és un <strong>element</strong>. Exemple: <code>&lt;alumnes&gt;</code> i <code>&lt;alumne&gt;</code>. Són els contenidors, els "registres".</li>
+      <li><strong>Element fulla</strong>: no té cap fill que sigui un element. Només conté text, o res. Exemple: <code>&lt;nom&gt;</code>, <code>&lt;cognoms&gt;</code>, <code>&lt;edat&gt;</code>, <code>&lt;nota_mitjana&gt;</code>. Són els "camps".</li>
+    </ul>
+    <div class="mermaid-frame">
+      <pre class="mermaid">
+flowchart TD
+    R["alumnes"]
+    A1["alumne&lt;br/&gt;id = 1"]
+    A2["alumne&lt;br/&gt;id = 2"]
+    N["nom"]
+    C["cognoms"]
+    E["edat"]
+    M["nota_mitjana"]
+    X["nom, cognoms...&lt;br/&gt;(igual que l'1)"]
+    TN["Anna"]
+    TC["Puig Serra"]
+    TE["19"]
+    TM["8.5"]
+
+    R --&gt; A1
+    R --&gt; A2
+    A1 --&gt; N
+    A1 --&gt; C
+    A1 --&gt; E
+    A1 --&gt; M
+    A2 -.-&gt; X
+    N --&gt; TN
+    C --&gt; TC
+    E --&gt; TE
+    M --&gt; TM
+
+    classDef nofulla fill:#eeedfe,stroke:#534ab7,stroke-width:2px,color:#000
+    classDef fulla fill:#e1f5ee,stroke:#0f6e56,stroke-width:2px,color:#000
+    classDef text fill:#ffffff,stroke:#888780,stroke-width:1px,stroke-dasharray:5 5,color:#000
+    class R,A1,A2 nofulla
+    class N,C,E,M fulla
+    class TN,TC,TE,TM,X text
+      </pre>
+    </div>
+    <table>
+      <thead>
+        <tr><th>Color</th><th>Tipus</th><th>Criteri</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Lila</td><td>Element no-fulla</td><td>Té fills de tipus element</td></tr>
+        <tr><td>Verd</td><td>Element fulla</td><td>Només conté text</td></tr>
+        <tr><td>Blanc discontinu</td><td>Node de text</td><td>No és un element</td></tr>
+      </tbody>
+    </table>
+    <div class="box box-warn">
+      <p class="box-title">Compte</p>
+      <p>Un element fulla <strong>no</strong> és un element sense fills. <code>&lt;nom&gt;</code> té un fill: el node de text <code>Anna</code>. El criteri és que no tingui fills de tipus element.</p>
+    </div>
+    <span id="conceptes-3" class="section-anchor"></span>
+    <h3>2.3 Els nodes de text "invisibles"</h3>
+    <p>
+      Quan l'XML està indentat, els salts de línia i els espais que hi ha entre etiquetes també són <strong>nodes de text</strong>. DOM els guarda a l'arbre com qualsevol altre text. Si mirem tots els fills de <code>&lt;alumne&gt;</code> amb <code>getChildNodes()</code>, no en trobem quatre sinó nou:
+    </p>
+    <div class="mermaid-frame">
+      <pre class="mermaid">
+flowchart TD
+    A["alumne&lt;br/&gt;id = 1"]
+    T1["#text&lt;br/&gt;salt de línia + espais"]
+    N["nom"]
+    T2["#text&lt;br/&gt;salt de línia + espais"]
+    C["cognoms"]
+    T3["#text"]
+    E["edat"]
+    T4["#text"]
+    M["nota_mitjana"]
+    T5["#text"]
+
+    A --&gt; T1
+    A --&gt; N
+    A --&gt; T2
+    A --&gt; C
+    A --&gt; T3
+    A --&gt; E
+    A --&gt; T4
+    A --&gt; M
+    A --&gt; T5
+
+    classDef nofulla fill:#eeedfe,stroke:#534ab7,stroke-width:2px,color:#000
+    classDef fulla fill:#e1f5ee,stroke:#0f6e56,stroke-width:2px,color:#000
+    classDef text fill:#ffffff,stroke:#888780,stroke-width:1px,stroke-dasharray:5 5,color:#000
+    class A nofulla
+    class N,C,E,M fulla
+    class T1,T2,T3,T4,T5 text
+      </pre>
+    </div>
+    <p>
+      Per tant, <code>&lt;alumne&gt;</code> té alhora fills de text i fills element. Per això, quan recorrem l'arbre:
+    </p>
+    <ul>
+      <li>Cal comprovar el tipus de cada node amb <code>getNodeType()</code> i quedar-se només amb els <code>Node.ELEMENT_NODE</code>.</li>
+      <li>Per saber si un element és fulla, cal mirar si <strong>algun</strong> dels seus fills és un element. No n'hi ha prou de comptar quants fills té.</li>
+    </ul>
+
+    <span id="recorregut" class="section-anchor"></span>
+    <h2>3. El recorregut complet: de text a XML i d'XML a text</h2>
+    <p>
+      En aquesta unitat farem el viatge complet d'unes dades d'alumnes:
+    </p>
+    <div class="mermaid-frame">
+      <pre class="mermaid">
+flowchart LR
+    T["alumnes.txt&lt;br/&gt;(text pla)"]
+    X["alumnes.xml"]
+    P["Pantalla"]
+    S["alumnes_sortida.txt&lt;br/&gt;(text pla)"]
+
+    T -- "AlumnesToXML&lt;br/&gt;(apartat 4)" --&gt; X
+    X -- "XMLToAlumnes&lt;br/&gt;(apartat 6)" --&gt; P
+    X -. "Exercici&lt;br/&gt;(apartat 8)" .-&gt; S
+
+    classDef fitxer fill:#e7f5ff,stroke:#1971c2,stroke-width:2px,color:#000
+    classDef sortida fill:#f1efe8,stroke:#5f5e5a,stroke-width:2px,color:#000
+    class T,X,S fitxer
+    class P sortida
+      </pre>
+    </div>
+    <p>
+      <strong>DOM</strong> (<em>Document Object Model</em>) treballa sempre amb un <strong>arbre de nodes a memòria</strong>:
+    </p>
+    <ul>
+      <li>Per <strong>escriure</strong>, construïm l'arbre a memòria i, quan és complet, el bolquem a un fitxer.</li>
+      <li>Per <strong>llegir</strong>, DOM carrega tot el fitxer de cop i construeix l'arbre a memòria. Després el programa el recorre.</li>
+    </ul>
+    <p>
+      Tot el necessari és al JDK: no cal cap llibreria externa.
+    </p>
+
+    <span id="escriure" class="section-anchor"></span>
+    <h2>4. Escriure XML amb DOM</h2>
+    <p>
+      Partim d'un fitxer de text pla, <code>alumnes.txt</code>, amb un alumne per línia i els camps separats per <code>;</code>:
+    </p>
+    <div class="code-wrap">
+      <div class="code-header">
+        <span class="filename">alumnes.txt</span>
+        <span class="lang-badge lang-dto">Text</span>
+      </div>
+      <pre>1;Anna;Puig Serra;19;8.5
+2;Marc;Vidal Roca;20;6.0</pre>
+    </div>
+    <p>
+      Volem obtenir l'<code>alumnes.xml</code> de l'apartat 1.
+    </p>
+    <span id="escriure-1" class="section-anchor"></span>
+    <h3>4.1 Els passos</h3>
+    <ol>
+      <li>Llegir les línies del fitxer d'entrada: <code>Files.readAllLines(...)</code>.</li>
+      <li>Crear un document buit: <code>DocumentBuilder.newDocument()</code>.</li>
+      <li>Crear l'element arrel i penjar-lo del document: <code>createElement(...)</code> i <code>appendChild(...)</code>.</li>
+      <li>Per cada línia, crear un <code>&lt;alumne&gt;</code> amb l'atribut <code>id</code> i els seus fills, i penjar-lo de l'arrel.</li>
+      <li>Bolcar l'arbre al fitxer de sortida amb un <code>Transformer</code>.</li>
+    </ol>
+    <span id="escriure-2" class="section-anchor"></span>
+    <h3>4.2 Codi complet</h3>
+    <div class="code-wrap">
+      <div class="code-header">
+        <span class="filename">AlumnesToXML.java</span>
+        <span class="lang-badge lang-java">Java</span>
+      </div>
+      <pre><span class="kw">import</span> java.io.<span class="cl">BufferedWriter</span>;
+<span class="kw">import</span> java.io.<span class="cl">IOException</span>;
+<span class="kw">import</span> java.nio.charset.<span class="cl">StandardCharsets</span>;
+<span class="kw">import</span> java.nio.file.<span class="cl">Files</span>;
+<span class="kw">import</span> java.nio.file.<span class="cl">Path</span>;
+<span class="kw">import</span> java.util.<span class="cl">List</span>;
+
+<span class="kw">import</span> javax.xml.parsers.<span class="cl">DocumentBuilder</span>;
+<span class="kw">import</span> javax.xml.parsers.<span class="cl">DocumentBuilderFactory</span>;
+<span class="kw">import</span> javax.xml.parsers.<span class="cl">ParserConfigurationException</span>;
+<span class="kw">import</span> javax.xml.transform.<span class="cl">OutputKeys</span>;
+<span class="kw">import</span> javax.xml.transform.<span class="cl">Transformer</span>;
+<span class="kw">import</span> javax.xml.transform.<span class="cl">TransformerException</span>;
+<span class="kw">import</span> javax.xml.transform.<span class="cl">TransformerFactory</span>;
+<span class="kw">import</span> javax.xml.transform.<span class="cl">TransformerFactoryConfigurationError</span>;
+<span class="kw">import</span> javax.xml.transform.dom.<span class="cl">DOMSource</span>;
+<span class="kw">import</span> javax.xml.transform.stream.<span class="cl">StreamResult</span>;
+
+<span class="kw">import</span> org.w3c.dom.<span class="cl">Document</span>;
+<span class="kw">import</span> org.w3c.dom.<span class="cl">Element</span>;
+
+<span class="kw">public</span> <span class="kw">class</span> <span class="cl">AlumnesToXML</span> {
+
+    <span class="kw">public</span> <span class="kw">static</span> <span class="kw">void</span> <span class="fn">main</span>(<span class="cl">String</span>[] args) {
+        <span class="cl">Path</span> entrada = <span class="cl">Path</span>.of (<span class="str">"alumnes.txt"</span>);
+        <span class="cl">Path</span> sortidaXML = <span class="cl">Path</span>.of (<span class="str">"alumnes.xml"</span>);
+
+
+        <span class="kw">try</span> {
+            <span class="cm">//Pas 1: Llegir el fitxer d'entrada i crear el document</span>
+            <span class="cl">Document</span> doc = <span class="fn">crearDocument</span>(entrada);
+            <span class="cm">//Pas 2: Amb el document creat, escriure'l al fitxer XML</span>
+            <span class="cl">EscriureXML</span>(doc,sortidaXML);
+        } <span class="kw">catch</span> (<span class="cl">ParserConfigurationException</span> e) {
+            <span class="cl">System</span>.out.<span class="fn">println</span>(<span class="str">"Error a la configuració del parser "</span> + e.<span class="fn">getMessage</span>());
+        } <span class="kw">catch</span> (<span class="cl">IOException</span> e) {
+            <span class="cl">System</span>.out.<span class="fn">println</span>(<span class="str">"Error tractant fitxer d'entrada o sortida "</span> + e.<span class="fn">getMessage</span>());
+        } <span class="kw">catch</span> (<span class="cl">Exception</span> e) {
+            <span class="cl">System</span>.out.<span class="fn">println</span>(<span class="str">"Excepció general "</span> + e.<span class="fn">getMessage</span>());
+        }
+        
+    }
+
+    <span class="kw">public</span> <span class="kw">static</span> <span class="cl">Document</span> <span class="fn">crearDocument</span>(<span class="cl">Path</span> entrada) <span class="kw">throws</span> <span class="cl">ParserConfigurationException</span>, <span class="cl">IOException</span>, <span class="cl">Exception</span> {
+        <span class="cl">List</span>&lt;<span class="cl">String</span>&gt; linies = <span class="cl">Files</span>.<span class="fn">readAllLines</span>(entrada,<span class="cl">StandardCharsets</span>.UTF_8);
+
+<span class="cm">// La instància del DocumentBuilder es pot obtenir d'aquesta forma més compacta</span>
+        <span class="cl">DocumentBuilder</span> builder = <span class="cl">DocumentBuilderFactory</span>.<span class="fn">newInstance</span>().<span class="fn">newDocumentBuilder</span>();
+
+<span class="cm">// Es pot fer d'aquesta forma menys compacta</span>
+        <span class="cm">//DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();</span>
+        <span class="cm">//DocumentBuilder builder = dbf.newDocumentBuilder();</span>
+
+        <span class="cl">Document</span> doc = builder.<span class="fn">newDocument</span>();
+
+        <span class="cl">Element</span> arrel = doc.<span class="fn">createElement</span>(<span class="str">"alumnes"</span>);
+        doc.<span class="fn">appendChild</span>(arrel);
+
+        <span class="kw">for</span> (<span class="cl">String</span> linia: linies) {
+            <span class="kw">if</span> (linia.<span class="fn">isBlank</span>()) <span class="kw">continue</span>;
+
+            <span class="cl">String</span>[] camps = linia.<span class="fn">split</span>(<span class="str">";"</span>,-1);
+
+            <span class="cl">Element</span> alumne = doc.<span class="fn">createElement</span>(<span class="str">"alumne"</span>);
+            alumne.<span class="fn">setAttribute</span>(<span class="str">"id"</span>, camps[0].<span class="fn">trim</span>());
+
+            <span class="cl">AfegirFill</span>(doc,alumne,<span class="str">"nom"</span>,camps[1]);
+            <span class="cl">AfegirFill</span>(doc,alumne,<span class="str">"cognoms"</span>,camps[2]);
+            <span class="cl">AfegirFill</span>(doc,alumne,<span class="str">"edat"</span>,camps[3]);
+            <span class="cl">AfegirFill</span>(doc,alumne,<span class="str">"nota_mitjana"</span>,camps[4]);
+
+            arrel.<span class="fn">appendChild</span>(alumne);
+        }
+        <span class="kw">return</span> doc;
+    }
+
+    <span class="kw">public</span> <span class="kw">static</span> <span class="kw">void</span> <span class="cl">AfegirFill</span> (<span class="cl">Document</span> doc,<span class="cl">Element</span> pare,<span class="cl">String</span> etiqueta, <span class="cl">String</span> text) {
+        <span class="cl">Element</span> fill = doc.<span class="fn">createElement</span>(etiqueta);
+        fill.<span class="fn">setTextContent</span>(text.<span class="fn">trim</span>());
+        pare.<span class="fn">appendChild</span>(fill);
+    }
+
+    <span class="kw">public</span> <span class="kw">static</span> <span class="kw">void</span> <span class="cl">EscriureXML</span>(<span class="cl">Document</span> doc, <span class="cl">Path</span> sortidaXML) <span class="kw">throws</span> <span class="cl">TransformerFactoryConfigurationError</span>, 
+                                                                         <span class="cl">TransformerException</span>, 
+                                                                         <span class="cl">IOException</span>, <span class="cl">Exception</span> {
+        
+        <span class="cl">Transformer</span> t = <span class="cl">TransformerFactory</span>.<span class="fn">newInstance</span>().<span class="fn">newTransformer</span>();
+
+        t.<span class="fn">setOutputProperty</span>(<span class="cl">OutputKeys</span>.ENCODING, <span class="str">"UTF-8"</span>);
+        t.<span class="fn">setOutputProperty</span>(<span class="cl">OutputKeys</span>.INDENT, <span class="str">"yes"</span>);
+        t.<span class="fn">setOutputProperty</span>(<span class="str">"{http://xml.apache.org/xslt}indent-amount"</span>, <span class="str">"2"</span>);
+
+        <span class="kw">try</span> (<span class="cl">BufferedWriter</span> bw = <span class="cl">Files</span>.<span class="fn">newBufferedWriter</span>(sortidaXML, <span class="cl">StandardCharsets</span>.UTF_8)) {
+            t.<span class="fn">transform</span>(<span class="kw">new</span> <span class="cl">DOMSource</span>(doc), <span class="kw">new</span> <span class="cl">StreamResult</span>(bw));
+        }
+        
+
+    }
+}</pre>
+    </div>
+    <span id="escriure-3" class="section-anchor"></span>
+    <h3>4.3 Mètodes que cal recordar</h3>
+    <table>
+      <thead>
+        <tr><th>Mètode</th><th>Què fa</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>Files.readAllLines(ruta, UTF_8)</code></td><td>Llegeix totes les línies del fitxer en una <code>List&lt;String&gt;</code></td></tr>
+        <tr><td><code>builder.newDocument()</code></td><td>Crea un document buit a memòria</td></tr>
+        <tr><td><code>doc.createElement("x")</code></td><td>Crea un element <code>&lt;x&gt;</code>, encara sense penjar de l'arbre</td></tr>
+        <tr><td><code>pare.appendChild(fill)</code></td><td>Penja un node com a darrer fill d'un altre</td></tr>
+        <tr><td><code>element.setAttribute("x", valor)</code></td><td>Afegeix o modifica l'atribut <code>x</code></td></tr>
+        <tr><td><code>element.setTextContent(text)</code></td><td>Posa el text d'un element</td></tr>
+        <tr><td><code>TransformerFactory.newInstance().newTransformer()</code></td><td>Crea l'objecte que converteix l'arbre en text</td></tr>
+        <tr><td><code>t.setOutputProperty(...)</code></td><td>Configura la sortida: codificació, indentació...</td></tr>
+        <tr><td><code>t.transform(new DOMSource(doc), new StreamResult(...))</code></td><td>Bolca l'arbre a la sortida</td></tr>
+        <tr><td><code>Files.newBufferedWriter(ruta, UTF_8)</code></td><td>Obre el fitxer de sortida per escriure-hi</td></tr>
+      </tbody>
+    </table>
+    <div class="box box-warn">
+      <p class="box-title">Compte</p>
+      <p><code>createElement()</code> només <strong>crea</strong> l'element, no el posa a l'arbre. Si oblides l'<code>appendChild()</code>, l'element no apareixerà al fitxer, i no hi haurà cap error que t'avisi.</p>
+    </div>
+    <div class="box box-warn">
+      <p class="box-title">Compte</p>
+      <p><code>StreamResult</code> no té cap constructor que accepti un <code>Path</code>. Per això li passem un <code>BufferedWriter</code> obtingut amb <code>Files.newBufferedWriter(...)</code>. La codificació del <code>Writer</code> i la de <code>OutputKeys.ENCODING</code> han de coincidir. Si no, la capçalera de l'XML diria <code>UTF-8</code> però el fitxer estaria escrit en una altra codificació.</p>
+    </div>
+    <div class="box box-tip">
+      <p class="box-title">Recorda</p>
+      <p>El <code>Transformer</code> escapa automàticament els caràcters especials en escriure el fitxer. Si un cognom conté <code>&amp;</code>, al fitxer apareixerà <code>&amp;amp;</code> i l'XML continuarà sent vàlid.</p>
+    </div>
+
+    <span id="llegir" class="section-anchor"></span>
+    <h2>5. Llegir XML amb DOM coneixent l'estructura</h2>
+    <p>
+      Si sabem com és l'XML per dins (l'arrel es diu <code>alumnes</code>, cada registre és un <code>alumne</code>, els camps es diuen <code>nom</code>, <code>cognoms</code>...), podem anar directament a buscar cada element pel seu nom.
+    </p>
+    <span id="llegir-1" class="section-anchor"></span>
+    <h3>5.1 Els quatre passos</h3>
+    <ol>
+      <li>Crear una fàbrica: <code>DocumentBuilderFactory</code>.</li>
+      <li>Obtenir-ne un constructor: <code>DocumentBuilder</code>.</li>
+      <li>Llegir el fitxer i obtenir l'arbre: <code>Document</code>.</li>
+      <li>Recórrer l'arbre: buscar elements i llegir-ne el text o els atributs.</li>
+    </ol>
+    <span id="llegir-2" class="section-anchor"></span>
+    <h3>5.2 Codi complet</h3>
+    <div class="code-wrap">
+      <div class="code-header">
+        <span class="filename">LlegirAlumnesDOM.java</span>
+        <span class="lang-badge lang-java">Java</span>
+      </div>
+      <pre><span class="kw">import</span> javax.xml.parsers.<span class="cl">DocumentBuilder</span>;
+<span class="kw">import</span> javax.xml.parsers.<span class="cl">DocumentBuilderFactory</span>;
+<span class="kw">import</span> javax.xml.parsers.<span class="cl">ParserConfigurationException</span>;
+<span class="kw">import</span> org.w3c.dom.<span class="cl">Document</span>;
+<span class="kw">import</span> org.w3c.dom.<span class="cl">Element</span>;
+<span class="kw">import</span> org.w3c.dom.<span class="cl">NodeList</span>;
+<span class="kw">import</span> org.xml.sax.<span class="cl">SAXException</span>;
+
+<span class="kw">import</span> java.io.<span class="cl">IOException</span>;
+<span class="kw">import</span> java.io.<span class="cl">InputStream</span>;
+<span class="kw">import</span> java.nio.file.<span class="cl">Files</span>;
+<span class="kw">import</span> java.nio.file.<span class="cl">Path</span>;
+
+<span class="kw">public</span> <span class="kw">class</span> <span class="cl">LlegirAlumnesDOM</span> {
+
+    <span class="kw">public</span> <span class="kw">static</span> <span class="kw">void</span> <span class="fn">main</span>(<span class="cl">String</span>[] args) {
+        <span class="cl">Path</span> ruta = <span class="cl">Path</span>.<span class="fn">of</span>(<span class="str">"alumnes.xml"</span>);
+
+        <span class="cm">// Comprovem que el fitxer existeix abans de llegir-lo</span>
+        <span class="kw">if</span> (!<span class="cl">Files</span>.<span class="fn">exists</span>(ruta)) {
+            <span class="cl">System</span>.out.<span class="fn">println</span>(<span class="str">"No existeix el fitxer: "</span> + ruta.<span class="fn">toAbsolutePath</span>());
+            <span class="kw">return</span>;
+        }
+
+        <span class="cm">// try-with-resources: el flux es tanca sol en acabar</span>
+        <span class="kw">try</span> (<span class="cl">InputStream</span> entrada = <span class="cl">Files</span>.<span class="fn">newInputStream</span>(ruta)) {
+
+            <span class="cm">// 1. Fàbrica de constructors de documents</span>
+            <span class="cl">DocumentBuilderFactory</span> factory = <span class="cl">DocumentBuilderFactory</span>.<span class="fn">newInstance</span>();
+
+            <span class="cm">// 2. Constructor que farà la lectura</span>
+            <span class="cl">DocumentBuilder</span> builder = factory.<span class="fn">newDocumentBuilder</span>();
+
+            <span class="cm">// 3. Llegim el fitxer: tot l'XML queda a memòria com un arbre</span>
+            <span class="cl">Document</span> doc = builder.<span class="fn">parse</span>(entrada);
+            doc.<span class="fn">getDocumentElement</span>().<span class="fn">normalize</span>(); <span class="cm">// fusiona nodes de text adjacents</span>
+
+            <span class="cm">// Element arrel</span>
+            <span class="cl">System</span>.out.<span class="fn">println</span>(<span class="str">"Arrel: "</span> + doc.<span class="fn">getDocumentElement</span>().<span class="fn">getNodeName</span>());
+
+            <span class="cm">// 4. Busquem tots els elements &lt;alumne&gt;</span>
+            <span class="cl">NodeList</span> llista = doc.<span class="fn">getElementsByTagName</span>(<span class="str">"alumne"</span>);
+
+            <span class="kw">for</span> (<span class="kw">int</span> i = 0; i &lt; llista.<span class="fn">getLength</span>(); i++) {
+                <span class="cl">Element</span> alumne = (<span class="cl">Element</span>) llista.<span class="fn">item</span>(i);
+
+                <span class="cm">// Atribut de l'element</span>
+                <span class="cl">String</span> id = alumne.<span class="fn">getAttribute</span>(<span class="str">"id"</span>);
+
+                <span class="cm">// Text dels elements fills</span>
+                <span class="cl">String</span> nom     = alumne.<span class="fn">getElementsByTagName</span>(<span class="str">"nom"</span>).<span class="fn">item</span>(0).<span class="fn">getTextContent</span>();
+                <span class="cl">String</span> cognoms = alumne.<span class="fn">getElementsByTagName</span>(<span class="str">"cognoms"</span>).<span class="fn">item</span>(0).<span class="fn">getTextContent</span>();
+                <span class="cl">String</span> nota    = alumne.<span class="fn">getElementsByTagName</span>(<span class="str">"nota_mitjana"</span>).<span class="fn">item</span>(0).<span class="fn">getTextContent</span>();
+
+                <span class="cl">System</span>.out.<span class="fn">println</span>(id + <span class="str">" - "</span> + nom + <span class="str">" "</span> + cognoms + <span class="str">" - "</span> + nota);
+            }
+
+        } <span class="kw">catch</span> (<span class="cl">SAXException</span> e) {
+            <span class="cl">System</span>.err.<span class="fn">println</span>(<span class="str">"L'XML no és vàlid: "</span> + e.<span class="fn">getMessage</span>());
+        } <span class="kw">catch</span> (<span class="cl">ParserConfigurationException</span> e) {
+            <span class="cl">System</span>.err.<span class="fn">println</span>(<span class="str">"Error a la configuració del parser: "</span> + e.<span class="fn">getMessage</span>());
+        } <span class="kw">catch</span> (<span class="cl">IOException</span> e) {
+            <span class="cl">System</span>.err.<span class="fn">println</span>(<span class="str">"Error en llegir el fitxer: "</span> + e.<span class="fn">getMessage</span>());
+        }
+    }
+}</pre>
+    </div>
+    <p>
+      Sortida:
+    </p>
+    <div class="code-wrap">
+      <div class="code-header">
+        <span class="filename">Sortida</span>
+        <span class="lang-badge lang-dto">Sortida</span>
+      </div>
+      <pre>Arrel: alumnes
+1 - Anna Puig Serra - 8.5
+2 - Marc Vidal Roca - 6.0</pre>
+    </div>
+    <span id="llegir-3" class="section-anchor"></span>
+    <h3>5.3 Mètodes que cal recordar</h3>
+    <table>
+      <thead>
+        <tr><th>Mètode</th><th>Què fa</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>Files.newInputStream(ruta)</code></td><td>Obre el fitxer per llegir-lo</td></tr>
+        <tr><td><code>builder.parse(entrada)</code></td><td>Llegeix tot l'XML i en construeix l'arbre</td></tr>
+        <tr><td><code>getDocumentElement()</code></td><td>Retorna l'element arrel</td></tr>
+        <tr><td><code>getElementsByTagName("x")</code></td><td>Retorna una <code>NodeList</code> amb tots els elements <code>&lt;x&gt;</code></td></tr>
+        <tr><td><code>getLength()</code> / <code>item(i)</code></td><td>Mida de la llista / node de la posició <em>i</em></td></tr>
+        <tr><td><code>getTextContent()</code></td><td>Retorna el text d'un element</td></tr>
+        <tr><td><code>getAttribute("x")</code></td><td>Retorna el valor d'un atribut</td></tr>
+      </tbody>
+    </table>
+    <div class="box box-warn">
+      <p class="box-title">Compte</p>
+      <p><code>item(i)</code> retorna un <code>Node</code>. Per fer servir <code>getAttribute()</code> o <code>getElementsByTagName()</code> cal convertir-lo a <code>Element</code> amb un <em>cast</em>.</p>
+    </div>
+    <div class="box box-warn">
+      <p class="box-title">Compte</p>
+      <p><code>builder.parse()</code> no accepta un <code>Path</code>. Per això li passem un <code>InputStream</code> obtingut amb <code>Files.newInputStream(...)</code>.</p>
+    </div>
+
+    <span id="generic" class="section-anchor"></span>
+    <h2>6. Llegir XML amb DOM sense conèixer l'estructura</h2>
+    <p>
+      I si no sabem com es diu l'arrel, quines etiquetes hi ha ni quins atributs tenen? Llavors no podem fer <code>getElementsByTagName("alumne")</code>, perquè no sabem que existeix <code>alumne</code>.
+    </p>
+    <p>
+      La solució és <strong>recórrer l'arbre de manera recursiva</strong>, començant per l'arrel (que sempre obtenim amb <code>getDocumentElement()</code>) i baixant fill a fill. Per a cada node que visitem:
+    </p>
+    <ul>
+      <li>Si <strong>no és un element</strong> (per exemple, un node de text de la indentació, apartat 2.3), no fem res.</li>
+      <li>Si és un <strong>element fulla</strong> (apartat 2.2), en mostrem el nom i el text i ja no baixem més.</li>
+      <li>Si és un <strong>element no-fulla</strong>, en mostrem el nom i tornem a cridar el mateix mètode per a cadascun dels seus fills.</li>
+    </ul>
+    <p>
+      Els dos primers casos són els <strong>casos base</strong> de la recursió: aturen la crida. El tercer és el <strong>cas recursiu</strong>.
+    </p>
+    <div class="mermaid-frame mermaid-frame--compact">
+      <pre class="mermaid">
+flowchart TD
+    I["recorrer(node, nivell)"]
+    Q1{"És un&lt;br/&gt;ELEMENT_NODE?"}
+    B1["return&lt;br/&gt;(cas base 1)"]
+    AT["Afegir nom&lt;br/&gt;i atributs a la línia"]
+    Q2{"esFulla(node)?"}
+    B2["Mostrar nom: text&lt;br/&gt;return (cas base 2)"]
+    R["Mostrar nom&lt;br/&gt;recorrer(fill, nivell + 1)&lt;br/&gt;per a cada fill"]
+
+    I --&gt; Q1
+    Q1 -- No --&gt; B1
+    Q1 -- Sí --&gt; AT
+    AT --&gt; Q2
+    Q2 -- Sí --&gt; B2
+    Q2 -- No --&gt; R
+    R -. "cas recursiu" .-&gt; I
+
+    classDef base fill:#e1f5ee,stroke:#0f6e56,stroke-width:2px,color:#000
+    classDef rec fill:#eeedfe,stroke:#534ab7,stroke-width:2px,color:#000
+    class B1,B2 base
+    class R rec
+      </pre>
+    </div>
+    <span id="generic-1" class="section-anchor"></span>
+    <h3>6.1 Codi complet</h3>
+    <div class="code-wrap">
+      <div class="code-header">
+        <span class="filename">XMLToAlumnes.java</span>
+        <span class="lang-badge lang-java">Java</span>
+      </div>
+      <pre><span class="kw">import</span> java.io.<span class="cl">IOException</span>;
+<span class="kw">import</span> java.io.<span class="cl">InputStream</span>;
+<span class="kw">import</span> java.nio.file.<span class="cl">Files</span>;
+<span class="kw">import</span> java.nio.file.<span class="cl">Path</span>;
+
+<span class="kw">import</span> javax.xml.parsers.<span class="cl">DocumentBuilder</span>;
+<span class="kw">import</span> javax.xml.parsers.<span class="cl">DocumentBuilderFactory</span>;
+<span class="kw">import</span> javax.xml.parsers.<span class="cl">ParserConfigurationException</span>;
+
+<span class="kw">import</span> org.w3c.dom.<span class="cl">Document</span>;
+<span class="kw">import</span> org.w3c.dom.<span class="cl">Element</span>;
+<span class="kw">import</span> org.w3c.dom.<span class="cl">NamedNodeMap</span>;
+<span class="kw">import</span> org.w3c.dom.<span class="cl">Node</span>;
+<span class="kw">import</span> org.w3c.dom.<span class="cl">NodeList</span>;
+<span class="kw">import</span> org.xml.sax.<span class="cl">SAXException</span>;
+<span class="kw">import</span> org.xml.sax.<span class="cl">SAXParseException</span>;
+
+<span class="cm">/**
+ * Llegeix un XML amb DOM i en mostra el contingut sense conèixer-ne l'estructura.
+ *
+ * Important: amb DOM, builder.parse() llegeix TOT el fitxer i construeix l'arbre
+ * sencer en memòria. Només després el recorrem i el mostrem.
+ */</span>
+<span class="kw">public</span> <span class="kw">class</span> <span class="cl">XMLToAlumnes</span> {
+
+    <span class="kw">public</span> <span class="kw">static</span> <span class="kw">void</span> <span class="fn">main</span>(<span class="cl">String</span>[] args) {
+        <span class="cl">Path</span> entradaXML = <span class="cl">Path</span>.<span class="fn">of</span>(<span class="str">"alumnes.xml"</span>);
+
+        <span class="kw">try</span> {
+            <span class="cl">Document</span> doc = <span class="fn">obtenirDocument</span>(entradaXML);
+            <span class="cl">Element</span> arrel = doc.<span class="fn">getDocumentElement</span>();
+
+            <span class="cm">// Comencem el recorregut recursiu per l'arrel, al nivell 0</span>
+            <span class="fn">recorrer</span>(arrel, 0);
+
+        } <span class="kw">catch</span> (<span class="cl">SAXParseException</span> e) {
+            <span class="cm">// Subclasse de SAXException: XML mal format, ens diu on és l'error</span>
+            <span class="cl">System</span>.err.<span class="fn">printf</span>(<span class="str">"XML mal format (línia %d, columna %d): %s%n"</span>,
+                    e.<span class="fn">getLineNumber</span>(), e.<span class="fn">getColumnNumber</span>(), e.<span class="fn">getMessage</span>());
+        } <span class="kw">catch</span> (<span class="cl">SAXException</span> e) {
+            <span class="cl">System</span>.err.<span class="fn">println</span>(<span class="str">"Error en parsejar l'XML: "</span> + e.<span class="fn">getMessage</span>());
+        } <span class="kw">catch</span> (<span class="cl">ParserConfigurationException</span> e) {
+            <span class="cl">System</span>.err.<span class="fn">println</span>(<span class="str">"Error a la configuració del parser: "</span> + e.<span class="fn">getMessage</span>());
+        } <span class="kw">catch</span> (<span class="cl">IOException</span> e) {
+            <span class="cl">System</span>.err.<span class="fn">println</span>(<span class="str">"Error en llegir el fitxer d'entrada: "</span> + e.<span class="fn">getMessage</span>());
+        }
+    }
+
+    <span class="cm">/**
+     * Carrega el fitxer XML (Path de NIO) i retorna l'arbre DOM.
+     * parse() no accepta un Path, per això li passem un InputStream de NIO.
+     */</span>
+    <span class="kw">public</span> <span class="kw">static</span> <span class="cl">Document</span> <span class="fn">obtenirDocument</span>(<span class="cl">Path</span> entradaXML)
+            <span class="kw">throws</span> <span class="cl">IOException</span>, <span class="cl">ParserConfigurationException</span>, <span class="cl">SAXException</span> {
+
+        <span class="cl">DocumentBuilder</span> builder = <span class="cl">DocumentBuilderFactory</span>.<span class="fn">newInstance</span>().<span class="fn">newDocumentBuilder</span>();
+
+        <span class="kw">try</span> (<span class="cl">InputStream</span> is = <span class="cl">Files</span>.<span class="fn">newInputStream</span>(entradaXML)) {
+            <span class="cl">Document</span> doc = builder.<span class="fn">parse</span>(is);
+            doc.<span class="fn">getDocumentElement</span>().<span class="fn">normalize</span>();   <span class="cm">// fusiona nodes de text adjacents</span>
+            <span class="kw">return</span> doc;
+        }
+    }
+
+    <span class="cm">/**
+     * Recorre recursivament l'arbre a partir d'un node.
+     *  - Cas base 1: el node no és un element (text de la indentació) -&gt; no fem res.
+     *  - Cas base 2: element fulla (només conté text) -&gt; el mostrem i tornem.
+     *  - Cas recursiu: element pare -&gt; el mostrem i explorem els seus fills.
+     *
+     * node:   node que estem visitant
+     * nivell: profunditat dins l'arbre (0 = arrel, 1 = registres com &lt;alumne&gt;..., 
+     *                                   2 = camps com &lt;nom&gt;)
+     */</span>
+    <span class="kw">public</span> <span class="kw">static</span> <span class="kw">void</span> <span class="fn">recorrer</span>(<span class="cl">Node</span> node, <span class="kw">int</span> nivell) {
+        <span class="cm">// Cas base 1: només tractem elements; els nodes de text de la indentació s'ignoren</span>
+        <span class="kw">if</span> (node.<span class="fn">getNodeType</span>() != <span class="cl">Node</span>.ELEMENT_NODE) <span class="kw">return</span>;
+
+        <span class="cl">StringBuilder</span> linia = <span class="kw">new</span> <span class="cl">StringBuilder</span>(<span class="str">"  "</span>.<span class="fn">repeat</span>(nivell) + node.<span class="fn">getNodeName</span>());
+
+        <span class="cm">// Afegim els atributs de l'element (p. ex. id), sigui quin sigui el seu nom</span>
+        <span class="cl">NamedNodeMap</span> atributs = node.<span class="fn">getAttributes</span>();
+        <span class="kw">for</span> (<span class="kw">int</span> i = 0; i &lt; atributs.<span class="fn">getLength</span>(); i++) {
+            <span class="cl">Node</span> at = atributs.<span class="fn">item</span>(i);
+            linia.<span class="fn">append</span>(<span class="str">" "</span>).<span class="fn">append</span>(at.<span class="fn">getNodeName</span>())
+                 .<span class="fn">append</span>(<span class="str">" = "</span>).<span class="fn">append</span>(at.<span class="fn">getNodeValue</span>());
+        }
+
+        <span class="cm">// Cas base 2: element fulla (nom, cognoms...) -&gt; mostrem nom i text a la mateixa línia</span>
+        <span class="kw">if</span> (<span class="fn">esFulla</span>(node)) {
+            linia.<span class="fn">append</span>(<span class="str">": "</span>).<span class="fn">append</span>(node.<span class="fn">getTextContent</span>().<span class="fn">trim</span>());
+            <span class="cl">System</span>.out.<span class="fn">println</span>(linia);
+            <span class="kw">return</span>;
+        }
+
+        <span class="cm">// Element pare: separador només per als registres (fills directes de l'arrel)</span>
+        <span class="kw">if</span> (nivell == 1) {
+            <span class="cl">System</span>.out.<span class="fn">println</span>(<span class="str">"-"</span>.<span class="fn">repeat</span>(40));
+        } 
+
+        <span class="cl">System</span>.out.<span class="fn">println</span>(linia);
+
+        <span class="cm">// Cas recursiu: explorem els fills un nivell més avall</span>
+        <span class="cl">NodeList</span> fills = node.<span class="fn">getChildNodes</span>();
+        <span class="kw">for</span> (<span class="kw">int</span> i = 0; i &lt; fills.<span class="fn">getLength</span>(); i++) {
+            <span class="fn">recorrer</span>(fills.<span class="fn">item</span>(i), nivell + 1);
+        }
+    }
+
+    <span class="cm">/**
+     * Un element és fulla si no té cap fill de tipus element (només text, o res).
+     * Atenció: un element buit també es considera fulla.
+     */</span>
+    <span class="kw">static</span> <span class="kw">boolean</span> <span class="fn">esFulla</span>(<span class="cl">Node</span> node) {
+        <span class="cl">NodeList</span> fills = node.<span class="fn">getChildNodes</span>();
+        <span class="kw">for</span> (<span class="kw">int</span> i = 0; i &lt; fills.<span class="fn">getLength</span>(); i++) {
+            <span class="kw">if</span> (fills.<span class="fn">item</span>(i).<span class="fn">getNodeType</span>() == <span class="cl">Node</span>.ELEMENT_NODE) <span class="kw">return</span> <span class="kw">false</span>;
+        }
+        <span class="kw">return</span> <span class="kw">true</span>;
+    }
+}</pre>
+    </div>
+    <p>
+      Sortida:
+    </p>
+    <div class="code-wrap">
+      <div class="code-header">
+        <span class="filename">Sortida</span>
+        <span class="lang-badge lang-dto">Sortida</span>
+      </div>
+      <pre>alumnes
+----------------------------------------
+  alumne id = 1
+    nom: Anna
+    cognoms: Puig Serra
+    edat: 19
+    nota_mitjana: 8.5
+----------------------------------------
+  alumne id = 2
+    nom: Marc
+    cognoms: Vidal Roca
+    edat: 20
+    nota_mitjana: 6.0</pre>
+    </div>
+    <p>
+      Fixa't que el programa no conté cap nom d'etiqueta: ni <code>alumnes</code>, ni <code>alumne</code>, ni <code>nom</code>. Funcionaria igual amb qualsevol altre XML.
+    </p>
+    <span id="generic-2" class="section-anchor"></span>
+    <h3>6.2 El paper del paràmetre <code>nivell</code></h3>
+    <p>
+      <code>nivell</code> indica a quina profunditat de l'arbre és el node que estem visitant. Cada crida recursiva el fa créixer en 1:
+    </p>
+    <table>
+      <thead>
+        <tr><th style="text-align:center"><code>nivell</code></th><th>Elements</th><th>Ús al codi</th></tr>
+      </thead>
+      <tbody>
+        <tr><td style="text-align:center">0</td><td><code>alumnes</code> (arrel)</td><td>Sense sagnat</td></tr>
+        <tr><td style="text-align:center">1</td><td><code>alumne</code> (registres)</td><td>Sagnat de 2 espais i línia separadora</td></tr>
+        <tr><td style="text-align:center">2</td><td><code>nom</code>, <code>cognoms</code>... (camps)</td><td>Sagnat de 4 espais</td></tr>
+      </tbody>
+    </table>
+    <span id="generic-3" class="section-anchor"></span>
+    <h3>6.3 Mètodes que cal recordar</h3>
+    <table>
+      <thead>
+        <tr><th>Mètode</th><th>Què fa</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>getNodeType()</code></td><td>Retorna el tipus del node: <code>Node.ELEMENT_NODE</code>, <code>Node.TEXT_NODE</code>...</td></tr>
+        <tr><td><code>getNodeName()</code></td><td>Retorna el nom de l'etiqueta (en un element)</td></tr>
+        <tr><td><code>getChildNodes()</code></td><td>Retorna <strong>tots</strong> els fills: elements i nodes de text</td></tr>
+        <tr><td><code>getAttributes()</code></td><td>Retorna un <code>NamedNodeMap</code> amb tots els atributs</td></tr>
+        <tr><td><code>getNodeValue()</code></td><td>Retorna el valor d'un atribut (aplicat al node atribut)</td></tr>
+      </tbody>
+    </table>
+    <div class="box box-warn">
+      <p class="box-title">Compte</p>
+      <p><code>getChildNodes()</code> retorna també els nodes de text de la indentació (apartat 2.3). Per això el primer que fa <code>recorrer</code> és descartar tot el que no sigui <code>ELEMENT_NODE</code>.</p>
+    </div>
+    <div class="box box-tip">
+      <p class="box-title">Recorda</p>
+      <p>Si només vols saber <strong>quines etiquetes</strong> hi ha, sense la jerarquia, <code>doc.getElementsByTagName("*")</code> retorna tots els elements del document en ordre d'aparició. És una llista plana: no diu qui conté qui.</p>
+    </div>
+
+    <span id="excepcions" class="section-anchor"></span>
+    <h2>7. Excepcions: per què apareix SAX si fem servir DOM</h2>
+    <p>
+      <code>builder.parse()</code> declara <code>SAXException</code>, i el compilador ens obliga a gestionar-la, tot i que estem fent servir DOM. El motiu és que <strong>el parser DOM de Java es construeix sobre SAX</strong>:
+    </p>
+    <ol>
+      <li>SAX llegeix el fitxer seqüencialment i genera esdeveniments: "comença un element", "hi ha text", "acaba un element"...</li>
+      <li>DOM escolta aquests esdeveniments i, a partir d'ells, va muntant l'arbre a memòria.</li>
+    </ol>
+    <p>
+      Si l'XML està mal format, qui se n'adona és SAX, i per això l'error arriba com a <code>SAXException</code>. Normalment arriba la subclasse <code>SAXParseException</code>, que indica la línia i la columna de l'error.
+    </p>
+    <p>
+      Per exemple, si a <code>alumnes.xml</code> canviem <code>&lt;/edat&gt;</code> per <code>&lt;/edad&gt;</code>:
+    </p>
+    <div class="code-wrap">
+      <div class="code-header">
+        <span class="filename">Sortida d'error</span>
+        <span class="lang-badge lang-dto">Sortida</span>
+      </div>
+      <pre>XML mal format (línia 6, columna 15): The element type "edat" must be terminated by the matching end-tag "&lt;/edat&gt;".</pre>
+    </div>
+    <table>
+      <thead>
+        <tr><th>Excepció</th><th>Quan es produeix</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>IOException</code></td><td>El fitxer no existeix, no es pot llegir o no es pot escriure</td></tr>
+        <tr><td><code>ParserConfigurationException</code></td><td>No es pot crear el <code>DocumentBuilder</code> amb la configuració demanada</td></tr>
+        <tr><td><code>SAXException</code> / <code>SAXParseException</code></td><td>L'XML està mal format (lectura)</td></tr>
+        <tr><td><code>TransformerException</code></td><td>Error en bolcar l'arbre a la sortida (escriptura)</td></tr>
+      </tbody>
+    </table>
+    <div class="box box-warn">
+      <p class="box-title">Compte</p>
+      <p><code>SAXParseException</code> és subclasse de <code>SAXException</code>. Al <code>catch</code>, la més específica ha d'anar primer o el codi no compilarà.</p>
+    </div>
+    <div class="box box-tip">
+      <p class="box-title">Recorda</p>
+      <p>DOM carrega tot el document a memòria. Va bé per a fitxers petits o mitjans. Per a fitxers molt grans és més adequat SAX, que llegeix seqüencialment sense guardar-ho tot.</p>
+    </div>
+
+    <span id="exercicis" class="section-anchor"></span>
+    <h2>8. Exercicis</h2>
+    <p>
+      Modifica <code>XMLToAlumnes</code> perquè el mètode <code>recorrer</code> <strong>escrigui en un fitxer de text pla</strong> en comptes de mostrar el resultat per pantalla.
+    </p>
+    <span id="exercicis-1" class="section-anchor"></span>
+    <h3>8.1 Part 1: la mateixa sortida, a fitxer</h3>
+    <p>
+      Genera un fitxer <code>alumnes_arbre.txt</code> amb exactament el mateix contingut que ara surt per pantalla (sagnat i línies separadores inclosos).
+    </p>
+    <p>
+      Requisits:
+    </p>
+    <ul>
+      <li>El fitxer de sortida ha de ser un <code>Path</code> i s'ha d'obrir amb <code>Files.newBufferedWriter(...)</code> en UTF-8.</li>
+      <li>El fitxer s'ha d'obrir <strong>una sola vegada</strong>, al <code>main</code>, dins d'un <em>try-with-resources</em>. No es pot obrir dins de <code>recorrer</code>.</li>
+      <li><code>recorrer</code> ha de rebre el <code>BufferedWriter</code> com a paràmetre.</li>
+      <li>No pot quedar cap <code>System.out.println</code> dins de <code>recorrer</code>.</li>
+    </ul>
+    <p>
+      <strong>Pistes:</strong>
+    </p>
+    <ul>
+      <li><code>BufferedWriter.write(...)</code> llança <code>IOException</code>. Com que és una excepció comprovada, <code>recorrer</code> haurà de declarar <code>throws IOException</code>. Pensa per què això no és cap problema encara que el mètode sigui recursiu.</li>
+      <li>Per fer el salt de línia, fes servir <code>newLine()</code>.</li>
+    </ul>
+    <span id="exercicis-2" class="section-anchor"></span>
+    <h3>8.2 Part 2: tornar al fitxer pla original</h3>
+    <p>
+      Genera un fitxer <code>alumnes_sortida.txt</code> amb el <strong>mateix format</strong> que <code>alumnes.txt</code>: un alumne per línia, amb els camps separats per <code>;</code>:
+    </p>
+    <div class="code-wrap">
+      <div class="code-header">
+        <span class="filename">alumnes_sortida.txt</span>
+        <span class="lang-badge lang-dto">Text</span>
+      </div>
+      <pre>1;Anna;Puig Serra;19;8.5
+2;Marc;Vidal Roca;20;6.0</pre>
+    </div>
+    <p>
+      Requisits:
+    </p>
+    <ul>
+      <li>El programa no pot contenir el nom de cap etiqueta (<code>alumne</code>, <code>nom</code>...). Ha de funcionar per a qualsevol XML amb la mateixa forma: arrel → registres → camps.</li>
+      <li>Els atributs d'un registre van al principi de la línia, abans dels camps.</li>
+    </ul>
+    <p>
+      <strong>Pistes:</strong>
+    </p>
+    <ul>
+      <li>Ara no pots escriure res fins que no hagis visitat <strong>tots</strong> els camps d'un registre. Necessitaràs anar acumulant els valors (per exemple, en una <code>List&lt;String&gt;</code>) i escriure la línia quan acabis el registre.</li>
+      <li>Pensa a quin <code>nivell</code> es troben els registres i a quin els camps.</li>
+      <li><code>String.join(";", llista)</code> uneix els elements d'una llista amb el separador que indiquis.</li>
+    </ul>
+
+    <span id="avaluacio" class="section-anchor"></span>
+    <h2>9. Criteris d'avaluació</h2>
+    <table>
+      <thead>
+        <tr><th>Criteri d'avaluació</th><th>Apartat</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>CA 1.1 — Utilitza classes per a la gestió de fitxers i directoris</td><td>4, 5, 6 (<code>Path</code>, <code>Files</code>)</td></tr>
+        <tr><td>CA 1.2 — Valora els avantatges i els inconvenients de les diferents formes d'accés</td><td>3, 5 i 6 (accés directe o recorregut genèric), 7 (DOM o SAX)</td></tr>
+        <tr><td>CA 1.3 — Utilitza classes per recuperar informació emmagatzemada en fitxers</td><td>5, 6</td></tr>
+        <tr><td>CA 1.4 — Utilitza classes per emmagatzemar informació en fitxers</td><td>4, 8</td></tr>
+        <tr><td>CA 1.5 — Utilitza classes per realitzar conversions entre diferents formats de fitxers</td><td>3, 4, 8.2</td></tr>
+        <tr><td>CA 1.6 — Preveu i gestiona les excepcions</td><td>7</td></tr>
+      </tbody>
+    </table>
+
+    <div style="height: 60px;"></div>
+</main>
+</div>
+<script>
+  // Highlight sidebar link on scroll, and keep it visible inside the sidebar
+  const anchors = document.querySelectorAll('.section-anchor');
+  const navLinks = document.querySelectorAll('nav.sidebar a');
+
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const id = entry.target.id;
+        navLinks.forEach(a => {
+          const isActive = a.getAttribute('href') === '#' + id;
+          const wasActive = a.classList.contains('active');
+          a.classList.toggle('active', isActive);
+          // si l'enllaç passa a actiu i queda fora de la zona visible del
+          // menú lateral, el desplacem perquè quedi sempre a la vista
+          if (isActive && !wasActive) {
+            a.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+          }
+        });
+      }
+    });
+  }, { rootMargin: '-80px 0px -70% 0px' });
+
+  anchors.forEach(a => observer.observe(a));
+</script>
+
+<!-- ══════════════════════════════════════
+     MERMAID — carregat des d'un CDN i
+     inicialitzat/executat manualment (sense
+     startOnLoad), tal com defineix l'apunt .md
+═══════════════════════════════════════ -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js"></script>
+<script>
+  // Tema fet a mida perquè els diagrames comparteixin el fons fosc de la
+  // pàgina i les línies/fletxes es dibuixin en blanc (alt contrast). Els
+  // colors de les caixes (classDef del propi .md) es mantenen intactes.
+  mermaid.initialize({
+    startOnLoad: false,
+    securityLevel: 'loose',
+    theme: 'base',
+    fontFamily: "Inter, 'Segoe UI', sans-serif",
+    themeVariables: {
+      background:          '#12151f',
+      mainBkg:              '#1a1d27',
+      primaryColor:         '#1a1d27',
+      primaryTextColor:     '#e2e6f0',
+      primaryBorderColor:   '#2e3248',
+      secondaryColor:       '#222636',
+      secondaryTextColor:   '#e2e6f0',
+      secondaryBorderColor: '#2e3248',
+      tertiaryColor:        '#1a1d27',
+      tertiaryTextColor:    '#e2e6f0',
+      tertiaryBorderColor:  '#2e3248',
+      lineColor:            '#ffffff',
+      defaultLinkColor:     '#ffffff',
+      textColor:            '#e2e6f0',
+      titleColor:           '#e2e6f0',
+      nodeTextColor:        '#e2e6f0',
+      edgeLabelBackground:  '#12151f',
+      clusterBkg:           '#1a1d27',
+      clusterBorder:        '#4a4f6a',
+      /* seqüència */
+      actorBkg:             '#1a1d27',
+      actorBorder:          '#4a4f6a',
+      actorTextColor:       '#e2e6f0',
+      actorLineColor:       '#ffffff',
+      signalColor:          '#ffffff',
+      signalTextColor:      '#e2e6f0',
+      labelBoxBkgColor:     '#1a1d27',
+      labelBoxBorderColor:  '#4a4f6a',
+      labelTextColor:       '#e2e6f0',
+      loopTextColor:        '#e2e6f0',
+      noteBkgColor:         '#222636',
+      noteBorderColor:      '#4a4f6a',
+      noteTextColor:        '#e2e6f0',
+      activationBkgColor:   '#222636',
+      activationBorderColor:'#4a4f6a',
+      sequenceNumberColor:  '#0f1117'
+    },
+    flowchart:  { useMaxWidth: false, htmlLabels: true, padding: 16 },
+    sequence:   { useMaxWidth: false, actorFontSize: 15, messageFontSize: 15, noteFontSize: 14 }
+  });
+
+  mermaid.run({ querySelector: '.mermaid' });
+</script>
+
+</body>
+</html>
