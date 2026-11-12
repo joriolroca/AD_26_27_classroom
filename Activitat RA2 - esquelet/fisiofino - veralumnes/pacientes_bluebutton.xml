@@ -1,0 +1,424 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Varios documentos clínicos agrupados en un único fichero.
+  ATENCIÓN: <ClinicalDocuments> NO forma parte del estándar HL7 CDA.
+  Es un envoltorio propio para la práctica. En el estándar, cada
+  <ClinicalDocument> es un documento independiente de un solo paciente.
+  Formato simplificado, inspirado en Blue Button+ / C-CDA. Datos ficticios.
+-->
+<ClinicalDocuments>
+
+  <!-- ===================== Paciente 1 ===================== -->
+  <ClinicalDocument xmlns="urn:hl7-org:v3">
+    <templateId root="2.16.840.1.113883.10.20.22.1.2"/>
+    <id root="2.16.840.1.113883.19.5.99999.1" extension="DOC-2026-000123"/>
+    <title>Resumen de salud del paciente</title>
+    <effectiveTime value="20261023120000+0200"/>
+
+    <recordTarget>
+      <patientRole>
+        <id root="2.16.840.1.113883.19.5" extension="PAC-000456"/>
+        <id root="2.16.724.4.41" extension="MASO850314001"/>
+        <addr use="HP">
+          <streetAddressLine>Carrer de l'Exemple, 12, 3r 1a</streetAddressLine>
+          <city>Barcelona</city>
+          <postalCode>08001</postalCode>
+          <country>ES</country>
+        </addr>
+        <telecom use="HP" value="tel:+34-600-000-000"/>
+        <telecom value="mailto:laura.martinez@example.com"/>
+        <patient>
+          <name>
+            <given>Laura</given>
+            <family>Exemple Roca</family>
+          </name>
+          <dni>88999121H</dni>
+          <administrativeGenderCode code="F" codeSystem="2.16.840.1.113883.5.1"/>
+          <birthTime value="19850314"/>
+        </patient>
+      </patientRole>
+    </recordTarget>
+
+    <component>
+      <structuredBody>
+        <component>
+          <section>
+            <code code="11450-4" codeSystem="2.16.840.1.113883.6.1" displayName="Problem list"/>
+            <title>Problemas</title>
+            <entry>
+              <problem>
+                <code code="38341003" codeSystem="SNOMED-CT">Hipertensión arterial</code>
+                <onset value="20210601"/>
+                <status>Activo</status>
+                <treatments>
+                  <treatment>
+                    <medication code="C09AA02" codeSystem="ATC">Enalapril</medication>
+                    <dose value="10" unit="mg"/>
+                    <frequency>Cada 24 h</frequency>
+                    <startDate value="20210601"/>
+                  </treatment>
+                </treatments>
+              </problem>
+            </entry>
+            <entry>
+              <problem>
+                <code code="195967001" codeSystem="SNOMED-CT">Asma</code>
+                <onset value="19990915"/>
+                <status>Controlado</status>
+                <treatments>
+                  <treatment>
+                    <medication code="R03BA02" codeSystem="ATC">Budesonida inhalada</medication>
+                    <dose value="200" unit="mcg"/>
+                    <frequency>Cada 12 h</frequency>
+                    <startDate value="19990915"/>
+                  </treatment>
+                  <treatment>
+                    <medication code="R03AC02" codeSystem="ATC">Salbutamol inhalado</medication>
+                    <dose value="100" unit="mcg"/>
+                    <frequency>A demanda</frequency>
+                    <startDate value="19990915"/>
+                  </treatment>
+                </treatments>
+              </problem>
+            </entry>
+          </section>
+        </component>
+      </structuredBody>
+    </component>
+  </ClinicalDocument>
+
+  <!-- ===================== Paciente 2 ===================== -->
+  <ClinicalDocument xmlns="urn:hl7-org:v3">
+    <templateId root="2.16.840.1.113883.10.20.22.1.2"/>
+    <id root="2.16.840.1.113883.19.5.99999.1" extension="DOC-2026-000124"/>
+    <title>Resumen de salud del paciente</title>
+    <effectiveTime value="20261023123000+0200"/>
+
+    <recordTarget>
+      <patientRole>
+        <id root="2.16.840.1.113883.19.5" extension="PAC-000789"/>
+        <addr use="HP">
+          <streetAddressLine>Avinguda Fictícia, 45</streetAddressLine>
+          <city>Girona</city>
+          <postalCode>17001</postalCode>
+          <country>ES</country>
+        </addr>
+        <telecom use="HP" value="tel:+34-611-111-111"/>
+        <telecom value="mailto:pere.vidal@example.com"/>
+        <patient>
+          <name>
+            <given>Pere</given>
+            <family>Lopez Vagafa</family>
+          </name>
+          <dni>44999121S</dni>
+          <administrativeGenderCode code="M" codeSystem="2.16.840.1.113883.5.1"/>
+          <birthTime value="19721102"/>
+        </patient>
+      </patientRole>
+    </recordTarget>
+
+    <component>
+      <structuredBody>
+        <component>
+          <section>
+            <code code="11450-4" codeSystem="2.16.840.1.113883.6.1" displayName="Problem list"/>
+            <title>Problemas</title>
+            <entry>
+              <problem>
+                <code code="38341003" codeSystem="SNOMED-CT">Hipertensión arterial</code>
+                <onset value="20180310"/>
+                <status>Activo</status>
+                <treatments>
+                  <treatment>
+                    <medication code="C09AA02" codeSystem="ATC">Enalapril</medication>
+                    <dose value="10" unit="mg"/>
+                    <frequency>Cada 24 h</frequency>
+                    <startDate value="20180310"/>
+                  </treatment>
+                </treatments>
+              </problem>
+            </entry>
+            <entry>
+              <problem>
+                <code code="44054006" codeSystem="SNOMED-CT">Diabetes mellitus tipo 2</code>
+                <onset value="20200122"/>
+                <status>Activo</status>
+                <treatments>
+                  <treatment>
+                    <medication code="A10BA02" codeSystem="ATC">Metformina</medication>
+                    <dose value="850" unit="mg"/>
+                    <frequency>Cada 12 h</frequency>
+                    <startDate value="20200122"/>
+                  </treatment>
+                </treatments>
+              </problem>
+            </entry>
+            <entry>
+              <problem>
+                <code code="55822004" codeSystem="SNOMED-CT">Hiperlipidemia</code>
+                <onset value="20200122"/>
+                <status>Controlado</status>
+                <treatments>
+                  <treatment>
+                    <medication code="C10AA05" codeSystem="ATC">Atorvastatina</medication>
+                    <dose value="20" unit="mg"/>
+                    <frequency>Cada 24 h</frequency>
+                    <startDate value="20200122"/>
+                  </treatment>
+                </treatments>
+              </problem>
+            </entry>
+          </section>
+        </component>
+      </structuredBody>
+    </component>
+  </ClinicalDocument>
+
+  <!-- ===================== Paciente 3 ===================== -->
+  <ClinicalDocument xmlns="urn:hl7-org:v3">
+    <templateId root="2.16.840.1.113883.10.20.22.1.2"/>
+    <id root="2.16.840.1.113883.19.5.99999.1" extension="DOC-2026-000125"/>
+    <title>Resumen de salud del paciente</title>
+    <effectiveTime value="20261023130000+0200"/>
+
+    <recordTarget>
+      <patientRole>
+        <id root="2.16.840.1.113883.19.5" extension="PAC-000812"/>
+        <addr use="HP">
+          <streetAddressLine>Plaça Imaginària, 3, 1r</streetAddressLine>
+          <city>Tarragona</city>
+          <postalCode>43001</postalCode>
+          <country>ES</country>
+        </addr>
+        <telecom use="HP" value="tel:+34-622-222-222"/>
+        <telecom value="mailto:marta.puig@example.com"/>
+        <patient>
+          <name>
+            <given>Marta</given>
+            <family>Puig Callosa</family>
+          </name>
+          <dni>75999121M</dni>
+          <administrativeGenderCode code="F" codeSystem="2.16.840.1.113883.5.1"/>
+          <birthTime value="19900607"/>
+        </patient>
+      </patientRole>
+    </recordTarget>
+
+    <component>
+      <structuredBody>
+        <component>
+          <section>
+            <code code="11450-4" codeSystem="2.16.840.1.113883.6.1" displayName="Problem list"/>
+            <title>Problemas</title>
+            <entry>
+              <problem>
+                <code code="40930008" codeSystem="SNOMED-CT">Hipotiroidismo</code>
+                <onset value="20150918"/>
+                <status>Controlado</status>
+                <treatments>
+                  <treatment>
+                    <medication code="H03AA01" codeSystem="ATC">Levotiroxina</medication>
+                    <dose value="75" unit="mcg"/>
+                    <frequency>Cada 24 h</frequency>
+                    <startDate value="20150918"/>
+                  </treatment>
+                </treatments>
+              </problem>
+            </entry>
+            <entry>
+              <problem>
+                <code code="82272006" codeSystem="SNOMED-CT">Resfriado común</code>
+                <onset value="20261012"/>
+                <status>Resuelto</status>
+                <treatments>
+                  <treatment>
+                    <medication code="N02BE01" codeSystem="ATC">Paracetamol</medication>
+                    <dose value="1" unit="g"/>
+                    <frequency>Cada 8 h</frequency>
+                    <startDate value="20261012"/>
+                    <endDate value="20261019"/>
+                  </treatment>
+                </treatments>
+              </problem>
+            </entry>
+          </section>
+        </component>
+      </structuredBody>
+    </component>
+  </ClinicalDocument>
+
+  <!-- ===================== Paciente 4 ===================== -->
+  <ClinicalDocument xmlns="urn:hl7-org:v3">
+    <templateId root="2.16.840.1.113883.10.20.22.1.2"/>
+    <id root="2.16.840.1.113883.19.5.99999.1" extension="DOC-2026-000126"/>
+    <title>Resumen de salud del paciente</title>
+    <effectiveTime value="20261023133000+0200"/>
+
+    <recordTarget>
+      <patientRole>
+        <id root="2.16.840.1.113883.19.5" extension="PAC-000903"/>
+        <id root="2.16.724.4.41" extension="SEVA580221002"/>
+        <addr use="HP">
+          <streetAddressLine>Carrer Inventat, 78</streetAddressLine>
+          <city>Lleida</city>
+          <postalCode>25001</postalCode>
+          <country>ES</country>
+        </addr>
+        <telecom use="HP" value="tel:+34-633-333-333"/>
+        <patient>
+          <name>
+            <given>Jordi</given>
+            <family>Serra Valls</family>
+          </name>
+          <dni>46464678M</dni>
+          <administrativeGenderCode code="M" codeSystem="2.16.840.1.113883.5.1"/>
+          <birthTime value="19580221"/>
+        </patient>
+      </patientRole>
+    </recordTarget>
+
+    <component>
+      <structuredBody>
+        <component>
+          <section>
+            <code code="11450-4" codeSystem="2.16.840.1.113883.6.1" displayName="Problem list"/>
+            <title>Problemas</title>
+            <entry>
+              <problem>
+                <!-- Mismo código que en los pacientes 1 y 2, pero con otro nombre -->
+                <code code="38341003" codeSystem="SNOMED-CT">HTA</code>
+                <onset value="20050414"/>
+                <status>Activo</status>
+                <treatments>
+                  <treatment>
+                    <medication code="C09AA02" codeSystem="ATC">Enalapril</medication>
+                    <dose value="10" unit="mg"/>
+                    <frequency>Cada 24 h</frequency>
+                    <startDate value="20050414"/>
+                  </treatment>
+                </treatments>
+              </problem>
+            </entry>
+            <entry>
+              <problem>
+                <code code="44054006" codeSystem="SNOMED-CT">Diabetes mellitus tipo 2</code>
+                <onset value="20120903"/>
+                <status>Activo</status>
+                <treatments>
+                  <treatment>
+                    <medication code="A10BA02" codeSystem="ATC">Metformina</medication>
+                    <dose value="850" unit="mg"/>
+                    <frequency>Cada 12 h</frequency>
+                    <startDate value="20120903"/>
+                  </treatment>
+                </treatments>
+              </problem>
+            </entry>
+            <entry>
+              <problem>
+                <code code="13645005" codeSystem="SNOMED-CT">EPOC</code>
+                <onset value="20190117"/>
+                <status>Activo</status>
+                <treatments>
+                  <treatment>
+                    <medication code="R03BB04" codeSystem="ATC">Tiotropio inhalado</medication>
+                    <dose value="18" unit="mcg"/>
+                    <frequency>Cada 24 h</frequency>
+                    <startDate value="20190117"/>
+                  </treatment>
+                </treatments>
+              </problem>
+            </entry>
+          </section>
+        </component>
+      </structuredBody>
+    </component>
+  </ClinicalDocument>
+    <!-- ===================== Paciente 5 ===================== -->
+  <ClinicalDocument xmlns="urn:hl7-org:v3">
+    <templateId root="2.16.840.1.113883.10.20.22.1.2"/>
+    <id root="2.16.840.1.113883.19.5.99999.1" extension="DOC-2026-000126"/>
+    <title>Resumen de salud del paciente</title>
+    <effectiveTime value="20261023133000+0200"/>
+
+    <recordTarget>
+      <patientRole>
+        <id root="2.16.840.1.113883.19.5" extension="PAC-000903"/>
+        <id root="2.16.724.4.41" extension="SEVA580221002"/>
+        <addr use="HP">
+          <streetAddressLine>Carrer Inventat, 90</streetAddressLine>
+          <city>Lleida</city>
+          <postalCode>25001</postalCode>
+          <country>ES</country>
+        </addr>
+        <telecom use="HP" value="tel:+34-633-333-444"/>
+        <patient>
+          <name>
+            <given>Manel</given>
+            <family>Serra Valls</family>
+          </name>
+          <dni>46464678J</dni>
+          <administrativeGenderCode code="M" codeSystem="2.16.840.1.113883.5.1"/>
+          <birthTime value="19580221"/>
+        </patient>
+      </patientRole>
+    </recordTarget>
+
+    <component>
+      <structuredBody>
+        <component>
+          <section>
+            <code code="11450-4" codeSystem="2.16.840.1.113883.6.1" displayName="Problem list"/>
+            <title>Problemas</title>
+            <entry>
+              <problem>
+                <!-- Mismo código que en los pacientes 1 y 2, pero con otro nombre -->
+                <code code="38341003" codeSystem="SNOMED-CT">HTA</code>
+                <onset value="20050414"/>
+                <status>Activo</status>
+                <treatments>
+                  <treatment>
+                    <medication code="C09AA02" codeSystem="ATC">Enalapril</medication>
+                    <dose value="10" unit="mg"/>
+                    <frequency>Cada 24 h</frequency>
+                    <startDate value="20050414"/>
+                  </treatment>
+                </treatments>
+              </problem>
+            </entry>
+            <entry>
+              <problem>
+                <code code="44054006" codeSystem="SNOMED-CT">Diabetes mellitus tipo 2</code>
+                <onset value="20120903"/>
+                <status>Activo</status>
+                <treatments>
+                  <treatment>
+                    <medication code="A10BA02" codeSystem="ATC">Metformina</medication>
+                    <dose value="850" unit="mg"/>
+                    <frequency>Cada 12 h</frequency>
+                    <startDate value="20120903"/>
+                  </treatment>
+                </treatments>
+              </problem>
+            </entry>
+            <entry>
+              <problem>
+                <code code="13645005" codeSystem="SNOMED-CT">EPOC</code>
+                <onset value="20190117"/>
+                <status>Activo</status>
+                <treatments>
+                  <treatment>
+                    <medication code="R03BB04" codeSystem="ATC">Tiotropio inhalado</medication>
+                    <dose value="18" unit="mcg"/>
+                    <frequency>Cada 24 h</frequency>
+                    <startDate value="20190117"/>
+                  </treatment>
+                </treatments>
+              </problem>
+            </entry>
+          </section>
+        </component>
+      </structuredBody>
+    </component>
+  </ClinicalDocument>
+</ClinicalDocuments>
