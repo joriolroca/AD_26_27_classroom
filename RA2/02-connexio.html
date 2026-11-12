@@ -698,66 +698,6 @@ p.<span class="fn">load</span>(<span class="cl">Files</span>.<span class="fn">ne
 
 <span class="cl">String</span> url = p.<span class="fn">getProperty</span>(<span class="str">"db.url"</span>);        <span class="cm">// "jdbc:postgresql://localhost:5432/Iticbanc"</span></pre>
     </div>
-    <p>
-      Amb això ja es pot escriure una classe que centralitza l'obtenció de connexions. <strong>Totes les unitats següents la faran servir</strong>:
-    </p>
-    <div class="code-wrap">
-      <div class="code-header">
-        <span class="filename">ConnexioBD.java</span>
-        <span class="lang-badge lang-java">Java</span>
-      </div>
-      <pre><span class="kw">import</span> java.io.<span class="cl">BufferedReader</span>;
-<span class="kw">import</span> java.io.<span class="cl">IOException</span>;
-<span class="kw">import</span> java.nio.file.<span class="cl">Files</span>;
-<span class="kw">import</span> java.nio.file.<span class="cl">Path</span>;
-<span class="kw">import</span> java.sql.<span class="cl">Connection</span>;
-<span class="kw">import</span> java.sql.<span class="cl">DriverManager</span>;
-<span class="kw">import</span> java.sql.<span class="cl">SQLException</span>;
-<span class="kw">import</span> java.util.<span class="cl">Properties</span>;
-
-<span class="kw">public</span> <span class="kw">final</span> <span class="kw">class</span> <span class="cl">ConnexioBD</span> {
-
-    <span class="kw">private</span> <span class="kw">static</span> <span class="kw">final</span> <span class="cl">Path</span> FITXER_CONFIG =
-            <span class="cl">Path</span>.<span class="fn">of</span>(<span class="str">"src"</span>, <span class="str">"main"</span>, <span class="str">"resources"</span>, <span class="str">"conn.properties"</span>);
-
-    <span class="kw">private</span> <span class="kw">static</span> <span class="kw">final</span> <span class="cl">Properties</span> CONFIG = <span class="fn">carregarConfiguracio</span>();
-
-    <span class="kw">private</span> <span class="fn">ConnexioBD</span>() {
-        <span class="cm">// Classe d'utilitat: no s'instancia</span>
-    }
-
-    <span class="kw">private</span> <span class="kw">static</span> <span class="cl">Properties</span> <span class="fn">carregarConfiguracio</span>() {
-        <span class="cl">Properties</span> p = <span class="kw">new</span> <span class="fn">Properties</span>();
-        <span class="cm">// El lector es declara al try-with-resources perquè es tanqui sol</span>
-        <span class="kw">try</span> (<span class="cl">BufferedReader</span> lector = <span class="cl">Files</span>.<span class="fn">newBufferedReader</span>(FITXER_CONFIG)) {
-            p.<span class="fn">load</span>(lector);
-        } <span class="kw">catch</span> (<span class="cl">IOException</span> e) {
-            <span class="kw">throw</span> <span class="kw">new</span> <span class="fn">IllegalStateException</span>(<span class="str">"No s'ha pogut llegir "</span> + FITXER_CONFIG.<span class="fn">toAbsolutePath</span>(), e);
-        }
-        <span class="kw">return</span> p;
-    }
-
-    <span class="cm">/** Retorna una connexió nova. Qui la demana és responsable de tancar-la. */</span>
-    <span class="kw">public</span> <span class="kw">static</span> <span class="cl">Connection</span> <span class="fn">obtenir</span>() <span class="kw">throws</span> <span class="cl">SQLException</span> {
-        <span class="kw">return</span> <span class="cl">DriverManager</span>.<span class="fn">getConnection</span>(
-                CONFIG.<span class="fn">getProperty</span>(<span class="str">"db.url"</span>),
-                CONFIG.<span class="fn">getProperty</span>(<span class="str">"db.usuari"</span>),
-                CONFIG.<span class="fn">getProperty</span>(<span class="str">"db.contrasenya"</span>));
-    }
-}</pre>
-    </div>
-    <p>
-      Ús:
-    </p>
-    <div class="code-wrap">
-      <div class="code-header">
-        <span class="filename">Java</span>
-        <span class="lang-badge lang-java">Java</span>
-      </div>
-      <pre><span class="kw">try</span> (<span class="cl">Connection</span> con = <span class="cl">ConnexioBD</span>.<span class="fn">obtenir</span>()) {
-    <span class="cl">System</span>.out.<span class="fn">println</span>(<span class="str">"Connectat a "</span> + con.<span class="fn">getMetaData</span>().<span class="fn">getURL</span>());
-}</pre>
-    </div>
     <div class="box box-info">
       <p class="box-title">Nota</p>
     <p>
@@ -848,7 +788,7 @@ flowchart LR
       A JDBC, el pool s'obté a través de la interfície <code>javax.sql.DataSource</code>, que té un mètode <code>getConnection()</code>. El codi que fa servir la connexió <strong>no canvia</strong>: continua cridant <code>close()</code> dins del <em>try-with-resources</em>.
     </p>
     <p>
-      La biblioteca de pool més utilitzada a Java és <strong>HikariCP</strong>. Com a exemple, l'únic canvi seria a <code>ConnexioBD</code>:
+      La biblioteca de pool més utilitzada a Java és <strong>HikariCP</strong>. Com a exemple, aquesta és la configuració mínima:
     </p>
     <div class="code-wrap">
       <div class="code-header">
@@ -888,6 +828,138 @@ config.<span class="fn">setMaximumPoolSize</span>(10);            <span class="c
     <span class="cl">System</span>.out.<span class="fn">println</span>(<span class="str">"Error de base de dades: "</span> + e.<span class="fn">getMessage</span>());
 }
 </pre>
+    </div>
+    <h3>6.1 Una classe de connexió amb HikariCP</h3>
+    <p>
+      Igual que a l'apartat 3, la configuració del pool no s'escriu dins del codi: es llegeix del fitxer <code>conn.properties</code>. Només cal afegir-hi una clau nova amb la mida del pool:
+    </p>
+    <div class="code-wrap">
+      <div class="code-header">
+        <span class="filename">conn.properties</span>
+        <span class="lang-badge lang-props">Properties</span>
+      </div>
+      <pre><span class="cm"># Gestor independent: PostgreSQL al contenidor Docker</span>
+<span class="fn">db.url</span>=<span class="str">jdbc:postgresql://localhost:5432/Iticbanc</span>
+<span class="fn">db.usuari</span>=<span class="str">M06ACTRA2</span>
+<span class="fn">db.contrasenya</span>=<span class="str">ssshhh..itsasecret!</span>
+
+<span class="cm"># Nombre màxim de connexions obertes al pool</span>
+<span class="fn">db.midaPool</span>=<span class="str">5</span></pre>
+    </div>
+    <p>
+      La classe <code>ConnexioPool</code> separa les dues feines en dos mètodes:
+    </p>
+    <ul>
+      <li><code>crearPool()</code> llegeix el fitxer amb <code>Files</code> i <code>BufferedReader</code> i crea el pool. Es crida <strong>una sola vegada</strong>, en arrencar l'aplicació.</li>
+      <li><code>obtenir()</code> demana una connexió al pool ja creat. Es crida <strong>a cada operació</strong>.</li>
+    </ul>
+    <div class="code-wrap">
+      <div class="code-header">
+        <span class="filename">ConnexioPool.java</span>
+        <span class="lang-badge lang-java">Java</span>
+      </div>
+      <pre><span class="kw">import</span> com.zaxxer.hikari.<span class="cl">HikariConfig</span>;
+<span class="kw">import</span> com.zaxxer.hikari.<span class="cl">HikariDataSource</span>;
+
+<span class="kw">import</span> java.io.<span class="cl">BufferedReader</span>;
+<span class="kw">import</span> java.io.<span class="cl">IOException</span>;
+<span class="kw">import</span> java.nio.file.<span class="cl">Files</span>;
+<span class="kw">import</span> java.nio.file.<span class="cl">Path</span>;
+<span class="kw">import</span> java.sql.<span class="cl">Connection</span>;
+<span class="kw">import</span> java.sql.<span class="cl">SQLException</span>;
+<span class="kw">import</span> java.util.<span class="cl">Properties</span>;
+
+<span class="kw">public</span> <span class="kw">final</span> <span class="kw">class</span> <span class="cl">ConnexioPool</span> {
+
+    <span class="kw">private</span> <span class="kw">static</span> <span class="kw">final</span> <span class="cl">Path</span> FITXER_CONFIG =
+            <span class="cl">Path</span>.<span class="fn">of</span>(<span class="str">"src"</span>, <span class="str">"main"</span>, <span class="str">"resources"</span>, <span class="str">"conn.properties"</span>);
+
+    <span class="cm">// Pool únic per a tota l'aplicació. Comença a null: encara no s'ha creat</span>
+    <span class="kw">private</span> <span class="kw">static</span> <span class="cl">HikariDataSource</span> pool = <span class="kw">null</span>;
+
+    <span class="kw">private</span> <span class="fn">ConnexioPool</span>() {
+        <span class="cm">// Classe d'utilitat: no s'instancia</span>
+    }
+
+    <span class="cm">// Llegeix el fitxer conn.properties amb Files i BufferedReader</span>
+    <span class="kw">private</span> <span class="kw">static</span> <span class="cl">Properties</span> <span class="fn">llegirPropietats</span>() <span class="kw">throws</span> <span class="cl">IOException</span> {
+        <span class="cl">Properties</span> p = <span class="kw">new</span> <span class="fn">Properties</span>();
+        <span class="cm">// El lector es declara al try-with-resources perquè es tanqui sol</span>
+        <span class="kw">try</span> (<span class="cl">BufferedReader</span> lector = <span class="cl">Files</span>.<span class="fn">newBufferedReader</span>(FITXER_CONFIG)) {
+            p.<span class="fn">load</span>(lector);                  <span class="cm">// carrega les parelles clau=valor</span>
+        }
+        <span class="kw">return</span> p;
+    }
+
+    <span class="cm">/** Crea el pool a partir de les dades del fitxer. Es crida una sola vegada. */</span>
+    <span class="kw">public</span> <span class="kw">static</span> <span class="kw">void</span> <span class="fn">crearPool</span>() <span class="kw">throws</span> <span class="cl">IOException</span> {
+        <span class="cl">Properties</span> p = <span class="fn">llegirPropietats</span>();
+
+        <span class="cl">HikariConfig</span> config = <span class="kw">new</span> <span class="fn">HikariConfig</span>();
+        config.<span class="fn">setJdbcUrl</span>(p.<span class="fn">getProperty</span>(<span class="str">"db.url"</span>));
+        config.<span class="fn">setUsername</span>(p.<span class="fn">getProperty</span>(<span class="str">"db.usuari"</span>));
+        config.<span class="fn">setPassword</span>(p.<span class="fn">getProperty</span>(<span class="str">"db.contrasenya"</span>));
+        <span class="cm">// Si la clau no hi és, s'agafa 5 per defecte</span>
+        config.<span class="fn">setMaximumPoolSize</span>(
+                <span class="cl">Integer</span>.<span class="fn">parseInt</span>(p.<span class="fn">getProperty</span>(<span class="str">"db.midaPool"</span>, <span class="str">"5"</span>)));
+
+        pool = <span class="kw">new</span> <span class="fn">HikariDataSource</span>(config); <span class="cm">// aquí s'obren les primeres connexions</span>
+    }
+
+    <span class="cm">/** Retorna una connexió del pool. Qui la demana és responsable de tancar-la. */</span>
+    <span class="kw">public</span> <span class="kw">static</span> <span class="cl">Connection</span> <span class="fn">obtenir</span>() <span class="kw">throws</span> <span class="cl">SQLException</span> {
+        <span class="kw">if</span> (pool == <span class="kw">null</span>) {
+            <span class="kw">throw</span> <span class="kw">new</span> <span class="fn">IllegalStateException</span>(<span class="str">"Cal cridar crearPool() abans d'obtenir connexions"</span>);
+        }
+        <span class="kw">return</span> pool.<span class="fn">getConnection</span>();         <span class="cm">// presta una connexió lliure</span>
+    }
+
+    <span class="cm">/** Tanca el pool i totes les seves connexions. Es crida en acabar el programa. */</span>
+    <span class="kw">public</span> <span class="kw">static</span> <span class="kw">void</span> <span class="fn">tancar</span>() {
+        <span class="kw">if</span> (pool != <span class="kw">null</span>) {
+            pool.<span class="fn">close</span>();
+            pool = <span class="kw">null</span>;
+        }
+    }
+}</pre>
+    </div>
+    <p>
+      Ús:
+    </p>
+    <div class="code-wrap">
+      <div class="code-header">
+        <span class="filename">Java</span>
+        <span class="lang-badge lang-java">Java</span>
+      </div>
+      <pre><span class="kw">try</span> {
+    <span class="cl">ConnexioPool</span>.<span class="fn">crearPool</span>();                        <span class="cm">// 1. una sola vegada, en arrencar</span>
+
+    <span class="cm">// 2. a cada operació es demana una connexió i es torna en acabar</span>
+    <span class="kw">try</span> (<span class="cl">Connection</span> con = <span class="cl">ConnexioPool</span>.<span class="fn">obtenir</span>()) {
+        <span class="cl">System</span>.out.<span class="fn">println</span>(<span class="str">"Connectat a "</span> + con.<span class="fn">getMetaData</span>().<span class="fn">getURL</span>());
+    }                                           
+
+} <span class="kw">catch</span> (<span class="cl">IOException</span> e) {                            <span class="cm">// no s'ha pogut llegir conn.properties</span>
+    <span class="cl">System</span>.out.<span class="fn">println</span>(<span class="str">"Error de configuració: "</span> + e.<span class="fn">getMessage</span>());
+} <span class="kw">catch</span> (<span class="cl">PoolInitializationException</span> e) {            <span class="cm">// el pool no ha pogut arrencar</span>
+    <span class="cl">System</span>.out.<span class="fn">println</span>(<span class="str">"No s'ha pogut connectar a la base de dades: "</span> + e.<span class="fn">getMessage</span>());
+} <span class="kw">catch</span> (<span class="cl">SQLException</span> e) {                           <span class="cm">// error en una operació</span>
+    <span class="cl">System</span>.out.<span class="fn">println</span>(<span class="str">"Error de base de dades: "</span> + e.<span class="fn">getMessage</span>());
+} <span class="kw">finally</span> {
+    <span class="cl">ConnexioPool</span>.<span class="fn">tancar</span>();                           <span class="cm">// 3. tanca el pool en acabar</span>
+}</pre>
+    </div>
+    <div class="box box-tip">
+      <p class="box-title">Recorda</p>
+    <p>
+      amb un pool, <code>con.close()</code> no tanca la connexió amb el servidor, sinó que la retorna al pool. Les connexions només es tanquen de veritat amb <code>ConnexioPool.tancar()</code>.
+    </p>
+    </div>
+    <div class="box box-warn">
+      <p class="box-title">Compte</p>
+    <p>
+      si es crida <code>obtenir()</code> sense haver cridat abans <code>crearPool()</code>, el mètode llança una <code>IllegalStateException</code>. Així l'error es detecta de seguida, en lloc d'una <code>NullPointerException</code> difícil d'interpretar.
+    </p>
     </div>
     <table>
       <thead>
