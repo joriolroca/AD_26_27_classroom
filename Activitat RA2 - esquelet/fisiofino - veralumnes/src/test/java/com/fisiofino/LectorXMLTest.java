@@ -142,4 +142,48 @@ class LectorXMLTest {
     assertEquals("88999121H", primeraMalaltia().getDniPacient(),
         "El DNI del pacient s'ha de copiar del <dni> del <recordTarget> anterior");
   }
+
+  // ---------- Tot el fitxer (diversos pacients) ---------- //
+
+  @Test
+  void llegeixTotsElsPacients() throws Exception {
+    List<Pacient> pacients = LectorXML.llegirPacients(Path.of("pacientes_bluebutton.xml"));
+    assertEquals(5, pacients.size(), "Hi ha un pacient per cada <ClinicalDocument>");
+    assertEquals("Pere", pacients.get(1).getGivenName());
+    assertEquals("Manel", pacients.get(4).getGivenName());
+    assertEquals("46464678J", pacients.get(4).getDni());
+  }
+
+  @Test
+  void elsPacientsNoBarregenLesDades() throws Exception {
+    Pacient marta = LectorXML.llegirPacients(Path.of("pacientes_bluebutton.xml")).get(2);
+    assertEquals("Marta", marta.getGivenName());
+    assertEquals("75999121M", marta.getDni());
+    assertEquals(LocalDate.of(1990, 6, 7), marta.getBirthDate());
+    assertEquals("F", marta.getGender());
+  }
+
+  @Test
+  void llegeixTotesLesMalalties() throws Exception {
+    assertEquals(13, malaltiesDelFitxer().size(), "Hi ha una MalaltiaPacient per cada <problem>");
+  }
+
+  @Test
+  void cadaMalaltiaTeElDniDelSeuPacient() throws Exception {
+    List<MalaltiaPacient> malalties = malaltiesDelFitxer();
+    // 2 malalties del pacient 1, 3 del 2, 2 del 3, 3 del 4 i 3 del 5
+    assertEquals("44999121S", malalties.get(2).getDniPacient());
+    assertEquals("75999121M", malalties.get(5).getDniPacient());
+    assertEquals("46464678M", malalties.get(7).getDniPacient());
+    assertEquals("46464678J", malalties.get(10).getDniPacient());
+    assertEquals("46464678J", malalties.get(12).getDniPacient());
+  }
+
+  @Test
+  void llegeixUnaMalaltiaDelTercerPacient() throws Exception {
+    MalaltiaPacient resfriat = malaltiesDelFitxer().get(6);
+    assertEquals("82272006", resfriat.getCode());
+    assertEquals("Resfriado común", resfriat.getName());
+    assertEquals("Resuelto", resfriat.getStatus());
+  }
 }
